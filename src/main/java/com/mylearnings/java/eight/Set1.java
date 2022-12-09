@@ -1,4 +1,4 @@
-package com.java.eight;
+package com.mylearnings.java.eight;
 
 import java.util.Arrays;
 import java.util.HashSet;

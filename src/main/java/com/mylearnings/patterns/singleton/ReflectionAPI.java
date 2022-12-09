@@ -1,4 +1,4 @@
-package com.design.patterns.singleton;
+package com.mylearnings.patterns.singleton;
 
 public class ReflectionAPI {
 
