@@ -1,6 +1,6 @@
-package com.mylearnings;
+package com.mylearnings.java.general;
 
-public class Mainclass {
+public class SwapTwoIntegersWithoutTemp {
 	
 	public static void main(String[] args) {
 		

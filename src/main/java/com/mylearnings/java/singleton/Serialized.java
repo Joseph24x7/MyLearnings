@@ -1,8 +1,10 @@
-package com.mylearnings.patterns.singleton;
+/*package com.mylearnings.java.singleton;
+
+import java.io.*;
 
 public class Serialized {
 
-	/*public static void main(String[] args) {
+	public static void main(String[] args) {
 		try {
 			Singleton instance1 = Singleton.instance;
 			ObjectOutput out = new ObjectOutputStream(new FileOutputStream("file.text"));
@@ -22,11 +24,11 @@ public class Serialized {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-	}*/
+	}
 
 }
 
-/*class Singleton implements Serializable {
+class Singleton implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -38,4 +40,6 @@ public class Serialized {
 	protected Object readResolve() {
 		return instance;
 	}
-}*/
+}
+
+*/

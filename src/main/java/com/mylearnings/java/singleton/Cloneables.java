@@ -1,4 +1,4 @@
-package com.mylearnings.patterns.singleton;
+/*package com.mylearnings.java.singleton;
 
 public class Cloneables {
 
@@ -23,4 +23,4 @@ class Singleton implements Cloneable{
 		throw new CloneNotSupportedException();
 	}
 
-}
+}*/
