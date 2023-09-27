@@ -1,4 +1,4 @@
-package com.mylearnings.java.general;
+package com.mylearnings.java.basicJava;
 
 import lombok.Data;
 
@@ -15,7 +15,7 @@ public class WaysToCreateObject {
         Person clone = (Person) original.clone(); // Creates a cloned object
         System.out.println(clone.hashCode());
 
-        Class<?> clazz = Class.forName("com.mylearnings.java.general.Person");
+        Class<?> clazz = Class.forName("com.mylearnings.java.basicJava.Person");
         Person ref = (Person) clazz.newInstance(); // Reflectively create an object
         System.out.println(ref.hashCode());
 

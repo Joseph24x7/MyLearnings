@@ -1,4 +1,4 @@
-package com.mylearnings.java.general;
+package com.mylearnings.java.basicJava;
 
 import java.util.HashMap;
 import java.util.Map;

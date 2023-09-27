@@ -1,4 +1,4 @@
-package com.mylearnings.java.general;
+package com.mylearnings.java.basicJava;
 
 import lombok.Getter;
 
