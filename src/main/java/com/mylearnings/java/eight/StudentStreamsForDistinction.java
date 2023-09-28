@@ -12,7 +12,10 @@ public class StudentStreamsForDistinction {
 
         List<Student> students = Arrays.asList(new Student("john", 85.0f), new Student("Ajay", 70.0f), new Student("Mani", 85.0f), new Student("Vikram", 60.0f));
 
-        List<Student> student2s = students.stream().filter(s -> s.getMarks() >= 80.0f).map(s -> new Student(s.getName(), s.getMarks(), true)).toList();
+        List<Student> student2s = students.stream().filter(s -> s.getMarks() >= 80.0f).map(s -> {
+            s.setDistinction(true);
+            return s;
+        }).toList();
 
         System.out.println(student2s);
 
