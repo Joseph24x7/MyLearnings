@@ -1,9 +1,12 @@
 package com.mylearnings.java.eight;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Set1 {
+public class Java8Problems {
 
     public static void main(String[] args) {
 
@@ -45,6 +48,30 @@ public class Set1 {
         //Q10 Java 8 Program to Print ten random numbers using forEach?
         new Random().ints().limit(10).forEach(System.out::print);
 
+        //Q11 - sum - average and count
+        System.out.println(myList.stream().mapToInt(i -> i).sum());
+        System.out.println(myList.stream().mapToInt(i -> i).average().orElse(0d));
+        System.out.println(myList.stream().mapToInt(i -> i).count());
+
+        //Q11 - students with distinction
+        List<Student> students = Arrays.asList(new Student("john", 85.0f), new Student("Ajay", 70.0f), new Student("Mani", 85.0f), new Student("Vikram", 60.0f));
+        System.out.println(students.stream().filter(s -> s.getMarks() >= 80.0f).peek(s -> s.setDistinction(true)).toList());
+    }
+
+}
+
+@Data
+@AllArgsConstructor
+class Student {
+
+    private String name;
+    private Float marks;
+    private Boolean distinction;
+
+    public Student(String name, Float marks) {
+        super();
+        this.name = name;
+        this.marks = marks;
     }
 
 }
