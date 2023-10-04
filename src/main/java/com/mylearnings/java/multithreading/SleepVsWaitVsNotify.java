@@ -1,6 +1,6 @@
 package com.mylearnings.java.multithreading;
 
-public class SleepVsWaitVsNotifyVsJoin {
+public class SleepVsWaitVsNotify {
     public static void main(String[] args) throws InterruptedException {
         SharedResource sharedResource = new SharedResource();
 
@@ -22,11 +22,8 @@ public class SleepVsWaitVsNotifyVsJoin {
             }
         });
 
-        producerThread.start();
-        producerThread.join(); // join is used to make the current thread wait until another thread completes its execution.
         consumerThread.start();
-
-
+        producerThread.start();
     }
 }
 
@@ -38,7 +35,7 @@ class SharedResource {
         System.out.println("Producer thread is producing...");
 
         // sleep is a method provided by the Thread class, it makes the current running thread to wait for certain amount of time.
-        Thread.sleep(10000); // Simulate some work
+        Thread.sleep(1000); // Simulate some work
 
         produced = true; // Produce data
 

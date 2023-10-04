@@ -53,7 +53,7 @@ public class WaysToCreateThread {
             }
             return result;
         };
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        ExecutorService executorService = Executors.newFixedThreadPool(2); // Thread Pool concept
         Future<Integer> future = executorService.submit(callableTask);
         try {
             int result = future.get();
