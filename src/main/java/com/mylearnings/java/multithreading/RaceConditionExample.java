@@ -29,8 +29,7 @@ public class RaceConditionExample {
         try {
             depositThread.join(); // joining both threads will not necessarily prevent a race condition, as it will only ensure that the
             withdrawThread.join(); // main thread waits for depositThread and withdrawThread to complete their execution.
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException ignored) {
         }
         System.out.println("Final Balance: " + account.getBalance());
     }

@@ -27,8 +27,7 @@ public class AtomicIntegerAndThreadSafety {
         try {
             thread1.join();
             thread2.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException ignored) {
         }
 
         System.out.println("Final Counter value: " + counter.get()); // Thread-safe retrieval

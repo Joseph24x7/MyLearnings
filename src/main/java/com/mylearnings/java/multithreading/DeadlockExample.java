@@ -90,8 +90,7 @@ class WaitDeadlockExample {
             synchronized (lock) {
                 try {
                     lock.wait(); // Thread 1 waits for a notification
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException ignored) {
                 }
             }
         });
@@ -117,16 +116,14 @@ class JoinDeadlockExample {
                 Thread threadA = new Thread(() -> {
                     try {
                         Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    } catch (InterruptedException ignored) {
                     }
                 });
 
                 threadA.start();
                 threadA.join(); // Thread 1 waits for ThreadA
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ignored) {
             }
         });
 
@@ -135,16 +132,14 @@ class JoinDeadlockExample {
                 Thread threadB = new Thread(() -> {
                     try {
                         Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    } catch (InterruptedException ignored) {
                     }
                 });
 
                 threadB.start();
                 threadB.join(); // Thread 2 waits for ThreadB
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ignored) {
             }
         });
 
@@ -158,16 +153,14 @@ class AvoidJoinDeadlockExample {
         Thread threadA = new Thread(() -> {
             try {
                 Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ignored) {
             }
         });
 
         Thread threadB = new Thread(() -> {
             try {
                 Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ignored) {
             }
         });
 
@@ -175,8 +168,7 @@ class AvoidJoinDeadlockExample {
             threadA.start();
             try {
                 threadA.join(); // Thread 1 waits for ThreadA
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ignored) {
             }
         });
 
@@ -184,8 +176,7 @@ class AvoidJoinDeadlockExample {
             threadB.start();
             try {
                 threadB.join(); // Thread 2 waits for ThreadB
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ignored) {
             }
         });
 

@@ -15,14 +15,14 @@ public class WaysToCreateThread {
         // This approach is suitable when you want to separate the task logic from the thread management.
         // It's often used when you have multiple tasks that can share the same thread.
         RunnableDemo runnableDemo = new RunnableDemo();
-        Thread thread=new Thread(runnableDemo);
+        Thread thread = new Thread(runnableDemo);
         thread.setName("RunnableDemo");
         thread.start();
 
         // Lambda expressions are a concise way to define small, one-off tasks without the need to define a separate class.
         Thread lambdaThread = new Thread(() -> {
             for (int i = 0; i < 100; i++) {
-                System.out.println("This is "+Thread.currentThread().getName()+" : "+i);
+                System.out.println("This is " + Thread.currentThread().getName() + " : " + i);
             }
         });
         lambdaThread.setName("MyLambdaThread");
@@ -45,21 +45,19 @@ public class WaysToCreateThread {
 
         // Callable and ExecutorService are used when you need to execute a task that returns a result or throws an exception.
         // It's often used for tasks that require more control over thread management, resource allocation, and result handling.
-        Callable<Integer> callableTask = () -> {
+        ExecutorService executorService = Executors.newFixedThreadPool(2); // Thread Pool concept
+        Future<Integer> future = executorService.submit(() -> {
             int result = 0;
             for (int i = 0; i < 100; i++) {
                 System.out.println("This is " + Thread.currentThread().getName() + " : " + i);
                 result += i;
             }
             return result;
-        };
-        ExecutorService executorService = Executors.newFixedThreadPool(2); // Thread Pool concept
-        Future<Integer> future = executorService.submit(callableTask);
+        });
         try {
             int result = future.get();
             System.out.println("Result: " + result);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         } finally {
             executorService.shutdown();
         }
@@ -68,12 +66,12 @@ public class WaysToCreateThread {
 
 }
 
-class ThreadDemo extends Thread{
+class ThreadDemo extends Thread {
 
     @Override
     public void run() {
-        for(int i=0;i<100;i++) {
-            System.out.println("This is "+Thread.currentThread().getName()+" : "+i);
+        for (int i = 0; i < 100; i++) {
+            System.out.println("This is " + Thread.currentThread().getName() + " : " + i);
         }
     }
 
@@ -83,8 +81,8 @@ class RunnableDemo implements Runnable {
 
     @Override
     public void run() {
-        for(int i=0;i<100;i++) {
-            System.out.println("This is "+Thread.currentThread().getName()+" : "+i);
+        for (int i = 0; i < 100; i++) {
+            System.out.println("This is " + Thread.currentThread().getName() + " : " + i);
         }
     }
 
