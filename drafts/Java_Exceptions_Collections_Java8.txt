@@ -304,3 +304,26 @@ public class MyService {
 	 - Example: Predicate<Integer> isEven = num -> num % 2 == 0;
 	 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+23. stream() vs parallelStream():
+
+stream(): This method returns a sequential stream, which means that the operations performed on the stream are executed in a single thread, one after the other.
+
+parallelStream(): This method returns a parallel stream, which means that the operations performed on the stream can be executed concurrently in multiple threads. It takes advantage of multi-core processors to potentially speed up the processing of elements in a collection.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+24. System.out.println()
+
+System - final class
+public static final PrintStream out; - member of System class
+println() - method of PrintStream class
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+25. Var Args vs Arrays:
+
+	- We can pass array and arguments to var arguments, as arguments are treated as an array.
+	- But array accepts only array, as array is of fixed size.
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------

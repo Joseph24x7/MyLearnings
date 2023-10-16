@@ -1,0 +1,217 @@
+1. Index:
+	- Indexes help the database system quickly locate the rows that match the search criteria in a query, reducing the need for full table scans.
+	- ex: CREATE INDEX idx_employee_id ON Employees (EmployeeID);
+
+========================================================================================================================================================
+
+2. Trigger:
+	- Triggers are defined to respond to specific events, which are typically related to data changes in a database.
+	- Common events include "AFTER INSERT," "AFTER UPDATE," and "AFTER DELETE."
+	- ex: CREATE TRIGGER employee_insert_trigger
+			AFTER INSERT ON Employee
+			FOR EACH ROW
+			BEGIN
+				INSERT INTO EmployeeHistory (EmployeeID, Action, ActionTimestamp)
+				VALUES (NEW.EmployeeID, 'INSERT', NOW());
+			END;
+
+========================================================================================================================================================
+
+3. primary key vs foreign key vs composite primary key:
+
+	- A primary key is a column or a set of columns in a database table that uniquely identifies each row in that table.
+	- A foreign key is a column or a set of columns in a table that is used to establish a link between data in two related tables.
+	- A composite primary key is a primary key that consists of two or more columns in a database table.
+
+========================================================================================================================================================
+
+4. views vs tables vs Synonyms:
+
+	- Views are read-only and don't store data themselves.
+	- Tables used for insert, update, delete, and query data directly from tables.
+
+========================================================================================================================================================
+
+5. Types of Relationship:
+
+	1) one to one:
+		- Table: Person ( personid, name, passportid ) , Passport ( passportid, locstion, personid )
+		- Entity: Person ( personid, name, passport ) , Passport ( passportid, locstion, person )
+	
+	2) One to many:
+		- Table: Author ( authorId, name ) , Book ( bookId, title, authorId )
+		- Entity: PAuthor ( authorId, name, list<books> ) , Book ( bookId, title, author )
+	
+	3) many to many:
+		- Table: Students  ( studentsId, name ) , Courses  ( coursesId, name ) , Student_Course ( studentsId, coursesId )
+		- Entity: Students  ( studentsId, name, list<courses> ) , Courses  ( coursesId, name, list<students> ) , Student_Course ( studentsId, coursesId )
+
+@JoinColumn - for one to one and one to many
+@JoinTable - for many to many
+
+========================================================================================================================================================
+
+6. DML vs DDL vs DCL vs DQL:
+
+	- Data Manipulation Language (DML) -- INSERT, UPDATE, DELETE.
+	- Data Definition Language (DDL) -- CREATE, ALTER, DROP.
+	- Data Control Language (DCL) -- GRANT and REVOKE.
+	- Data Query Language (DQL) -- SELECT
+
+========================================================================================================================================================
+
+7. Lifecycle of an entity in hibernate. Methods used in this lifecycle process:
+
+	- Transient State: it's just been instantiated (new Entity ()) and is not associated with any Hibernate Session.
+	- Persistent State: it is associated with a Hibernate Session, and any changes made to the entity will be synchronized with the database during a transaction.
+		- session.save(entity) -- make a transient entity persistent and save it to the database.
+		- session.update(entity) -- Used to make a detached entity persistent.
+		- session.saveOrUpdate(entity) -- Save or update the entity, depending on whether it's transient or detached.
+		- session.merge(entity) -- Merge a detached entity into the session.
+	- Detached State: was once associated with a Hibernate Session but is no longer. 
+		- session.evict(entity) -- Evict a persistent entity from the session, making it detached.
+		- session.clear() -- Clear the session, detaching all entities associated with it.
+	- Removed State: it was previously persistent, but it has been marked for deletion.
+		- session.delete(entity) -- will remove the entity from the database upon transaction commit.
+		
+========================================================================================================================================================
+
+8. flush() vs evict() vs clear() vs close():
+
+	- session.flush();  method is used to forces pending changes to be written to the database. 
+	- session.evict(entity); method is used to detach a specific entity from the Hibernate Session.
+	- session.clear(); method is used to detach all entities from the current session, effectively clearing the session's first-level cache.
+	- session.close(); will close the session and session will be no longer in use so as the managed entities in that session. 
+	
+========================================================================================================================================================
+
+9. get() vs load():
+	
+	- get() uses eager loading, Hibernate immediately retrieves the database record.
+	- get() returns null if object is not found.
+	
+	- get() uses lazy loading, it returns a proxy object, and the actual database retrieval happens when you access a property or method on the proxy object.
+	- load() throws ObjectNotFoundException if object is not found.
+
+========================================================================================================================================================
+
+10. save() vs update() vs saveorupdate() vs merge():
+
+	- save() method is used to make a transient entity persistent and save it to the database.
+	- update() method is used to make a detached entity persistent and update its state in the database. 
+	- saveorupdate() is used to Save or update the entity, depending on whether it's transient or detached.
+	- merge() copies the state of the detached entity to a new managed entity and returns the managed entity.
+
+========================================================================================================================================================
+
+11. First-Level Cache(default):
+		- Session-Level Cache.
+		- When the session is closed or cleared, the first-level cache is destroyed.
+		- It is not designed for concurrent processes and it is not thread safe.
+		
+	Second-Level Cache
+		- Session Factory-Level Cache.
+		- It is designed for concurrent processes and it is thread safe.
+		- to enable add this to properties file: spring.jpa.hibernate.cache.use_second_level_cache=true
+		
+========================================================================================================================================================
+
+12. JPA vs Hibernate vs Spring Data JPA: 
+
+	- JPA is a Specification.
+	- Hibernate is the implementations.
+	- Spring Data JPA has been built on JPA/Hibernate to simplify the process.
+
+========================================================================================================================================================
+
+13. Advantages of Hibernate:
+	- Object-Oriented(ORM) Framework is itself an advantage
+	- Hibernate Query Language (HQL)
+	- Dynamic queries using criteria
+	- Supports lazy loading for improved performance
+	- Caching
+	- Auto DDL creation
+
+========================================================================================================================================================
+
+14. Important hibernate properties:
+	
+	- hibernate.show_sql: true/false -> Enables or disables the display of SQL statements in the console.
+	- hibernate.hbm2ddl.auto: create/update/validate -> Defines how Hibernate should handle schema generation.
+	- hibernate.cache.use_second_level_cache: true/false -> Enables or disables the second-level cache.
+	- hibernate.c3p0.min_size & hibernate.c3p0.max_size -> Minimum and Maximum number of database connections in the connection pool 
+
+========================================================================================================================================================
+
+15. hibernate.hbm2ddl.auto: create/update/validate:
+
+	- none(default) -- Hibernate will not create or update or validate the database schema based on your entity mappings.
+	- create -- If the database already exists, it will be dropped and recreated.
+	- update -- It will add new tables and columns for newly mapped entities and fields, but it won't drop or modify existing tables. 
+	- validate -- it checks whether the mappings are consistent with the database structure. If there are inconsistencies, you'll receive errors or warnings.
+
+========================================================================================================================================================
+
+16. Fetch Type:
+
+	- fetch = FetchType.EAGER -> It is Default for @ManyToOne and @OneToOne.
+	- fetch = FetchType.LAZY -> It is Default for @OneToMany.
+		Author author = session.get(Author.class, authorId); // Load the author.
+		List<Book> books = author.getBooks(); // Load the books associated with the author only when it is accessed.
+	- Note: Writing HQL/JPQL may override the lazy loading.
+	
+========================================================================================================================================================
+
+17. N+1 problem in hibernate:
+
+	- Suppose you have a list of authors and their books:
+		-> You fetch a list of authors (N authors) from the database.
+		-> When you access the books for each author, Hibernate generates a separate SQL query to load the books for each author (1 query per author).
+		-> In this scenario, you end up with N authors and N SQL queries to fetch their books, resulting in a total of N+1 queries.
+		
+		
+	- Solutions:
+		-> Eager Loading
+		-> Fetch using join query
+		-> batch fetching
+
+========================================================================================================================================================
+
+========================================================================================================================================================
+
+========================================================================================================================================================
+
+========================================================================================================================================================
+
+========================================================================================================================================================
+
+========================================================================================================================================================
+
+========================================================================================================================================================
+
+========================================================================================================================================================
+
+========================================================================================================================================================
+
+========================================================================================================================================================
+
+========================================================================================================================================================
+
+
+
+7. SQL vs NoSQL:
+
+	- Data Model: NoSQL databases allows data models like document, key-value, wide-column, or graph, allowing for more varied data storage.
+	- Scalability: SQL is vertical scaling ( CPU, RAM, or storage ), whereas NoSQL is horizontal scaling ( multiple servers or nodes ).
+	- ACID vs. BASE: SQL follow the ACID (Atomicity, Consistency, Isolation, Durability) , where NOSQL - BASE (Basically Available, Soft state, Eventually consistent) 
+	- Rollback: SQL supports rollback, whereas NoSQL doesn't.
+========================================================================================================================================================
+
+9) any exprience in writing stored procedure. how to execute stored procedure via hibernate methods.
+
+12) Spring transaction management @Transactional
+13) use of cascade
+14) use of propogation
+
+21) Batch Fetching & @BatchSize(size = 10) // Load 10 books at once
+22) pagination

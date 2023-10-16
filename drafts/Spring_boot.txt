@@ -1,0 +1,182 @@
+1. Bean scope - explain each. which is the default bean scope?
+
+- Singleton (default): Spring container creates and manages only one instance of the bean throughout the application's lifecycle.
+- Prototype: In Prototype scope, a new instance of the bean is created every time it's requested from the Spring container.
+- Request: In Request scope, a new bean instance is created for every HTTP request in a web application.
+- Session: In Session scope, a new bean instance is created for each HTTP session in a web application.
+- Global Session: It's shared across all users and sessions within the application.
+
+========================================================================================================================================================
+
+2. Can we prototype bean created inside singleton bean?
+
+- yes possible, but only one instance of prototype bean will be created overall and we lose the behavior of prototype behavior
+
+========================================================================================================================================================
+
+3. bean life cycle:
+
+ - container started
+ - bean instantiated ( @component )
+ - dependencies injected ( @Autowired )
+ - init() method / @postcontruct 
+ - actual process 
+ - destroy() / @predestroy 
+
+========================================================================================================================================================
+
+4. different ways to inject beans in springboot / spring:
+
+ - Constructor Injection ( @RequiredArgsConstructor )
+ - Setter Injection 
+ - Field Injection (@Autowired)
+ - Method Injection ( @Bean )
+ - XML injection
+
+========================================================================================================================================================
+5. Constructor Injection vs Field Injection(@Autowired vs @RequiredArgsConstructor):
+
+Immutability: Constructor injection enforces immutability because once the object is constructed, its dependencies cannot be changed. Field injection allows for changes to injected dependencies after the object is created.
+Testing: Constructor injection is easier to work with in unit testing because you can create instances with specific dependencies easily. Field injection can be less convenient for testing because you need to rely on reflection or other methods to set dependencies directly on fields.
+
+========================================================================================================================================================
+
+6. BeanFactory(lazy) vs ApplicationContext(eager):
+
+ - Both are used to create beans
+ - BF lazy loads the beans whenever it is required,
+ - AC is eager loaded.
+
+
+========================================================================================================================================================
+
+7. 1xx, 2xx, 3xx, 4xx, 5xx - commonly used for?
+
+1xx - Informational
+2xx - Success
+3xx - Redirect
+4xx - Client Error
+5xx - Server Error
+
+========================================================================================================================================================
+
+8. PATCH, OPTIONS in http methods usage?
+
+- The PATCH method is used to apply partial modifications to a resource. For example modifying only the status of the employee.
+- The OPTIONS method is used to request information about HTTP methods, headers, or other features are supported by a specific resource or server.
+
+========================================================================================================================================================
+
+9. Webclient vs Rest template vs Httpclient vs Rest Client - advantages and disadvantages
+
+ - WebClient -> Synchronous and Asynchronous Communication. It is part of Spring WebFlux.
+ - Rest Template -> Only for Synchronous communication
+ - Http Client -> Synchronous and Asynchronous Communication. It is part of Java Library.
+
+========================================================================================================================================================
+
+10. Important features and Advantages of Spring boot:
+
+ - Version management by using parent pom
+ - Auto configurations
+ - Embedded server
+ - Easy to integration
+ - One of the best Framework provider to implement microservices
+
+========================================================================================================================================================
+
+11. Database connection:
+
+ - how to configure multiple database to be connected at the same time:
+	- create multiple data source, session factory, transaction manager using @Bean and @Qualifier in configuration classes
+	- In the entity scan we can specify and differentiate what all entities belongs to Data source 1 & Data source 2.
+
+ - how to configure multiple database in which one will be a primary one:
+	- by using @Primary annotation
+	- If primary bean is not available, it will go for a fallback option for the secondary bean
+
+ - how to use different database per environment:
+	- @Profile for environment
+	
+ - how to use different database on shift basis (like 12am - 12pm one database, 12pm -12am different database):
+	- @Conditional for property
+
+
+========================================================================================================================================================
+
+12. how can we set context-path for our complete project:
+
+ - server.servlet.context-path=/your-context-path
+
+========================================================================================================================================================
+
+13. General dependencies used in your recent project
+
+ - web
+ - test
+ - actuators
+ - devtools
+ - jpa
+ - webflux
+ - redis
+ - lombok
+ - mapstruct
+ - testcontainers
+
+========================================================================================================================================================
+
+14. Annotations specific to Spring boot:
+
+ - @SpringBootApplication
+ - @SpringBootTest
+ - @ConditionalOnProperty / @ConditionalOnClass
+ - @EnableAutoConfiguration
+ - @ComponentScan
+ - @Profile
+
+========================================================================================================================================================
+
+15. Use of @Profile, @Conditional, @primary:
+
+ - @Profile annotation is used to specify which beans should be loaded based on the active profiles. eg: @Profile("dev") , @Profile("default")
+ - @Conditional annotation allows you to conditionally create or exclude beans based on custom conditions. eg: @Conditional(MyCustomCondition.class)
+ - @Primary annotation is used to indicate the primary bean to be injected when there are multiple beans of the same type. If primary bean is not available, it will go for a fallback option for the secondary bean
+
+========================================================================================================================================================
+
+16. What is JAR, WAR, EAR:
+
+ - JAR (Java Archive) files can be run as standalone applications, used as libraries, or used in web applications. eg: Lombok is a JAR.
+ - WAR (Web Archive) files are used for packaging web applications.
+ - EAR (Enterprise Archive) file used for  deploying complex enterprise applications that consist of multiple components such as multiple WARs & JARs.. Mainly used in packaging and deploying monolithic application into Jboss, WildFly Servers..
+
+========================================================================================================================================================
+
+17. Advantages of Microservices vs Monolithic architecture:
+
+ - Development Teams can work on individual services, enabling specialization.
+ - Can scale individual services independently, based on demand.
+ - Independent service deployment, allowing faster releases.
+ - Isolated failures in one service do not affect the entire system.
+ - Each service can use the most appropriate technology for its purpose.
+ - Easier to set up failover mechanisms for specific services.
+
+========================================================================================================================================================
+
+18. How to write our own Auto Configuring classes and load them:
+
+ - by using @Configuration and optional @Conditional(MyCondition.class). ex: WebConfig.java 
+ - @EnableAutoConfiguration(exclude = WebConfig.class)
+ 
+========================================================================================================================================================
+
+19. How can we deploy a war based spring boot application in a traditional way? 
+
+The ServletInitializer class you found in your Spring Boot application is used when you want to deploy your Spring Boot application as a traditional web application (WAR file) in a Servlet container, such as Apache Tomcat or Jboss. By extending SpringBootServletInitializer, you are providing a configuration that allows your Spring Boot application to run as a servlet-based web application.
+
+========================================================================================================================================================
+
+19. @Qualifier vs @Resource
+20. bean by type and bean by name
+
+========================================================================================================================================================

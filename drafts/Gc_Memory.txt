@@ -1,0 +1,153 @@
+1. Types of memory
+
+	- Heap Memory: It is where objects, including instances of classes and arrays, are allocated during runtime. 
+
+	- Stack Memory: 
+		- Contains the reference to that heap object. Stack memory is generally smaller and faster to access than heap memory.
+		- Primitive data type, stored in stack memory
+		- Local variables stored in the stack memory
+
+	- Method Area (PermGen/Metaspace): 
+		- This area is responsible for storing class definitions, method and field information, and other metadata.
+		- In Java 8 and later versions, the "PermGen" space was replaced with "Metaspace," which serves a similar purpose but is not limited by a fixed size and can dynamically expand. 
+
+	- Native Memory: Native memory is typically used for purposes like managing I/O, native method calls, and direct buffers.
+
+	-  Program Counter (PC) Register: Each thread in Java has its own Program Counter (PC) register, which keeps track of the currently executing instruction.
+
+	-  Registers: Registers are small, fast storage locations within the CPU and it is not directly managed by Java developers, they play a crucial role in the execution of Java code.
+
+Note: Except Native Memory and Registers, Rest of all are managed by JVM.
+
+========================================================================================================================================================
+
+2. Time Complexity:
+
+	- O(1) - Constant Time Complexity - it takes a constant amount of time to retrieve the first element.
+	- O(N) - Linear Time Complexity - This means that the runtime of an algorithm or code grows linearly with the size of the input.
+	- O(N^2) - Quadratic Time Complexity - This means that the runtime of an algorithm or code grows with the square of the input size.
+	- O(log N) - Logarithmic Time Complexity - This means that the runtime of an algorithm or code increases logarithmically with the input size.
+
+========================================================================================================================================================
+
+3. Space Complexity:
+
+	- O(1) - Constant Space Complexity - This means that the amount of memory used by an algorithm or code does not depend on the size of the input data; it's constant.
+	- O(N) - Linear Space Complexity - This means that the memory usage of an algorithm or code grows linearly with the size of the input.
+
+========================================================================================================================================================
+
+4. Cyclometric Complexity:
+
+	- Cyclomatic complexity is a software metric used to measure the complexity of a program's control flow. 
+	- In Java, you can calculate cyclomatic complexity using the Control Flow Graph (CFG) of a method. 
+	- The formula for cyclomatic complexity is: M = E - N + 2P ( E- Edges, N - Nodes or Blocks, P-connectors/pipes)
+
+========================================================================================================================================================
+
+5. What steps u will take to fix outofmemoryerror:
+
+	- Optimize the Data Structures by reducing the time & space complexity.
+	- Check for Memory Leaks ( not closing the connections/resources )
+	- Increase Heap Size (or) Increase PermGen/Metaspace Size
+	- Increase the cloud or hardware instances.
+
+========================================================================================================================================================
+
+6. Heap Memory vs PermGen/Metaspace memory:
+
+	- PermGen/Metaspace: This area is responsible for storing class definitions, method and field information, and other metadata.
+		- XX:MaxPermSize or -XX:MaxMetaspaceSize
+	- Heap Memory: It is where objects, including instances of classes and arrays, are allocated during runtime.
+		- java -Xmx1024m -Xms512m
+	- Both can be modified in VM Arguements in IDEs for the Java Applications.
+
+========================================================================================================================================================
+
+7. "PermGen" vs "Metaspace" (OR) Memory upgrades in Java 8 and above: 
+
+	-  In older versions of Java (up to Java 7), there was a "PermGen" (Permanent Generation) area for storing class metadata and constant pool information. 
+	-  In Java 8 and later versions, the PermGen space was replaced with "Metaspace," which serves a similar purpose.
+	-  "PermGen" has the limited space and fixed size whereas "Metaspace" can dynamically expand.
+	-  Both are responsible for storing class definitions, method and field information, and other metadata.
+	
+========================================================================================================================================================
+
+8. What is memory leak? How to analyze and Fix?
+
+	- A memory leak in a software application occurs when the application allocates memory for objects or data but fails to release or deallocate that memory when it's no longer needed.
+	- It will lead to an "OutOfMemoryError" or degrade system performance.
+	- Performance Testing has to be done to identify such issues.
+	- may be because we may not be closing the connections/resources (or) deallocate any memory. fixing this will avoid memory leak.
+
+========================================================================================================================================================
+
+9. can we  create internal memory in jvm?
+
+	- We can modify the size of "heap" / "PermGen" / "Metaspace" memory.
+	- But we cannot create our own internal memory.
+
+========================================================================================================================================================
+
+10. What is Garbage Collection:
+
+	- Objects in the heap are managed by the Java Virtual Machine (JVM) and are subject to automatic garbage collection when they are no longer referenced by the program.
+	
+	- System.gc();
+		- You can explicitly trigger garbage collection, but it's generally not recommended.
+		- Calling System.gc() does not guarantee that the finalize() method of objects awaiting finalization will be called immediately.
+
+========================================================================================================================================================
+
+
+========================================================================================================================================================
+
+
+
+========================================================================================================================================================
+
+
+
+========================================================================================================================================================
+
+
+
+========================================================================================================================================================
+
+In this video of code decode we have covered Garbage Collection Interview questions for experienced and fresher in Java
+
+Garbage collection in java is a very crucial and complicated interview topic. It hides many complexities within.
+
+As an overview we can say that Garbage collection in java is an automatic process of  looking at heap memory, identifying which objects are in use and which are not, and deleting the unused objects. 
+
+An in use object, or a referenced object, means that some part of your program still maintains a pointer to that object.
+
+An unused object, or unreferenced object, is no longer referenced by any part of your program. So the memory used by an unreferenced object can be reclaimed. 
+
+Main Advantage of automatic garbage collection in java is that it removes the burden of manual memory allocation/deallocation from us so that we can focus on problem solving.
+
+Area where we get this object manages is heap :
+Whenever an object is created, it’s always stored in the Heap space and stack memory contains the reference to it. Stack memory only contains local primitive variables and reference variables to objects in heap space.
+
+Thus All Java objects are always created on heap in java. EG 
+CustomeObj s1 = new CustomeObj ()
+
+What are the different ways to make an object eligible for GC when it is no longer needed??
+1) Set all available object references to null 
+2) Make the reference variable to refer to another object 
+3) Creating Islands of Isolation
+
+In video we have seen live demo of all the three methods
+
+What is the purpose of overriding finalize() method?
+
+Finalize method in Java also called finalizer is a method defined in java.lang.Object 
+
+Its called by Garbage collector just before collecting any object which is eligible for GC. 
+
+Thus Finalize() method provides last chance to object to do cleanup and free any remaining resource
+
+In video we have seen live demo of overriding Object class's finalize method so that we can implement our customization before garbage collection is called.
+
+And many such java garbage collection interview questions are solved using live demo examples.
+Heap memory and generation strategy is covered in next section

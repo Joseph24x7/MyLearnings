@@ -58,6 +58,9 @@ Thread-Safe:
 - data structure is designed to be used safely by multiple threads concurrently without causing data corruption or unexpected behavior.
 - Thread-safe code ensures that shared resources are accessed and modified in a way that prevents race conditions, data races, and other multithreading-related issues.
 
+example for synchronous and thread safe: Vector, HashTable
+example for asynchronous and thread safe: CopyOnWriteArrayList, ConcurrentHashMap.
+
 ========================================================================================================================================================
 
 5. Atomic Integer:
@@ -108,7 +111,7 @@ Visibility ensures that changes made by one thread are immediately seen by other
 
 ========================================================================================================================================================
 
-8. Wait and sleep methods of threads:
+8. Wait vs sleep vs notify vs join
 
 - sleep is a method provided by the Thread class, it makes the current running thread to wait for certain amount of time.
 - wait is used when a thread wants to hold its execution until another thread to notify it.
@@ -142,20 +145,49 @@ Multiple threads can execute other non-synchronized code within the same class c
 
 ========================================================================================================================================================
 
+11. What is the purpose of the "join" method in Java threads?
 
-Thread pooling concept in parallel streams
-What is a thread pool, and why is it useful in multithreaded applications?
-Can you explain the concept of thread safety and how it can be achieved in multithreading?
-What are mutexes and semaphores, and how are they used in synchronization?
-What is deadlock in multithreading, and how can it be prevented or resolved?
-How do you handle exceptions in multithreaded programs?
-What is the Java Memory Model (JMM), and how does it relate to multithreading?
-Explain the terms "synchronized" and "volatile" in the context of Java multithreading.
-What is the purpose of the "join" method in Java threads?
-Describe the various thread states in a typical thread lifecycle.
-How can you prioritize threads in Java, and what is the significance of thread priorities?
-Explain the concept of thread-local storage (TLS) and its use cases.
-What are thread-safe data structures, and why are they important in multithreaded programming?
-Discuss the benefits and drawbacks of using locks versus lock-free synchronization techniques.
-What is the "fork-join" framework in Java, and when is it appropriate to use it?
-Can you describe some common pitfalls and best practices for multithreaded programming?
+If we create a new thread t1, and if we want the main thread to wait for t1 thread to complete its execution then we can go for t1.join.
+In some scenarios the result of t1 thread may be required for main thread to proceed, in such cases we can go for join() method.
+
+========================================================================================================================================================
+
+12. Explain the terms "synchronized" and "volatile" in the context of Java multithreading.
+
+Volatile:
+Purpose: Its primary purpose is to ensure visibility of changes across threads.
+Visibility: volatile guarantees that changes made to the volatile variable by one thread are immediately visible to other threads.
+
+Synchronous:
+- sequential order. Each task must wait for the previous one to complete before it starts.
+- In a single-threaded program, operations are inherently synchronous because there is only one thread of execution, and tasks are performed sequentially.
+
+========================================================================================================================================================
+
+13. Thread pooling concept in parallel streams: 
+
+ - Thread pooling for parallel streams is managed by the ForkJoinPool, which is a specialized type of thread pool designed for parallelism. 
+ 
+	- ForkJoinPool Creation: The ForkJoinPool automatically manages a pool of worker threads and divides the workload among them to execute tasks concurrently.
+	- Work Partitioning: This recursive splitting of task partitioning continues until the tasks are small enough to be executed efficiently.
+	- Task Execution: The worker threads from the ForkJoinPool execute these subtasks concurrently. 
+	- Joining Results: This may also involve combining results from multiple levels of subtasks after execution is completed.
+
+========================================================================================================================================================
+
+14. What is a thread pool, and why is it useful in multithreaded applications?
+
+- helps to reuse threads from a pre-allocated pool, reducing the overhead of thread creation and destruction. 
+- helps to control the number of concurrently executing threads to avoid potential performance issues.
+- helps with the task queue which allows you to submit tasks for processing, and the thread pool assigns them to available threads.
+- Can be configured accordingly to the hardware capabilities which helps in the scalability which allows applications to efficiently utilize available hardware resources.
+
+popular example: ExecutorService 
+========================================================================================================================================================
+
+15. run() vs start():
+
+- during start() method a new Thread is created and code inside run() method is executed in new Thread.
+- if you call run() method directly no new Thread is created and code inside run() will execute on the current Thread.
+
+========================================================================================================================================================
