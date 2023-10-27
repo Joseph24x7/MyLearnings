@@ -1,9 +1,6 @@
 package com.mylearnings.java.collections;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
-import java.util.Stack;
-import java.util.Vector;
+import java.util.*;
 
 public class VectorStackQueue {
 
@@ -15,7 +12,10 @@ public class VectorStackQueue {
         vector.add("Banana");
         vector.add("Cherry");
         System.out.println("Vector Elements:");
-        for (String fruit : vector) {
+        Iterator<String> iterator = vector.iterator();
+        while (iterator.hasNext()) {
+            String fruit = iterator.next();
+            iterator.remove(); // Remove the current element using the iterator
             System.out.println(fruit);
         }
 
@@ -30,7 +30,7 @@ public class VectorStackQueue {
             System.out.println(queue.poll());
         }
 
-        // Stack - Last-In-First-Out (FIFO)
+        // Stack - Last-In-First-Out (LIFO)
         Stack<String> stack = new Stack<>();
         stack.push("First");
         stack.push("Second");
