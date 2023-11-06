@@ -191,3 +191,10 @@ popular example: ExecutorService
 - if you call run() method directly no new Thread is created and code inside run() will execute on the current Thread.
 
 ========================================================================================================================================================
+
+16. how to lock a resource in java?
+17. if a method is synchronized and static, how will java behave? 
+18. Difference between completableFuture & callable Future? which is preferred?
+19. newCachedThreadPool() vs newFixedThreadPool() in Executor Service.
+
+========================================================================================================================================================

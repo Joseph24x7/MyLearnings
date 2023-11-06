@@ -252,6 +252,8 @@ non-sealed Class:
 
 - used to do null check in a more structured way.
 - It is always a good practise to bound the response with Optional.of() when method may return null. In case of null we can go ahead with Optional.empty().
+- some stream api methods such as findFirst(), findAny(), etc.., will return its response bounded with Optional
+- Also the spring data jpa returns its responses bounded with optional keyword.
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -259,7 +261,7 @@ non-sealed Class:
 
 Intermediate Operations:
 
-- filter(), map(), flatMap(), sorted()
+- filter(), map(), flatMap(), sorted(), peek()
 - lazy-loaded, it requires terminal operations to be executed.
 
 Terminal Operations:
@@ -326,4 +328,11 @@ println() - method of PrintStream class
 	- We can pass array and arguments to var arguments, as arguments are treated as an array.
 	- But array accepts only array, as array is of fixed size.
 	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+26. peek() vs map():
+
+	- while modifying the specific field in object of a collection and return the entire collection, then we can go for peek()
+	- to return or modify a specific field and return the field from the collection, then we can go for map.
+	- map() uses function interface to return something
+	- peek() uses consumer interface and it won't return anything
 ------------------------------------------------------------------------------------------------------------------------------------------------------

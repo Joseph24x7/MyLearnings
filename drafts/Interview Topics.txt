@@ -1,0 +1,24 @@
+Other Topics:
+1) Design Patterns
+2) Aspect Oriented Programming
+3) Architecture of your project.
+4) SOLID
+5) Cloud Config Server
+6) Kafka
+7) Redis Caching
+8. Docker
+9. RabbitMQ
+10. 12 factors to be followed in an microservice
+11. Spring Security
+12. Actuators
+13. Api Gateway
+14. Load Balancers
+15. Garbage collection
+16. Spring transaction Management
+17. Stored Procedure
+18. Retry logic.
+
+===================================================================================================================
+
+
+

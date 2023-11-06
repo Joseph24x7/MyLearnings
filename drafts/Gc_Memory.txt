@@ -99,55 +99,83 @@ Note: Except Native Memory and Registers, Rest of all are managed by JVM.
 
 ========================================================================================================================================================
 
+11. Name few algorithms used by Garbage collector?
+
+	- Serial Garbage Collector (Serial GC): This is a simple, single-threaded garbage collector that is suitable for applications with small memory requirements. It uses a "stop-the-world" approach, where all application threads are paused during garbage collection.
+
+	- Parallel Garbage Collector (Parallel GC): Also known as the throughput collector, it uses multiple threads to perform garbage collection, making it suitable for multi-core processors. It also stops application threads during collection but is designed for applications where high throughput is more important than low-latency.
+
+	- G1 (Garbage First) Garbage Collector ( Defualt ): G1 is a widely used garbage collector that provides a good balance between low-latency and high throughput. It is known for its ability to handle large heap sizes efficiently and has become the default collector in some Java versions. G1 divides the heap into regions and collects garbage from the regions with the least live objects, which can help maintain low pause times.
+
+	- Z Garbage Collector (ZGC): ZGC is a low-latency garbage collector introduced in recent Java versions (JDK 11+). It is designed to keep pause times consistently low, even for very large heaps, making it an excellent choice for applications that require minimal disruption due to garbage collection pauses. ZGC performs most of its work concurrently and is well-suited for applications with stringent latency requirements.
+	
+	- to modify: java -XX:+UseG1GC -jar YourApplication.jar
+
+========================================================================================================================================================
+
+12. can u replicate stackoverflowerror on our own? if yes how
+
+	- A StackOverflowError occurs when the call stack, which is used to keep track of method calls, becomes too deep.
+	
+	- public class StackOverflowExample {
+		public static void main(String[] args) {
+			recursiveMethod();
+		}
+
+		public static void recursiveMethod() {
+			recursiveMethod(); // This recursive call will eventually lead to a StackOverflowError.
+		}
+	}
+
+========================================================================================================================================================
+
+13. can u replicate outofmemoryerror  on our own? if yes how
+
+	- One common way to trigger an OutOfMemoryError is by creating a large number of objects or allocating a large amount of memory that exceeds the available heap space. 
+	
+	- public static void main(String[] args) {
+        List<Object> list = new ArrayList<>();
+
+        try {
+            while (true) {
+                list.add(new byte[1_000_000]); // Allocate 1MB of memory for each object
+            }
+        } catch (OutOfMemoryError e) {
+            System.out.println("OutOfMemoryError occurred!");
+        }
+    }
+
+========================================================================================================================================================
+
+14. dfifference between stackoverflow and outofmemoryerror?
+
+	- OutOfMemoryError: Happens when the JVM runs out of heap memory for object allocation.
+	- StackOverflowError: Occurs when method calls become too deep, usually due to uncontrolled recursion.
 
 ========================================================================================================================================================
 
 
+15. What are the different ways to make an object eligible for GC when it is no longer needed??
+
+	1) Set all available object references to null 
+	2) Make the reference variable to refer to another object 
+	3) Creating Islands of Isolation
 
 ========================================================================================================================================================
 
 
+16. What is the purpose of overriding finalize() method?
+
+	- Finalize method in Java also called finalizer is a method defined in java.lang.Object 
+	- Its called by Garbage collector just before collecting any object which is eligible for GC. 
+	- Thus Finalize() method provides last chance to object to do cleanup and free any remaining resource
 
 ========================================================================================================================================================
 
+17. Islands of Isolation?
 
-
-========================================================================================================================================================
-
-In this video of code decode we have covered Garbage Collection Interview questions for experienced and fresher in Java
-
-Garbage collection in java is a very crucial and complicated interview topic. It hides many complexities within.
-
-As an overview we can say that Garbage collection in java is an automatic process of  looking at heap memory, identifying which objects are in use and which are not, and deleting the unused objects. 
-
-An in use object, or a referenced object, means that some part of your program still maintains a pointer to that object.
-
-An unused object, or unreferenced object, is no longer referenced by any part of your program. So the memory used by an unreferenced object can be reclaimed. 
-
-Main Advantage of automatic garbage collection in java is that it removes the burden of manual memory allocation/deallocation from us so that we can focus on problem solving.
-
-Area where we get this object manages is heap :
-Whenever an object is created, it’s always stored in the Heap space and stack memory contains the reference to it. Stack memory only contains local primitive variables and reference variables to objects in heap space.
-
-Thus All Java objects are always created on heap in java. EG 
-CustomeObj s1 = new CustomeObj ()
-
-What are the different ways to make an object eligible for GC when it is no longer needed??
-1) Set all available object references to null 
-2) Make the reference variable to refer to another object 
-3) Creating Islands of Isolation
-
-In video we have seen live demo of all the three methods
-
-What is the purpose of overriding finalize() method?
-
-Finalize method in Java also called finalizer is a method defined in java.lang.Object 
-
-Its called by Garbage collector just before collecting any object which is eligible for GC. 
-
-Thus Finalize() method provides last chance to object to do cleanup and free any remaining resource
-
-In video we have seen live demo of overriding Object class's finalize method so that we can implement our customization before garbage collection is called.
-
-And many such java garbage collection interview questions are solved using live demo examples.
-Heap memory and generation strategy is covered in next section
+	- "Islands of Isolation" in the context of Java Garbage Collection refers to objects that are no longer reachable by the application but are still referenced by each other, creating a cycle of objects that cannot be collected by the garbage collector. 
+	
+	
+18. daemon thread in garbage collection.
+19. 

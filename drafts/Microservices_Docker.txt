@@ -1,0 +1,63 @@
+How to install docker:
+---------------------
+
+- Enable Hyper-V virtualization in your System ( At present WSL-2 is recommended )
+- Download the Linux kernel update package
+- Run Ubuntu on Windows
+
+------------------------------------------------------------------------------------------
+
+Important Commands:
+-------------------
+docker login -u username -p Password 
+docker pull jenkins/jenkins:latest
+docker build -t joseph24x7/resumeatschecker:latest .
+docker run -p 8001:8001 joseph24x7/resumeatschecker:latest
+joseph24x7/resumeatschecker
+docker images <- To list the docker images
+docker ps <- To list the running containers
+
+docker stop containerId <- To stop a running container 
+docker restart containerId <- To restart a running container
+
+------------------------------------------------------------------------------------------
+
+Building and pushing docker image to hub:
+-----------------------------------------
+stage('Build docker image'){
+     steps{
+         script{
+             bat 'docker build -t joseph24x7/bookmyticket .'
+         }
+     }
+}
+stage('Push image to Hub'){
+     steps{
+         script{
+            bat 'docker login -u username -p Password '
+            bat 'docker push joseph24x7/bookmyticket'
+         }
+     }
+}
+
+------------------------------------------------------------------------------------------
+
+creating docker image using docker file:
+----------------------------------------
+FROM openjdk:8
+EXPOSE 8080
+ADD target/account-management-docker.jar account-management-docker.jar
+ENTRYPOINT ["java","-jar","/account-management-docker.jar"]
+
+------------------------------------------------------------------------------------------
+Basic docker handy commands:
+----------------------------
+
+docker search. - To search the images in docker repo
+docker rename - To rename the container
+docker exec - To access the running container
+docker logs - To access the docker container logs.
+docker rm containerId <- To remove a docker container
+docker rmi jenkins/jenkins:latest <- To remove a docker image.
+
+------------------------------------------------------------------------------------------

@@ -12,6 +12,9 @@ public class Java8Problems {
 
         List<Integer> myList = Arrays.asList(10, 15, 8, 49, 25, 98, 32);
 
+        // multiplies everything by 12
+        System.out.println(myList.stream().map(i -> i*12).toList());
+
         //Q1 Given a list of integers, find out all the even numbers exist in the list using Stream functions?
         System.out.println(myList.stream().filter(t -> t % 2 == 0).toList());
 
@@ -56,6 +59,7 @@ public class Java8Problems {
         //Q11 - students with distinction
         List<Student> students = Arrays.asList(new Student("john", 85.0f), new Student("Ajay", 70.0f), new Student("Mani", 85.0f), new Student("Vikram", 60.0f));
         System.out.println(students.stream().filter(s -> s.getMarks() >= 80.0f).peek(s -> s.setDistinction(true)).toList());
+        System.out.println(students.stream().map(i -> i.getName().toLowerCase()).toList());
     }
 
 }

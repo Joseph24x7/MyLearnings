@@ -1,4 +1,4 @@
-package com.mylearnings.java.basicJava;
+package com.mylearnings.java.basicjavaproblems;
 
 public class SwapTwoIntegersWithoutTemp {
 	

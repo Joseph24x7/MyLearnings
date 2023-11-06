@@ -1,4 +1,4 @@
-package com.mylearnings.java.eight;
+package com.mylearnings.java.collections;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
