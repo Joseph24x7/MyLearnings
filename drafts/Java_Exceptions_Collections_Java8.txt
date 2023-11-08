@@ -336,3 +336,31 @@ println() - method of PrintStream class
 	- map() uses function interface to return something
 	- peek() uses consumer interface and it won't return anything
 ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+27. when there is a method with more than 10 parameters, basically it is not the right standard. So how will you ensure to fix this? ( code review )
+28. types of streams in java8
+29. What is method references in java 8.
+30. Association, Aggregation and composition
+31. reduce(), toArray(), peek(), distinct()
+32. Java vertex
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+33. Name few sonar issues:
+
+	- Unused Code
+	- Code Duplication
+	- Complex Code
+	- Security Vulnerabilities
+	- Null Pointer Dereference
+	- Coding Conventions
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+34. CSRF and CORS, CSRS.
+
+CSRF (Cross-Site Request Forgery): Imagine if you are logged into your bank account, and you receive an email with a link that says "Click here to see cute cat pictures." You click the link, and it actually transfers money from your bank account to the attacker's account. This is CSRF.
+
+CORS (Cross-Origin Resource Sharing): CORS is a set of rules that helps your website specify which other websites are allowed to access its resources (like images, scripts, or data) in a web browser.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------

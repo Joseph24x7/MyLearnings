@@ -398,8 +398,86 @@ public class AppConfig {
 	- it is applicable only for get url
 
 ========================================================================================================================================================
+31. Components of microservices:
 
-31. how will you test an private method via junit
-32. How to write junit to mock static methods?
-33. How we can create our own hibernate validation annotations
-34. Steps to dockerize your application
+	- It should have its own server.
+	- It should have its own database.
+	- It should be fault tolerant.
+	- It should have its Service Discovery/Registry.
+	- Containerization
+	- Orchestration
+	- Authentication and Authorization
+	- Logging and Monitoring
+	- Configuration Management
+
+========================================================================================================================================================
+
+32. how will you test an private method via junit
+
+	- Reflection API
+	- Through public method which is calling that private method.
+	
+========================================================================================================================================================
+
+33. How to write junit to mock static methods?
+	- Inline mockito
+	- Powermockito
+
+========================================================================================================================================================
+
+34. Steps to dockerize your application?
+
+
+	1. creating docker image using docker file:
+		FROM openjdk:17-oracle
+		EXPOSE 8081
+		ADD target/usermanagement.jar usermanagement.jar
+		ENTRYPOINT ["java","-jar","/usermanagement.jar"]
+
+	2. In pipeline:
+		  - name: Build with Maven
+			run: mvn clean install -Dmaven.version=3.9.3
+		  - name: Log in to Docker Hub
+			run: docker login -u joseph24x7 -p ${{ secrets.DOCKERHUB_TOKEN }}
+		  - name: Build Docker image
+			run: docker build -t joseph24x7/usermanagement .
+		  - name: Push image to Docker Hub
+			run: docker push joseph24x7/usermanagement
+
+========================================================================================================================================================
+
+35. How we can create our own hibernate validation annotations
+
+	1.  @Documented
+		@Constraint(validatedBy = MyCustomValidator.class)
+		@Target({ ElementType.FIELD, ElementType.METHOD })
+		@Retention(RetentionPolicy.RUNTIME)
+		public @interface MyCustomValidation {
+			String message() default "Invalid value";
+
+			Class<?>[] groups() default {};
+
+			Class<? extends Payload>[] payload() default {};
+		}
+
+
+	2.  public class MyCustomValidator implements ConstraintValidator<MyCustomValidation, String> {
+
+			@Override
+			public void initialize(MyCustomValidation constraintAnnotation) {
+				// Initialization, if needed
+			}
+
+			@Override
+			public boolean isValid(String value, ConstraintValidatorContext context) {
+				// Implement your custom validation logic here
+				if (value == null) {
+					return true; // Allow null values, or customize as needed
+				}
+				return value.startsWith("Custom"); // Example validation
+			}
+		}
+		
+	3. Set<ConstraintViolation<MyEntity>> violations = validator.validate(myEntity);
+	
+========================================================================================================================================================
