@@ -1,0 +1,30 @@
+1. use of groupId in kafka?
+
+	- When you use the same groupId for multiple Kafka consumers, Kafka treats them as part of the same consumer group. This allows you to achieve parallelism and load balancing by having each consumer within the group subscribe to and process messages from different partitions of the same topic.
+	
+	- If they have different groupIds, they will be treated as distinct consumer groups, and Kafka will handle partition assignment, offset management, and other aspects separately for each group. This can lead to multiple consumers independently consuming the same topic.
+	
+========================================================================================================================================================
+
+2. Queue vs Kafka:
+
+	- Queue - every message is consumed by only one consumer.
+	- Kafka - every message can be consumed by multiple consumer groups.
+	
+	- kafka maintains the order in which messages are stored in partitions
+	- queue doesn't guarantee the order in case of any failures.
+	
+	- once message is ready, it will be cleared from the queue
+	- kafka stores the message, by using the offset we can read the messages once again.
+	
+========================================================================================================================================================
+
+3. Advantages of using partitions in kafka?
+
+	- Partitions allow Kafka to distribute the load and data across multiple brokers and storage servers. 
+	- Each partition can be placed on a different server, enabling Kafka to handle more data and clients.
+	- Multiple consumers can subscribe to different partitions of a topic, allowing them to process messages concurrently.
+	- Kafka's partitioning mechanism helps balance the load across brokers and consumers. 
+	- Each partition can have one or more replicas, and each replica is stored on a different broker. If a broker fails, another replica can take over. 
+
+========================================================================================================================================================

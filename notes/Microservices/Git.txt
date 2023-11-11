@@ -1,0 +1,49 @@
+1. Steps to commit the changes to github, when local repo and github repo are not in sync:
+
+	- git init
+	- git add .
+	- git commit -m "Initial commit"
+	- git remote add origin https://github.com/Joseph24x7/SpringBootLearning.github
+	- git pull origin main
+	- git push origin main
+	
+========================================================================================================================================================
+
+2. list 10 frequently used Git commands:
+
+	- git init: Initializes a new Git repository in the current directory.
+	- git clone: Creates a copy of a remote repository on your local machine.
+	- git add: Stages changes for commit. You can specify files or directories to add.
+	- git commit: Records changes to the repository with a commit message. Use the -m flag to provide a message inline.
+	- git status: Shows the status of your working directory and the files that have been modified or staged.
+	- git pull: Fetches changes from a remote repository and merges them into your local branch.
+	- git push: Pushes your local commits to a remote repository.
+	- git branch: Lists all branches in the repository. Use -a to list remote branches as well.
+	- git checkout: Switches to a different branch.
+	- git stash: Temporarily saves changes that are not ready to be committed, allowing you to switch branches or apply changes later.
+	
+========================================================================================================================================================
+
+3. merge vs pull vs rebase vs fetch:
+
+	- Git Merge: Merges the changes from one branch into another, creating a new merge commit to record the merge. Preserves the commit history of both the source and target branches, making it easy to see when and where the merge occurred. 
+	- git merge main ( consider am in feature branch )
+	
+	- git fetch: to retrieve changes from a remote repository, Like new branch created which is not associated with my git repo.
+	- git fetch
+	
+	- Git Pull: Combination of git fetch and git merge.
+	- git pull (or) git pull origin main ( consider am in feature branch )
+
+	- Git Rebase: Moves or combines a sequence of commits from one branch on top of another branch, creating a linear commit history. Commonly used when working on feature branches to update them with changes from the main branch.
+	- git rebase main ( consider am in feature branch )
+
+========================================================================================================================================================
+
+4. Cherry Pick in Git Commands:
+
+	- It enables you to pick individual commits from one branch and apply them to another branch. 
+	- This can be useful in situations where you want to take specific changes from one branch and apply them to another branch without merging the entire branch.
+	- git cherry-pick <commit-id> ( Am in main branch and I want to apply a specific commit from feature branch to main branch )
+
+========================================================================================================================================================

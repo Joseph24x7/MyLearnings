@@ -1,0 +1,35 @@
+1. Synchronized Map vs Concurrent Map:
+
+Synchronized Map:
+
+Synchronization & Blocking:  When one thread is performing an operation on the map, other threads must wait until it's done.
+Performance: Synchronized maps can suffer from performance bottlenecks in highly concurrent scenarios because they serialize access to the map. This can limit scalability and throughput.
+
+Concurrent Map:
+
+Concurrent Operations & Non-Blocking: Concurrent maps do not block threads during read or write operations. Multiple threads can read and write concurrently without waiting for each other.
+Performance: Concurrent maps are designed for high-concurrency scenarios and can offer better performance in situations where many threads need to access and modify the map simultaneously.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2. Conurrent Hashmap:
+
+A ConcurrentHashMap is like a special librarian who knows how to let kids pick books without bumping into each other. It uses invisible lines and special rules so that everyone can get their books safely and without waiting too long.
+
+- The ConcurrentHashMap is divided into multiple segments, each of which is essentially a separate hash table. 
+- When a thread wants to modify a segment, it acquires the lock for that segment, ensuring that other threads cannot concurrently modify the same segment. 
+- Can offer better performance in situations where many threads need to access and modify the map simultaneously.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3. HashMap vs Concurrent HashMap:
+
+- HashMap is a single hash table.
+- HashMap doesn't provide built-in thread safety. Multiple threads can lead to data corruption without external synchronization.
+- HashMap has better performance compared to ConcurrentHashMap
+
+- ConcurrentHashMap is divided into multiple segments, each acting as a separate hash table.
+- When a thread wants to modify a segment, it locks only that segment, allowing other threads to operate concurrently on different segments.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------

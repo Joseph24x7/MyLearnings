@@ -1,0 +1,58 @@
+1. What is Spring Transactional Management, How to implement Spring Transactional Management in Spring boot?
+
+	- Spring Transaction Management is a feature of the Spring Framework that provides a way to manage transactions in a Spring-based application.
+
+Steps:
+	- Add spring-boot-starter-data-jpa dependency.
+	- Add @Transactional where the transaction is required and we are good to go.
+
+========================================================================================================================================================
+
+2. Does @Transactional rollbacks all transactions in cases of failure or selective?
+
+	- By default it will rollback only for "unchecked exceptions"
+	- To rollback for both checked and unchecked exception -> @Transactional(rollbackFor = Exception.class)
+	- For custom rollback - @Transactional(rollbackFor = { CustomException.class }, noRollbackFor = { AnotherException.class })
+	- to rollback only for checked exception -> @Transactional(rollbackFor = CustomCheckedException.class)
+========================================================================================================================================================
+
+3. What is the purpose of Isolation in STM?
+
+	- Isolation ensures that concurrent transactions do not interfere with each other, preserving data consistency and preventing race conditions.
+	
+	- 4 types:
+		- Isolation.DEFAULT -> Typically, this is READ_COMMITTED for most databases.
+		- Isolation.READ_UNCOMMITTED -> uncommitted changes made by other transactions to be visible. May lead to inconsistencies. ( Postgres, Oracle doesn't support this )
+		- Isolation.READ_COMMITTED -> a transaction can only read committed changes made by other transactions.
+		- Isolation.REPEATABLE_READ -> a transaction can prevent other transactions from modifying or inserting new rows that would affect the result set of the transaction.
+		- Isolation.SERIALIZABLE -> This is the highest isolation level. In this mode, transactions are completely isolated from each other. It ensures that no other transaction can read, write, or insert data that would conflict with the current transaction.
+
+========================================================================================================================================================
+
+4. What is the purpose of Propogation in STM?
+
+	- Spring manages to start and pause a transaction according to our propagation setting.
+
+	- Propagation.REQUIRED(default) -> Spring checks if there is any active transactions, 
+										-> if nothing exists it created a new one.
+										-> If exists, it reuses the same.
+	
+	- Propagation.REQUIRES_NEW -> Spring checks if there is any active transactions, 
+										-> If exists, then creates a new one:
+	
+	- Propagation.SUPPORTS -> Spring checks if there is any active transactions, 
+										-> if nothing exists it will be executed as Non-transactional
+										-> If exists, it reuses the same.
+
+	- Propagation.SUPPORTS -> Spring checks if there is any active transactions, 
+										-> if nothing exists, it will be executed as Non-transactional
+										-> If exists, it will be executed as Non-transactional
+
+	- Propagation.MANDATORY -> Spring checks if there is any active transactions, 
+										-> if nothing exists, Spring throws an exception
+										-> If exists, it reuses the same. 
+
+	- Propagation.NEVER -> Spring checks if there is any active transactions, 
+										-> If exists,  Spring throws an exception.
+
+========================================================================================================================================================

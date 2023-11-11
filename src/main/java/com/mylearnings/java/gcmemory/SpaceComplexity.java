@@ -1,4 +1,4 @@
-package com.mylearnings.java.gc;
+package com.mylearnings.java.gcmemory;
 
 import java.util.Arrays;
 

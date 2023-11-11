@@ -193,8 +193,42 @@ popular example: ExecutorService
 ========================================================================================================================================================
 
 16. how to lock a resource in java?
-17. if a method is synchronized and static, how will java behave? 
+	- By using synchronized keyword
+
+========================================================================================================================================================
+
+17. if a method is synchronized and static, how will java behave?
+	- If a method is synchronized and static, it means that the lock associated with the method is at the class level. Only one thread can execute any synchronized static method of the class at a time.
+	- If a method is synchronized and not static, it means that the lock associated with the method is at the instance level. Only one thread can execute any synchronized non-static method on a particular instance of the class at a time.
+
+========================================================================================================================================================
+
 18. Difference between completableFuture & callable Future? which is preferred?
+
+	Using CompletableFuture:
+	-------------------------
+	- CompletableFuture is used when you need to perform asynchronous tasks that may return results or be composed together. 
+	- It's often used in scenarios where you want to create a chain of asynchronous operations.
+	- Suitable for building complex asynchronous workflows.
+
+	Using Callable with ExecutorService (callableTask):
+	--------------------------------------------------
+	- Callable and ExecutorService are used when you need to execute a task that returns a result or throws an exception. 
+	- It's often used for tasks that require more control over thread management, resource allocation, and result handling.
+	- Supports execution of multiple tasks concurrently using a thread pool.
+
+========================================================================================================================================================
+
 19. newCachedThreadPool() vs newFixedThreadPool() in Executor Service.
+
+	- ExecutorService executor = Executors.newCachedThreadPool();
+		- This method creates an executor with an expandable thread pool that can dynamically adjust its size based on the number of incoming tasks.
+		- If a thread is not used for a specified amount of time (60 seconds in the case of the default implementation), it will be terminated and removed from the pool.
+		- It is suitable for scenarios where the number of tasks is not known in advance, and you want to reuse threads efficiently.
+	
+	- ExecutorService executor = Executors.newFixedThreadPool(poolSize - 10);
+		- This method creates an executor with a fixed-size thread pool where the number of threads is specified during pool creation.
+		- Tasks are queued if all threads are busy. If a thread encounters an exception and terminates, a new one will be created to replace it.
+		- It is suitable for scenarios where you want to limit the number of concurrently executing tasks.
 
 ========================================================================================================================================================

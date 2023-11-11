@@ -1,4 +1,4 @@
-package com.mylearnings.java.gc;
+package com.mylearnings.java.gcmemory;
 
 public class TimeComplexity {
 

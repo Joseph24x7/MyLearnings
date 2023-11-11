@@ -1,0 +1,155 @@
+Java:
+
+1) Abstract Class vs Interface. when to use abstract class and when to use interface:
+
+Method Declaration:
+AC: Can have abstract (unimplemented) and concrete (implemented) methods.	
+IF: Can have only abstract (unimplemented) methods by default. Can have default and static methods in Java 8+.
+
+Fields:
+AC: Can have instance variables (fields).	
+IF: Cannot have instance variables (fields). Has only constants.
+
+Constructors:
+AC: Can have constructors to instantiate instance variables.
+IF: Cannot have constructors.
+
+Access Modifiers:
+AC: Methods and fields can have various access modifiers
+IF: Methods are implicitly public. Fields are implicitly public, static, and final
+
+Multiple Inheritance:
+AC: Inherited class can extend only one abstract class.	
+IF: A class can implement multiple interfaces.
+
+Instantiation:
+AC:	Cannot be instantiated directly.
+IF:	Cannot be instantiated directly.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2) Explain 00PS concepts with real time example:
+
+Abstraction: An ATM machine is an abstraction. Users interact with a simple interface (e.g., withdraw, deposit), while the inner workings (banking processes, security measures) are abstracted away. Users don't need to know the complex operations happening behind the scenes.
+
+Encapsulation: An ATM machine is an Encapsulation. Where we hide the encapsulate and hide the user information from each others.
+
+Inheritance: In a real-time example, consider the "Customer" class as a superclass. Personal Customer and Business Customer.
+
+Polymorphism: Account Verification process for Business and Personal Customer.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3) can we overload/override the static/final?
+
+static can be overloaded, cannot be overriden.
+final can be overloaded, cannot be overloaded.
+
+is it possible to overload a main method? yes
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4) method overiding with different return type: only same or covariant type is allowed.
+   method overiding with different access specifier: we cannot reduce visibility. (public, protected, default, and private)
+   method overiding with different exception type: Broader exceptions are not allowed, narrowiing/no exception/same exception is allowed.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+5. Predefined final classes in Java. give some examples.
+
+- java.lang.String
+- java.lang.Math
+- java.lang.System
+- java.util.UUID
+- java.lang.Character / Integer / ....
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+6. Why String is immutable? Advantages of being immutable 
+
+Reasons for Immutability:
+
+Security: Strings are often used to store sensitive information, such as passwords. Immutability ensures that once a string is created, its value cannot be modified, reducing the risk of data tampering.
+Thread Safety: In a multi-threaded environment, multiple threads can safely read and share immutable strings without the need for additional synchronization.
+Caching: Because strings are immutable, Java can optimize memory usage by reusing string instances. 
+Hashing: Immutable strings can be used as keys in hash tables (e.g., HashMap) because their hash code remains constant. 
+
+Advantages of Immutability:
+
+Safety: Immutability guarantees that the value of a string remains constant, reducing the risk of unintended modification.
+Thread Safety: Immutable strings can be shared among multiple threads without synchronization concerns, leading to more efficient and reliable multi-threaded code.
+Performance: String interning and caching can lead to better memory utilization and reduced overhead when working with strings.
+Hashing and Collections: Immutability enables the use of strings as keys in hash-based collections, such as hash maps, because their hash code remains consistent.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+7. What if we don't add Serializable interface to the class which undergoes platform interchange? 
+
+The Java runtime will throw a NotSerializableException. This exception occurs because the Java serialization mechanism relies on the Serializable interface to determine whether an object can be serialized safely.
+
+What is serialVersion UID? What if we do not define that when we implement Serializable interface. ?
+
+The serialVersionUID (serial version UID) is a unique identifier associated with a serialized class in Java. It serves as a version control mechanism for serialized objects. When a class implements the Serializable interface, a serialVersionUID field can be optionally defined.  If you do not provide a serialVersionUID, Java will automatically generate one for your class during compilation.
+
+Versioning Challenges & Compatibility Issues: The generated serialVersionUID may not be consistent across different versions of your class. When you attempt to deserialize an object that was serialized with an older or newer version of the class, a version mismatch can occur, leading to a InvalidClassException at runtime.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+8. What is Java Reflection API?
+
+Allows us to inspect and manipulate the structure and behavior of the Java classes, interfaces, methods, fields, and other class members at runtime. 
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+9. Class loaders:
+
+In Java, a class loader is a fundamental component of the Java Virtual Machine (JVM) responsible for loading class files into memory so that they can be executed by the JVM. 
+We can have our own custom class loader as well.
+
+Here are some common types of class loaders along with examples:
+Bootstrap Class Loader:
+The Bootstrap Class Loader is the parent of all class loaders and is responsible for loading core Java classes, such as those from the java.lang package.
+It is implemented in native code and is not typically programmatically accessible.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+10. Generics in java. advantages of using generics? 
+
+helps us to operate on type parameters, allowing you to write code that is more flexible, type-safe, and reusable. 
+
+Advantages:
+Type Safety & Reduced Casting: Generics help catch type-related errors at compile time rather than at runtime. This prevents class cast exceptions and enhances code reliability.
+Code Reusability: Generics allow you to write reusable code that works with different data types without code duplication. A single generic class or method can operate on various types.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+11. System.out.println()
+
+System - final class
+public static final PrintStream out; - member of System class
+println() - method of PrintStream class
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+12. Var Args vs Arrays:
+
+	- We can pass array and arguments to var arguments, as arguments are treated as an array.
+	- But array accepts only array, as array is of fixed size.
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+13. when there is a method with more than 10 parameters, basically it is not the right standard. So how will you ensure to fix this? ( code review )
+
+	- by bounding it to another object.
+	- modularise the method to take less parameters
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+14. Association, Aggregation and composition
+
+	- Association is a relation between two separate classes which establishes through their Objects. 
+	- Association can be one-to-one, one-to-many, many-to-one, many-to-many.
+	- Composition and Aggregation are the two forms of association.
+	- It defined how strong their relationships are and can we travel uni-directional or bidirectional.
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-package com.mylearnings.java.basicJava;
+package com.mylearnings.java.gcmemory;
 
 public class IslandOfIsolationExample {
     public static void main(String[] args) {

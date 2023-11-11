@@ -1,4 +1,4 @@
-package com.mylearnings.java.basicJava;
+package com.mylearnings.java.gcmemory;
 
 public class StackOverflowExample {
 

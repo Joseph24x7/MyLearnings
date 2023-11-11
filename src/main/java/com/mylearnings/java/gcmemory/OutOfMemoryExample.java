@@ -1,4 +1,4 @@
-package com.mylearnings.java.basicJava;
+package com.mylearnings.java.gcmemory;
 
 import java.util.ArrayList;
 import java.util.List;

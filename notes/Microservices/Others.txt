@@ -1,0 +1,15 @@
+
+1. Mapstruct Library:
+
+	- MapStruct is a Java library used for simplifying object mapping by generating mapping code at compile-time. 
+	- It reduces boilerplate code and enhances type safety, making it ideal for converting data between different Java objects. 
+
+========================================================================================================================================================
+
+2. Lombok Library:
+
+	- Project Lombok is a popular Java library that simplifies the development process by reducing the boilerplate code you need to write. 
+	- It achieves this by generating code during compilation, which is commonly known as "code generation."
+	- @Data, @Builder, @ArgsContructor, @Slf4j, @Value.
+	
+========================================================================================================================================================

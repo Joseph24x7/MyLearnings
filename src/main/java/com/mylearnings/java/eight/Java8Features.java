@@ -44,5 +44,20 @@ public class Java8Features {
         List<Integer> flatList = nestedList.stream().flatMap(list -> list.stream()).toList(); // Result: [1, 2, 3, 4, 5, 6]
         List<Integer> flatList2 = nestedList.stream().flatMap(list -> list.stream().filter(i -> i > 2).toList().stream()).toList(); // Result: [3, 4, 5, 6]
 
+        // toArray( Method
+        List<String> wordList = Arrays.asList("Hello", "World", "Stream");
+        String[] wordArray = wordList.stream().toArray(String[]::new);
+        System.out.println(Arrays.toString(wordArray));
+
+        //peek() vs map() Method:
+        List<String> wordList2 = Arrays.asList("Hello", "World", "Stream");
+        System.out.println(wordList2.stream().peek(i-> i.toLowerCase()).toList()); // [Hello, World, Stream]
+        System.out.println(wordList2.stream().map(i-> i.toLowerCase()).toList()); // [hello, world, stream]
+
+        //distinct() Method:
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 2, 3, 5);
+        System.out.println(numbers.stream().distinct().toList()); // [1, 2, 3, 4, 5]
+
+
     }
 }

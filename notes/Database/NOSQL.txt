@@ -1,0 +1,29 @@
+1. SQL vs NoSQL:
+
+	- Data Model: NoSQL databases allows data models like document, key-value, wide-column, or graph, allowing for more varied data storage.
+	- Scalability: SQL is vertical scaling ( CPU, RAM, or storage ), whereas NoSQL is horizontal scaling ( multiple servers or nodes ).
+	- ACID vs. BASE: SQL follow the ACID (Atomicity, Consistency, Isolation, Durability) , where NOSQL - BASE (Basically Available, Soft state, Eventually consistent) 
+	- Rollback: SQL supports rollback, whereas NoSQL doesn't.
+	
+========================================================================================================================================================
+
+2. Examples of NOSQL database?
+
+	- MongoDB
+	- Redis Inmemory database
+
+========================================================================================================================================================
+
+3. BASE Property meaning
+
+
+========================================================================================================================================================
+
+4. Advantages of using Redis Cache?
+
+	- High Performance: Redis is an in-memory data store, which means it stores data in RAM.
+	- Data Structures: Redis provides a variety of data structures (strings, lists, sets, sorted sets, hashes, and more) that make it versatile for different use cases. 
+	- Publish/Subscribe: Redis supports a publish/subscribe messaging system, which allows for real-time communication and broadcasting of data changes.
+	- Expiration and TTL: Redis allows you to set a time-to-live (TTL) for cached items. 
+
+========================================================================================================================================================

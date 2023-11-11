@@ -1,0 +1,51 @@
+1. Index:
+	- Indexes help the database system quickly locate the rows that match the search criteria in a query, reducing the need for full table scans.
+	- ex: CREATE INDEX idx_employee_id ON Employees (EmployeeID);
+
+========================================================================================================================================================
+
+2. Trigger:
+	- Triggers are defined to respond to specific events, which are typically related to data changes in a database.
+	- Common events include "AFTER INSERT," "AFTER UPDATE," and "AFTER DELETE."
+	- ex: CREATE TRIGGER employee_insert_trigger
+			AFTER INSERT ON Employee
+			FOR EACH ROW
+			BEGIN
+				INSERT INTO EmployeeHistory (EmployeeID, Action, ActionTimestamp)
+				VALUES (NEW.EmployeeID, 'INSERT', NOW());
+			END;
+
+========================================================================================================================================================
+
+3. primary key vs foreign key vs composite primary key:
+
+	- A primary key is a column or a set of columns in a database table that uniquely identifies each row in that table.
+	- A foreign key is a column or a set of columns in a table that is used to establish a link between data in two related tables.
+	- A composite primary key is a primary key that consists of two or more columns in a database table.
+
+========================================================================================================================================================
+
+4. views vs tables vs Synonyms:
+
+	- Views are read-only and don't store data themselves.
+	- Tables used for insert, update, delete, and query data directly from tables.
+
+========================================================================================================================================================
+
+5. DML vs DDL vs DCL vs DQL:
+
+	- Data Manipulation Language (DML) -- INSERT, UPDATE, DELETE.
+	- Data Definition Language (DDL) -- CREATE, ALTER, DROP.
+	- Data Control Language (DCL) -- GRANT and REVOKE.
+	- Data Query Language (DQL) -- SELECT
+	
+========================================================================================================================================================
+
+6. ACID Property:
+
+	- Atomicity: Spring ensures atomicity by wrapping a series of database operations within a single transaction, So it is either entirely successful or entirely rolled back in case of a failure.
+	- Consistency: Consistency ensures that a transaction takes the database from one consistent state to another.
+	- Isolation: It ensures that the results of one transaction are not visible to other transactions until the first transaction is committed. 
+	- Durability: Durability guarantees that once a transaction is committed, its effects are permanent and will survive system failures (e.g., power outages or crashes).
+
+========================================================================================================================================================
