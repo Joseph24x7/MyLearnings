@@ -1,4 +1,4 @@
-package com.mylearnings.java.basicjavaproblems;
+package com.mylearnings.java.datastructures;
 
 import java.util.HashMap;
 import java.util.Map;

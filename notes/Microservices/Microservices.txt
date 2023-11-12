@@ -1,25 +1,45 @@
+1. What are Monolith Application and its Disadvantages?
 
-1. Advantages of Microservices vs Monolithic architecture:
-
- - Development Teams can work on individual services, enabling specialization.
- - Can scale individual services independently, based on demand.
- - Independent service deployment, allowing faster releases.
- - Isolated failures in one service do not affect the entire system.
- - Each service can use the most appropriate technology for its purpose.
- - Easier to set up failover mechanisms for specific services.
-
-========================================================================================================================================================
-
-
-2. How to handle fault tolerance in a microservice using kafka?
-
-	- Use Replication: Kafka supports data replication for fault tolerance. Configure your Kafka topics to have multiple replicas to ensure data durability. If a Kafka broker or instance fails, another replica can take over, ensuring data availability.
-	- Consumer Group: Use Kafka consumer groups for your microservices. If one consumer instance fails, Kafka will automatically rebalance the workload among the remaining consumers in the group. This ensures that no messages are lost.
-	- Circuit Breakers and Retries: Implement circuit breakers and retry mechanisms in your microservices. If a service or component experiences temporary issues, retries can help recover from transient failures. Circuit breakers can prevent your system from making repeated requests to a failing service.
-	- Backup and Restore: Set up backup and restore processes for Kafka data. Regularly back up your Kafka topics and configurations so that you can recover data in case of catastrophic failures.
+	- In Monolith Architecture the application is build as a single unit. 
+	- Normally a monolith application have one large code base and it lack modularity
 	
+	- Disadvantages of Monolith Application:
+		- The code base get larger in size with time and hence it’s very difficult to manage.
+		- It is very difficult to introduce new technology as it affects the whole application.
+		- A single bug in any module can bring down the whole application
+		- It is very difficult to scale a single module. One has to scale the whole application
+		- Continuous deployment is extremely difficult. Large monolithic applications are actually an obstacle to frequent deployments. In order to update one component, we have to redeploy the entire application.
+
 ========================================================================================================================================================
-3. Components of microservices:
+
+2. What are Microservices?
+	- While Monolith Application works a single component, a Microservice Architecture breaks it down to independent standalone small applications, each serving one particular requirement.
+	- Within this microservice architecture, the entire functionality is split in independent deployable module which communicate with each other through API’s(RESTful web services )
+
+	- Advantages of Microservices
+		- All the services are independent of each other. Therefore testing and deployment is easy as compare to Monolith application.
+		- With microservice architecture, it's easy to build complex applications.
+		- It will give flexibility to choose technologies and framework for each microservices independently 
+		- Development Teams can work on individual services, enabling specialization.
+		- Can scale individual services independently, based on demand.
+		- Independent service deployment, allowing faster releases.
+		- Isolated failures in one service do not affect the entire system.
+		- Easier to set up failover mechanisms for specific services.
+
+========================================================================================================================================================
+
+3. How to start with Micro services?
+
+	- If u have a monolith application, Identify all possible standalone functionalities.
+	- Once u have identify them, you need to create standalone projects, we are taking spring boot to create these microservices.
+	- You  need them to interact with each other through some ways , It can be Rest Api or Messaging.
+	- You need load balancer.
+	- eureka for service discovery (useful during load balancing and cloud deployments)
+	- API gateways and many more stuff. 
+
+========================================================================================================================================================
+
+4. Components of microservices:
 
 	- It should have its own server.
 	- It should have its own database.
@@ -33,63 +53,7 @@
 	
 ========================================================================================================================================================
 
-4. API Gateway vs Load Balancing vs Service Registry:
-	
-	- API Gateway:
-		- Centralized API Management
-		- Routing and Load Balancing
-		- Security, rate limiting, and traffic encryption (HTTPS/SSL).
-		- Analytics and Monitoring
-
-	- Load Balancing:
-		- Scalability: Load balancers can automatically scale the number of server instances based on traffic load, allowing for efficient resource utilization.
-		- Optimized Performance: They can route traffic to the closest or least loaded server, optimizing response times and reducing latency.
-		- Health Checks: Load balancers can continuously monitor the health of server instances and route traffic only to healthy instances.
-
-	- Service Registry:
-		- keep track of available services and their instances, making it easy for services to discover and communicate with each other dynamically.
-		- Load Balancing.
-		- Resilience: In case of instance failures, service registries can update their information and redirect traffic to healthy instances, improving system resilience.
-		- Consistency: Service registries ensure that services always have access to up-to-date information about the available instances, which can be critical in dynamic, containerized environments.
-	
-========================================================================================================================================================
-
-5. Few important design patterns of microservices:
-
-	- Fault Tolerance: Implement resilience patterns such as retries, timeouts, and fallbacks to handle network and service failures.
-	
-	- Circuit Breaker:
-		- Example: Implement the Circuit Breaker pattern (e.g., with tools like Hystrix) to handle failures gracefully and prevent cascading failures.
-	
-	- Saga Pattern:
-		- The Saga design pattern is a way to manage data consistency across microservices in distributed transaction scenarios.
-		- Saga pattern can be achieved using Choreography vs. Orchestration:
-			- Choreography - where each service communicates with others through events
-			- Orchestration - where a central service manages the flow of activities in a workflow.
-	
-	- Containerization and Orchestration: Use containerization (e.g., Docker) and container orchestration (e.g., Kubernetes) for managing and deploying microservices.
-	
-	- Blue-Green Deployments: Use blue-green deployments to minimize downtime during updates by switching traffic from the old version (blue) to the new version (green).
-	
-========================================================================================================================================================
-
-6. Horizontal Scaling vs Vertical Scaling:
-
-	- Horizontal Scaling (Scaling Out):
-
-		- Horizontal scaling means adding more instances of the same microservice to your application.
-		- It's like adding more identical workers to handle a specific job. Each worker can process requests independently.
-		- It is cost-effective and often used to handle increased demand by distributing the workload.
-
-	- Vertical Scaling (Scaling Up):
-
-		- Vertical scaling means increasing the capacity of a single microservice instance by adding more resources (like CPU, RAM, or storage) to it.
-		- It's like giving a single worker more powerful tools to handle a job. This can make that worker more capable.
-		- It can be more expensive and may have limitations based on the hardware.
-
-========================================================================================================================================================
-
-7. 12 Factors of Microservices: codebase, dependencies, dynamic properties, dev-prod parity, auto scaling, logs, admin processes.
+5. 12 Factors of Microservices: codebase, dependencies, dynamic properties, dev-prod parity, auto scaling, logs, admin processes.
 
 	- Codebase & version control: eg: Github/bitbucket
 		- Example: Imagine you're building a microservices-based e-commerce platform. Each microservice, like product catalog, shopping cart, and user authentication, should have its own codebase. This separation allows teams to work independently on these services, updating and deploying them without affecting others.
@@ -132,3 +96,174 @@
 		- Example: When scaling a microservice cluster up or down, an administrative process manages the scaling activities. This process is separate from the main application code and is responsible for tasks like launching new instances or updating configurations without affecting user requests.
 		
 ========================================================================================================================================================
+
+6. Disadvantages/Challenges with microservices:
+
+	- When application is smaller, then going with microservices architecture is not useful.
+	
+	- Security Concerns: Microservices typically communicate over the network, and securing these communications can be challenging. Additionally, there is a need to manage security at the individual service level, which can be more complex than securing a monolithic application.
+
+	- Data Consistency: Maintaining consistency across multiple microservices can be difficult. Transactions that span multiple services might be challenging to implement, and ensuring data.
+	
+	- Resource Overhead: Each microservice typically requires its own resources, such as databases, messaging systems, and other infrastructure components. This can lead to increased resource overhead compared to a monolithic application that shares these resources.
+	
+	- Monitoring and Debugging Challenges: The operation and deployment of microservices require additional infrastructure and tools for monitoring, logging, and managing the services.. Identifying and resolving issues in a microservices environment can be more challenging than in a monolithic architecture. Debugging and monitoring tools need to be sophisticated enough to handle the distributed nature of microservices.
+
+========================================================================================================================================================
+
+7. Need of Eureka in terms of Service Registry:
+
+	-	Service Discovery: Eureka provides a mechanism for service discovery, allowing services to find and communicate with each other dynamically. In a microservices environment, services often come and go, and having a dynamic service discovery mechanism is essential.
+	
+	- Dynamic Scaling: Microservices applications often require the ability to scale services up or down based on demand. Eureka enables dynamic scaling by allowing newly instantiated services to register themselves with the registry, and other services can dynamically discover and communicate with them.
+	
+	- Load Balancing: Eureka can be integrated with load balancing mechanisms to distribute incoming requests among multiple instances of a service. This helps in optimizing resource utilization and improving the overall performance and availability of the application.
+	
+	- Resilience: Eureka helps in building resilient systems by allowing services to be resilient to failures. If a service instance fails, Eureka can quickly detect the failure and route traffic to healthy instances, minimizing downtime and improving system reliability.
+
+========================================================================================================================================================
+
+8. Limitations of Eureka:
+
+	- Only the services which are registered to Eureka can do communication to the other services registered into eureka.
+
+========================================================================================================================================================
+
+8. Fault Tolerance in Microservices:
+
+	- Fault tolerance is the property that enables a system to continue operating properly in the event of the failure of some of its components.
+	- It falls under circuit breaker design pattern of microservices.
+	- To implement this: Hystrix, Resilience4J
+
+========================================================================================================================================================
+
+9. use of Resilience4J in Fault Tolerance/Circuit breaker?
+
+	- States of Resilience4J and its purposes:
+
+		- CLOSED: When all the requests are successfully passing through without much failures.
+		- OPEN: When the failure rate of requests exceeds a configured threshold, the Circuit Breaker transitions to the OPEN state. In this state, all incoming requests are blocked, and the Circuit Breaker does not allow any requests to pass through.
+		- HALF_OPEN: After a specified duration in the OPEN state, the Circuit Breaker transitions to the HALF_OPEN state. In this state, a limited number of requests are allowed to pass through to test whether the backend service has recovered.
+
+	- Important Properties:
+
+		- slidingWindowSize: This is the number of calls that the Circuit Breaker tracks for the sliding window. It affects how quickly the Circuit Breaker can transition between states.
+
+		- minimumNumberOfCalls: The minimum number of calls that must be evaluated before the Circuit Breaker can transition to an open or closed state. It helps in preventing the Circuit Breaker from opening too quickly.
+
+		- permittedNumberOfCallsInHalfOpenState: The number of permitted calls in the half-open state. When the Circuit Breaker transitions from open to half-open, it allows a limited number of calls to determine if the backend is still failing.
+
+		- failureRateThreshold: The failure rate at which the Circuit Breaker opens. If the failure rate exceeds this threshold, the Circuit Breaker transitions to the open state.
+
+========================================================================================================================================================
+
+10. Difference between handling the failures using exception vs handling failures using Resilience4J/Hystrix circuit breakers?
+
+	- When the ciruit breaker goes to OPEN state, it skips making a downstream calls
+	- But with exceptions it will hit the downstream everytime.
+	
+	- Once the downstream is up, it will goe to HALF_OPEN state, where it will get the responses back from downstream.
+
+========================================================================================================================================================
+
+11. API Gateway uses:
+
+	- Interface inbetween Front end & Microservice.
+	- Routing the requests
+	- Authentication/Authorization
+	- /Logging/ Monitoring/etc..
+	- Versioning
+	- Rate Limiters
+	- Load Balancing
+
+========================================================================================================================================================
+
+12. How to implement API Gateway:
+
+	- Netflix API Gateway - Zuul (blocking API Gateway)
+	- Spring cloud API Gateway (non-blocking API Gateway)
+
+========================================================================================================================================================
+
+13. When I have all below 4 in place, what will be the order to deploy?
+
+	-> EurekaServer ( below 3 services will be registerd to EurekaServer )
+	-> PaymentService
+	-> OrderService(uses PaymentService)
+	-> cloud-gateway ( routes to PaymentService & OrderService)
+
+========================================================================================================================================================
+
+14. Terminalogies used in API-Gateway?
+
+	-> route: routes to the particular microservices contains the id, uri & predicate.
+	-> predicate: context path of a microservices.
+
+========================================================================================================================================================
+
+15. How to handle fault tolerance in a microservice using kafka?
+
+	- Use Replication: Kafka supports data replication for fault tolerance. Configure your Kafka topics to have multiple replicas to ensure data durability. If a Kafka broker or instance fails, another replica can take over, ensuring data availability.
+	- Consumer Group: Use Kafka consumer groups for your microservices. If one consumer instance fails, Kafka will automatically rebalance the workload among the remaining consumers in the group. This ensures that no messages are lost.
+	- Circuit Breakers and Retries: Implement circuit breakers and retry mechanisms in your microservices. If a service or component experiences temporary issues, retries can help recover from transient failures. Circuit breakers can prevent your system from making repeated requests to a failing service.
+	- Backup and Restore: Set up backup and restore processes for Kafka data. Regularly back up your Kafka topics and configurations so that you can recover data in case of catastrophic failures.
+	
+
+========================================================================================================================================================
+
+16. API Gateway vs Load Balancing vs Service Registry:
+	
+	- API Gateway:
+		- Centralized API Management
+		- Routing and Load Balancing
+		- Security, rate limiting, and traffic encryption (HTTPS/SSL).
+		- Analytics and Monitoring
+
+	- Load Balancing:
+		- Scalability: Load balancers can automatically scale the number of server instances based on traffic load, allowing for efficient resource utilization.
+		- Optimized Performance: They can route traffic to the closest or least loaded server, optimizing response times and reducing latency.
+		- Health Checks: Load balancers can continuously monitor the health of server instances and route traffic only to healthy instances.
+
+	- Service Registry:
+		- keep track of available services and their instances, making it easy for services to discover and communicate with each other dynamically.
+		- Load Balancing.
+		- Resilience: In case of instance failures, service registries can update their information and redirect traffic to healthy instances, improving system resilience.
+		- Consistency: Service registries ensure that services always have access to up-to-date information about the available instances, which can be critical in dynamic, containerized environments.
+	
+========================================================================================================================================================
+
+17. Few important design patterns of microservices:
+
+	- Fault Tolerance: Implement resilience patterns such as retries, timeouts, and fallbacks to handle network and service failures.
+	
+	- Circuit Breaker:
+		- Example: Implement the Circuit Breaker pattern (e.g., with tools like Hystrix) to handle failures gracefully and prevent cascading failures.
+	
+	- Saga Pattern:
+		- The Saga design pattern is a way to manage data consistency across microservices in distributed transaction scenarios.
+		- Saga pattern can be achieved using Choreography vs. Orchestration:
+			- Choreography - where each service communicates with others through events
+			- Orchestration - where a central service manages the flow of activities in a workflow.
+	
+	- Containerization and Orchestration: Use containerization (e.g., Docker) and container orchestration (e.g., Kubernetes) for managing and deploying microservices.
+	
+	- Blue-Green Deployments: Use blue-green deployments to minimize downtime during updates by switching traffic from the old version (blue) to the new version (green).
+	
+========================================================================================================================================================
+
+18. Horizontal Scaling vs Vertical Scaling:
+
+	- Horizontal Scaling (Scaling Out):
+
+		- Horizontal scaling means adding more instances of the same microservice to your application.
+		- It's like adding more identical workers to handle a specific job. Each worker can process requests independently.
+		- It is cost-effective and often used to handle increased demand by distributing the workload.
+
+	- Vertical Scaling (Scaling Up):
+
+		- Vertical scaling means increasing the capacity of a single microservice instance by adding more resources (like CPU, RAM, or storage) to it.
+		- It's like giving a single worker more powerful tools to handle a job. This can make that worker more capable.
+		- It can be more expensive and may have limitations based on the hardware.
+
+========================================================================================================================================================
+

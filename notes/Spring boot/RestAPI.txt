@@ -67,3 +67,16 @@
 	- it is applicable only for get url
 
 ========================================================================================================================================================
+7. What will happen with the below code?
+
+	@GetMapping("/{userId}")
+    @PutMapping("/")
+    public ResponseEntity<String> getPayment(@PathVariable int userId) {
+        return ResponseEntity.ok().body("Success");
+    }
+	
+	Answer: 
+		- @GetMapping annotation comes first, the method will only handle HTTP GET requests mapping to the path "/{userId}". 
+		- If you try to send a PUT request to the root path "/", it will not be mapped to this method.
+	
+========================================================================================================================================================
