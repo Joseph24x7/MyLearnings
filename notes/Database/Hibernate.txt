@@ -177,7 +177,80 @@
 	
 =======================================================================================================================================================
 
+15. How to create composite primary key in jpa entity class & JPA Repository?
+
+		@Entity
+		public class YourEntity {
+			@EmbeddedId
+			private YourCompositeKey compositeKey;
+		}
+
+		@Embeddable
+		public class YourCompositeKey implements Serializable {
+			private Long firstKey;
+			private String secondKey;
+		}
+		
+		//Repository
+		public interface YourEntityRepository extends JpaRepository<YourEntity, YourCompositeKey> {
+		}
+		
+=======================================================================================================================================================
+
+16. Transactions & primary keys:
+
+	- Is it possible to handle Transactions with composite primary key? yes
+	- Is it possible to handle Transactions without primary key? No
+	- Is it possible to create a table without a primary key? yes, but not a good practice.
+
+=======================================================================================================================================================
+
+17. Steps to configure multiple datasource:
+
+
+	1. app.properties:
+		#DATASOURCE FOR STORE USER SPECIFIC DATA
+		spring.datasource.user.url=jdbc:postgresql://localhost:5432/java_to_dev_main_db?createDatabaseIfNotExist=true
+		spring.datasource.user.username=postgres
+		spring.datasource.user.password=password
+		spring.datasource.user.driver-class-name=org.postgresql.Driver
+
+		#DATASOURCE FOR STORE BANK SPECIFIC DATA
+		spring.datasource.bank.url=jdbc:postgresql://localhost:5432/java_to_dev_secondary_db?createDatabaseIfNotExist=true
+		spring.datasource.bank.username=postgres
+		spring.datasource.bank.password=password
+		spring.datasource.bank.driver-class-name=org.postgresql.Driver
+
+	2. DataSourceConfugurations -> Create two datasource configurations:
+	
+			@Configuration
+			@EnableJpaRepositories(basePackages = "com.javatodev.api.repository.bank",
+					entityManagerFactoryRef = "bankEntityManagerFactory", transactionManagerRef= "bankTransactionManager")
+			public class BankDataSourceConfiguration {
+
+				@Bean    
+				@ConfigurationProperties("spring.datasource.bank")
+				public DataSource cardDataSource() {
+				}
+
+				@Bean(name = "bankEntityManagerFactory")
+				public LocalContainerEntityManagerFactoryBean bankEntityManagerFactory() {
+					return builder.dataSource(cardDataSource()).packages("com.javatodev.api.model.bank").build();
+				}
+
+				@Bean
+				public PlatformTransactionManager bankTransactionManager() {
+				}
+
+			}
+	
+	3. Now we are good to go. Based on (@EntityScan & @EnableJpaRepositories) base package & repository base package it will decide the datasource.
+	4. Spring Data JPA might not be able to distinguish which entities and repositories are supposed to be associated with Database 1 and Database 2. It could lead to conflicts and unexpected behavior.
+
+=======================================================================================================================================================
 15) pagination or Batch Fetching & @BatchSize(size = 10) // Load 10 books at once
 16) JPARepository vs CrudRepository
+20). write code for pagination using Repository class
+21). How to configure Spring data jpa in terms of multiple database to be connected at the same time?
 
 =======================================================================================================================================================
