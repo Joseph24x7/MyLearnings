@@ -16,12 +16,12 @@ public class KeyPairProblem {
 
         Set<Integer> hashSet = new HashSet<>();
 
-        for (int i = 0; i < arr.length; i++) {
-            if (hashSet.contains(k - arr[i])) {
+        for (int j : arr) {
+            if (hashSet.contains(k - j)) {
                 System.out.println("True");
                 break;
             } else {
-                hashSet.add(arr[i]);
+                hashSet.add(j);
             }
         }
     }
