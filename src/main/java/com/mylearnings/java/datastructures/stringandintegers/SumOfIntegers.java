@@ -1,4 +1,4 @@
-package com.mylearnings.java.datastructures;
+package com.mylearnings.java.datastructures.stringandintegers;
 
 /**
  * O(n) time complexity

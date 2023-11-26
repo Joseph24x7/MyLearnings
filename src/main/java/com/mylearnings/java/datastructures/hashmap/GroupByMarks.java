@@ -1,4 +1,4 @@
-package com.mylearnings.java.datastructures;
+package com.mylearnings.java.datastructures.hashmap;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

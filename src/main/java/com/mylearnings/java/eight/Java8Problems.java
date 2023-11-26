@@ -10,9 +10,9 @@ public class Java8Problems {
 
     public static void main(String[] args) {
 
-        //Q1 convert all the String to upper case
+        //Q1 convert all the String to upper case and join them
         List<String> str = List.of("String1","String2","String3");
-        System.out.println(str.stream().collect(Collectors.joining(",")));
+        System.out.println(str.stream().map(st -> st.toUpperCase()).collect(Collectors.joining(",")));
 
         //Q2 Given a list of integers, find out all the numbers starting with 1 using Stream functions
         List<Integer> myList = Arrays.asList(10, 15, 8, 49, 25, 98, 32);
