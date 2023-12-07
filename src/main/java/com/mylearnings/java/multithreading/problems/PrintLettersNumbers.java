@@ -1,9 +1,13 @@
 package com.mylearnings.java.multithreading.problems;
 
+import org.springframework.http.HttpStatus;
+
 public class PrintLettersNumbers {
 
+
+
     private static final Object lock = new Object();
-    private static boolean printLetter = true;
+    private static volatile boolean printLetter = true;
 
     public static void main(String[] args) {
         Thread threadLetters = new Thread(PrintLettersNumbers::printLetters);
