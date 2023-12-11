@@ -8,10 +8,11 @@ public class KeyPairProblemUsingMap {
     public static void main(String[] args) {
 
         int[] arr = {1, 3, 7, 2, 9, 5};
+        int k = 11;
 
         Map<Integer, Integer> map = new HashMap<>();
         for (int i = 0; i < arr.length; i++) {
-            if (map.containsKey(11 - arr[i])) {
+            if (map.containsKey(k - arr[i])) {
                 System.out.println(i + ":" + map.get(11 - arr[i]));
                 break;
             } else {
