@@ -47,11 +47,11 @@ class Triplets {
         }
 
         for(int i=1; i<arr.length-2; i++) {
-            currentSum = currentSum - arr[i-1] + arr[i+3-1];
             if(requiredSum == currentSum) {
                 index = i;
                 break;
             }
+            currentSum = currentSum - arr[i-1] + arr[i+3-1];
         }
 
         for(int i=index,j=0; i<index+3; i++,j++) {
