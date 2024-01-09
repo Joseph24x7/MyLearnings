@@ -137,7 +137,6 @@ parallelStream(): This method returns a parallel stream, which means that the op
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
 8. peek() vs map():
 
 	- to perform a void operation similar to foreach, we can go for peek()

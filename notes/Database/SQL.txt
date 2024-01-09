@@ -35,7 +35,7 @@
 5. DML vs DDL vs DCL vs DQL:
 
 	- Data Manipulation Language (DML) -- INSERT, UPDATE, DELETE.
-	- Data Definition Language (DDL) -- CREATE, ALTER, DROP.
+	- Data Definition Language (DDL) -- CREATE, ALTER, DROP, TRUNCATE.
 	- Data Control Language (DCL) -- GRANT and REVOKE.
 	- Data Query Language (DQL) -- SELECT
 	
@@ -48,4 +48,26 @@
 	- Isolation: It ensures that the results of one transaction are not visible to other transactions until the first transaction is committed. 
 	- Durability: Durability guarantees that once a transaction is committed, its effects are permanent and will survive system failures (e.g., power outages or crashes).
 
+========================================================================================================================================================
+
+7. Primary Key vs Unique Key:
+
+	- A primary key is a column or a set of columns that uniquely identifies each record (row) in a table.
+	- There can be only one primary key in a table.
+	- It is used to establish a unique identifier for each record and is often used as a reference in relationships with other tables.
+
+	- A unique key is a column or a set of columns in a table that must contain unique values across all records.
+	- Unlike a primary key, a table can have multiple unique keys.
+	- Unique keys ensure that no two records have the same values in the specified columns but do not necessarily serve as the primary identifier for the table.
+	
+========================================================================================================================================================
+
+8. DELETE VS TRUNCATE:
+
+	- DELETE is used to delete specified rows(one or more).
+	- It is a DML(Data Manipulation Language) command.
+	
+	- TRUNCATE is used to delete all the rows from a table.
+	- While it is a DDL(Data Definition Language) command.
+	
 ========================================================================================================================================================

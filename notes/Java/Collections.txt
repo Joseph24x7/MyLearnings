@@ -33,3 +33,8 @@ A ConcurrentHashMap is like a special librarian who knows how to let kids pick b
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4. Internal Implementation of Hashset:
+- Hashset internally used HashMap to stored elemented in the key.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------

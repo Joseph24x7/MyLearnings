@@ -203,19 +203,19 @@ popular example: ExecutorService
 
 ========================================================================================================================================================
 
-18. Difference between completableFuture & callable Future? which is preferred?
+18. Difference between completableFuture & Future? which is preferred?
 
 	Using CompletableFuture:
 	-------------------------
-	- CompletableFuture is used when you need to perform asynchronous tasks that may return results or be composed together. 
-	- It's often used in scenarios where you want to create a chain of asynchronous operations.
-	- Suitable for building complex asynchronous workflows.
+	- CompletableFuture is used when you need to perform asynchronous tasks that may return results or be composed together. You can easily combine multiple CompletableFutures to create more complex asynchronous workflows using methods like thenCompose, thenApply, thenAccept, and so on.
+	- CompletableFuture allows you to attach callbacks or actions that get executed when the computation is complete. This enables you to define behavior for success, failure, or completion without blocking the thread unnecessarily.
+	- CompletableFuture has built-in support for exceptionally handling errors. You can use the exceptionally method to specify a fallback value or to recover from an exception.
 
-	Using Callable with ExecutorService (callableTask):
+	Using Future:
 	--------------------------------------------------
-	- Callable and ExecutorService are used when you need to execute a task that returns a result or throws an exception. 
-	- It's often used for tasks that require more control over thread management, resource allocation, and result handling.
-	- Supports execution of multiple tasks concurrently using a thread pool.
+	- The Future interface lacks built-in support for easy composition of multiple asynchronous operations.
+	- Future relies on the get() method to retrieve the result of a computation, and it blocks until the result is available. This can make it challenging to perform asynchronous operations without blocking the thread.
+	- Exception handling with Future is often done by catching exceptions during the execution of the submitted task or by checking for exceptions using the get() method.
 
 ========================================================================================================================================================
 
@@ -231,4 +231,32 @@ popular example: ExecutorService
 		- Tasks are queued if all threads are busy. If a thread encounters an exception and terminates, a new one will be created to replace it.
 		- It is suitable for scenarios where you want to limit the number of concurrently executing tasks.
 
+========================================================================================================================================================
+20. Lifecycle of a Thread:
+
+1. New: 
+	- Thread t1 = new Thread(() -> //task); //It is in this state after the instantiation of the thread object.
+	- A thread is in the "New" state when it has been created but not yet started.
+
+2. Runnable:
+	- t1.start();
+	- A thread enters the "Runnable" state when the start() method is called on the thread object.
+	- In this state, the thread is ready to run, but the operating system (or the thread scheduler) has not yet selected it to be the running thread.
+	
+3. Blocked:
+	- A thread transitions to the "Blocked" state when it is temporarily inactive.
+	- This can occur when a thread is waiting for a resource (e.g., waiting for I/O operations, waiting to acquire a lock) or when it's in the sleep() state.
+
+4. Waiting:
+	- Object.wait(), Thread.join(), or LockSupport.park()
+	- A thread enters the "Waiting" state when it is waiting for another thread to perform a particular action.
+
+5. Timed Waiting:
+	- Thread.sleep() or Object.wait(timeout).
+	- Similar to the "Waiting" state, but with a specified time limit.
+
+6. Terminated:
+	- A thread enters the "Terminated" state when it has completed its execution or if an uncaught exception terminates it.
+	- Once a thread is terminated, it cannot return to any other state.
+	
 ========================================================================================================================================================

@@ -248,9 +248,39 @@
 	4. Spring Data JPA might not be able to distinguish which entities and repositories are supposed to be associated with Database 1 and Database 2. It could lead to conflicts and unexpected behavior.
 
 =======================================================================================================================================================
-15) pagination or Batch Fetching & @BatchSize(size = 10) // Load 10 books at once
-16) JPARepository vs CrudRepository
-20). write code for pagination using Repository class
-21). How to configure Spring data jpa in terms of multiple database to be connected at the same time?
+
+18. write code for pagination using Repository class:
+
+	Step 1: 
+	public interface YourEntityRepository extends JpaRepository<YourEntity, Long> {
+		Page<YourEntity> findByName(String name, Pageable pageable);
+	}
+
+	Step 2:
+		@Service
+		public class YourEntityService {
+
+			@Autowired
+			private YourEntityRepository yourEntityRepository;
+
+			public Page<YourEntity> getAllEntities(int page, int size) {
+				Pageable pageable = PageRequest.of(page, size);
+				return yourEntityRepository.findAll(pageable);
+			}
+
+			public Page<YourEntity> getEntitiesByName(String name, int page, int size) {
+				Pageable pageable = PageRequest.of(pageNumber, pageSize);
+				return yourEntityRepository.findByName(name, pageable);
+			}
+		}
+
+	page -
+	size - 
+
+=======================================================================================================================================================
+16) JPARepository vs CrudRepository:
+
+	- CrudRepository - It contains methods for CRUD operations. For example save(), saveAll(), findById(), findAll(), etc. 
+	- JpaRepository  - It extends PagingAndSortingRepository that extends CrudRepository.
 
 =======================================================================================================================================================
