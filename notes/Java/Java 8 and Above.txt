@@ -79,7 +79,17 @@ non-sealed Class:
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-5. intermediate vs terminal? Is intermediate eager or lazy loaded? Is terminal eager or lazy loaded?
+5. Difference between optional.of and optional.ofNullable 
+
+	- If you try to create an Optional.of with a null value, it will throw a NullPointerException at runtime.
+	- Optional<String> optionalNull = Optional.of(nullValue); // This line will throw NullPointerException
+	
+	- If the provided value is null, Optional.ofNullable will create an empty Optional without throwing an exception.
+	- Optional<String> optionalNull = Optional.ofNullable(nullValue); // Valid, creates an empty Optional
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+6. intermediate vs terminal? Is intermediate eager or lazy loaded? Is terminal eager or lazy loaded?
 
 Intermediate Operations:
 
@@ -93,7 +103,7 @@ Terminal Operations:
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-6. @Valid vs @Validated:
+7. @Valid vs @Validated:
 
 @Valid: used for bean validations and part of jakarta.validation library.
 @Validated: is part of the Spring Framework and is used for method-level validation 
@@ -109,7 +119,7 @@ public class MyService {
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-6. Examples of some predefined functional interfaces:
+8. Examples of some predefined functional interfaces:
 
 	Consumer<T>: (used in list.foreach())
 	 - Represents an operation that takes an input argument of type T and returns no result.
@@ -129,7 +139,7 @@ public class MyService {
 	 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-7. stream() vs parallelStream():
+9. stream() vs parallelStream():
 
 stream(): This method returns a sequential stream, which means that the operations performed on the stream are executed in a single thread, one after the other.
 
@@ -137,7 +147,7 @@ parallelStream(): This method returns a parallel stream, which means that the op
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-8. peek() vs map():
+10. peek() vs map():
 
 	- to perform a void operation similar to foreach, we can go for peek()
 	- to return or modify a specific field and return the field from the collection, then we can go for map.
@@ -145,7 +155,7 @@ parallelStream(): This method returns a parallel stream, which means that the op
 	- peek() uses consumer interface and it won't return anything
 	
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-9. types of streams in java8:
+11. types of streams in java8:
 
 	- sequential stream
 	- parallel stream
@@ -153,14 +163,14 @@ parallelStream(): This method returns a parallel stream, which means that the op
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 	
-10. What is method references in java 8.
+12. What is method references in java 8.
 
 	- basically a compact and easy form of the lambda expression.
 	- When a method is just going to take a parameter and nothing else we can go for method references
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-11. toArray(), peek(), distinct()
+13. toArray(), peek(), distinct()
 
 	- The toArray() method is used to convert the elements of a stream into an array.
 	- The peek() method is an intermediate operation that allows you to perform an action on each element of the stream without changing the elements themselves.

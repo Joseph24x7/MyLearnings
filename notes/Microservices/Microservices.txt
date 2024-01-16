@@ -249,6 +249,12 @@
 	
 	- Blue-Green Deployments: Use blue-green deployments to minimize downtime during updates by switching traffic from the old version (blue) to the new version (green).
 	
+	- Command Query Responsibility Segregation (CQRS): 
+		- Commands are instructions that indicate a desired change in the state of an entity. these commands execute operations such as Insert, Update, and Delete.
+		- Queries are used to retrieve information from a database. Queries objects just return data and make no modifications to it.
+		- We can achiveve Improved performance out of Segregating Commands and Queries.
+		- Can be achieved by database replicas, master-slave mechanism.
+	
 ========================================================================================================================================================
 
 18. Horizontal Scaling vs Vertical Scaling:

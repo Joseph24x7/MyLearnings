@@ -1,0 +1,20 @@
+behavioral design pattern:
+---------------------------
+
+1. Strategic design pattern: 
+---------------------------
+	- The Strategy pattern is a behavioral design pattern that defines a family of algorithms, encapsulates each algorithm, and makes them interchangeable. 
+	- This pattern allows the client to choose the appropriate algorithm at runtime.
+	
+	- Example: SortingStrategy - Merge, quick or bubble.
+		
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Others:
+
+1. Fluent Interface Pattern:
+
+	- A fluent interface provides an easy-readable, flowing interface, that often mimics a domain specific language. 
+	- Using this pattern results in code that can be read nearly as human language
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------

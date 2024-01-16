@@ -28,8 +28,10 @@ There are three cloud computing models available on AWS.
 4. EC instance: (Part of IAAS)
 
 	- The purpose of an EC2 instance is to provide you with computing resources on demand. You can use it to run applications, host websites, process data, or perform any other computing tasks. It's like having your own virtual computer in the cloud that you can configure and use based on your specific needs. EC2 instances are part of Amazon Web Services (AWS) and offer flexibility, scalability, and cost-effectiveness for various computing requirements.
+	
 	- When you launch an EC2 instance, it typically starts with a clean, basic operating system (such as Amazon Linux, Ubuntu, or others), and it doesn't come pre-installed with Docker by default. However, you have the flexibility to install and configure Docker on an EC2 instance based on your requirements.
 		
 ========================================================================================================================================================
 
-5. Amazon Elastic Container Service (ECS) is a fully managed container orchestration service provided by Amazon Web Services (AWS). ECS makes it easy to run, stop, and manage Docker containers on a cluster. Containers are a lightweight, portable, and consistent way to package and run applications and their dependencies.
+5. 
+Amazon Elastic Container Service (ECS) is a fully managed container orchestration service provided by Amazon Web Services (AWS). ECS makes it easy to run, stop, and manage Docker containers on a cluster. Containers are a lightweight, portable, and consistent way to package and run applications and their dependencies.

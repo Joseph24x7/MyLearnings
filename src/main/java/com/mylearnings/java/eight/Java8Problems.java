@@ -33,38 +33,40 @@ public class Java8Problems {
         Set<Integer> set = new HashSet<>();
         System.out.println(myList2.stream().filter(i -> !set.add(i)).toList());
 
-        // Q6 Given a list of integers, find the maximum and minimum value element present in it using Stream functions?
+        // Q6 How to find the first duplicate elements in a given integers list in java using Stream functions
+        System.out.println(myList2.stream().filter(i -> !set.add(i)).findFirst().get());
+
+        // Q7 Given a list of integers, find the maximum and minimum value element present in it using Stream functions?
         System.out.println(myList2.stream().max(Comparator.comparingInt(i -> i)).get());
         System.out.println(myList2.stream().min(Comparator.comparingInt(i -> i)).get());
 
-        // Q7 Given a list of integers, sort all the values present in it in descending order using Stream functions?
+        // Q8 Given a list of integers, sort all the values present in it in descending order using Stream functions?
         System.out.println(myList2.stream().sorted((i1, i2) -> i2 - i1).toList());
 
-        // Q8 - sum - average and count
+        // Q9 - sum - average and count
         System.out.println(myList.stream().mapToInt(i -> i).sum());
         System.out.println(myList.stream().mapToInt(i -> i).average().orElse(0d));
         System.out.println(myList.stream().mapToInt(i -> i).count());
 
-        // Q9 - students with distinction
+        // Q10 - students with distinction
         List<Student> students = Arrays.asList(new Student("john", 85.0f), new Student("Ajay", 70.0f), new Student("Mani", 85.0f), new Student("Vikram", 60.0f));
         System.out.println(students.stream().filter(s -> s.getMarks() >= 80.0f).peek(s -> s.setDistinction(true)).toList());
 
-        // Q10 - Merge two sorted array list
+        // Q11 - Merge two sorted array list
         List<Integer> list1 = Arrays.asList(10, 15, 8, 49, 25, 98, 32);
         List<Integer> list2 = Arrays.asList(11, 9, 8, 19, 4, 968, 90);
         System.out.println(Stream.of(list1, list2).flatMap(Collection::stream).sorted().toList());
 
-        // Q11 - Program to reverse each word in a given string
+        // Q12 - Program to reverse each word in a given string
         String string = "My name is Joseph";
         System.out.println(Arrays.stream(string.split(" ")).map(s -> new StringBuilder(s).reverse()).toList());
 
-        // Q12 - find non-repetitive words
+        // Q13 - find non-repetitive words
         String s = "red green white red blue white black ";
         String[] arr = s.split(" ");
         List<String> lists = Arrays.asList(arr);
-
         Map<String, Long> counts = lists.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        System.out.println(counts.entrySet().stream().filter(stringLongEntry -> stringLongEntry.getValue() ==1 ).map(Map.Entry::getKey).toList());
+        System.out.println(counts.entrySet().stream().filter(stringLongEntry -> stringLongEntry.getValue() == 1).map(Map.Entry::getKey).toList());
         System.out.println(lists.stream().filter(i -> Collections.frequency(lists, i) == 1).toList());
 
     }
