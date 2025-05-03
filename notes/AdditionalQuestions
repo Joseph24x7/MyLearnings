@@ -1,0 +1,22 @@
+1. Types of caching mechanism
+2. Scheduler and cron jobs
+3. Java serialization
+4. Encryption algorithms if used any
+5. Charset conversions while calling backend
+6. Diff between addUrlPatterns and setUrlPatterns
+7. How to create custom filters in Spring Boot
+8. Underlying data structures HashMap uses
+9. Uses of @ConfigurationProperties
+10. How to specify two beans by same type without using @Qualifier
+11. Conditional annotations
+12. What is PostgreSQL, and how does it differ from other SQL databases?
+13. What are the reasons for memory leak?
+14. Diff between SOA and Microservices
+15. List and explain different memory types allocated by Java virtual machine.
+16. Describe different ways of exception handling in the Spring MVC framework
+17. List the difference between API and web service
+18. What are the main differences between the first-level and second-level cache in Hibernate
+19. Diff between oauth and jwt token
+20. What is the purpose of the secret key in jwt token
+21. Cap theorem
+22. Hashicorp with vault explaination
