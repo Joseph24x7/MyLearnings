@@ -9,8 +9,8 @@
 
 2. Examples of NOSQL database?
 
-	- MongoDB
-	- Redis Inmemory database
+	- Couchbase
+	- Redis In-Memory database
 
 ========================================================================================================================================================
 

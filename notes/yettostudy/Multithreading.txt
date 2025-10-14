@@ -1,7 +1,7 @@
 1. What is multithreading, and how does it differ from multiprocessing?
 
 Multiprocessing:
-Multiple independent processes run concurrently on a multi-core or multi-processor system.
+Multiple independent processes run concurrently on a multicore or multiprocessor system.
 
 Multithreading:
 Single process is divided into multiple threads, each of which can execute independently and concurrently.

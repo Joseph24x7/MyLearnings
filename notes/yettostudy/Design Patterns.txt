@@ -1,0 +1,6 @@
+1. Strategic design pattern:
+2. Fluent Interface Pattern:
+3. Facade design pattern
+4. Proxy design pattern
+5. Factory and Abstract Factory
+6. Builder Design Pattern

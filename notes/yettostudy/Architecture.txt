@@ -1,0 +1,5 @@
+4. CSRF and CORS.
+
+CSRF (Cross-Site Request Forgery): Imagine if you are logged into your bank account, and you receive an email with a link that says "Click here to see cute cat pictures." You click the link, and it actually transfers money from your bank account to the attacker's account. This is CSRF.
+
+CORS (Cross-Origin Resource Sharing): CORS is a set of rules that helps your website specify which other websites are allowed to access its resources (like images, scripts, or data) in a web browser.

@@ -19,4 +19,5 @@
 19. Diff between oauth and jwt token
 20. What is the purpose of the secret key in jwt token
 21. Cap theorem
-22. Hashicorp with vault explaination
+22. Hashicorp with vault explanation
+7. @Valid vs @Validated:

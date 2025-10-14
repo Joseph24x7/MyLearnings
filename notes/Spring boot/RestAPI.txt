@@ -67,16 +67,28 @@
 	- it is applicable only for get url
 
 ========================================================================================================================================================
-7. What will happen with the below code?
+7. Can we handle multiple Url paths for the same method ? Also can we use multiple http method for a same method in controller class?
 
-	@GetMapping("/{userId}")
-    @PutMapping("/")
-    public ResponseEntity<String> getPayment(@PathVariable int userId) {
-        return ResponseEntity.ok().body("Success");
-    }
+    → Yes both are possible using @RequestMapping, but it is not a good practise.
+         @RestController
+         @RequestMapping("/api")
+         public class DemoController {
+
+             @RequestMapping(value = {"/hello", "/hi"}, method = {RequestMethod.GET, RequestMethod.POST})
+             public String greet() {
+                 return "Hello from multiple paths and methods!";
+             }
+         }
+
+    → using predefined http method annotations, only multiple Url paths is possible.
+    → Even if we defined multiple http method annotations http method annotations, it picks the first one.
+     @GetMapping({"/hello", "/hi"})
 	
-	Answer: 
-		- @GetMapping annotation comes first, the method will only handle HTTP GET requests mapping to the path "/{userId}". 
-		- If you try to send a PUT request to the root path "/", it will not be mapped to this method.
-	
+========================================================================================================================================================
+8. Connection vs Socket vs Read vs ConnectionRequest Timeout?
+
+    → Connection Timeout → Time limit to establish the initial connection to the server.
+    → Socket/Read Timeout → Time limit waiting for data after connection is established.
+    → Connection Request Timeout → Time limit to get a connection from the connection pool.
+
 ========================================================================================================================================================

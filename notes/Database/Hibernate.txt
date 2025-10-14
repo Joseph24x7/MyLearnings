@@ -1,28 +1,18 @@
-1. JPA vs Hibernate vs Spring Data JPA: 
-
-	- JPA is a Specification.
-	- Hibernate is the implementations.
-	- Spring Data JPA has been built on JPA/Hibernate to simplify the process.
-
-========================================================================================================================================================
-
-2. Advantages of Hibernate:
+1. Advantages of Hibernate:
 	- Object-Oriented(ORM) Framework is itself an advantage
-	- Hibernate Query Language (HQL)
-	- Dynamic queries using criteria
 	- Supports lazy loading for improved performance
 	- Caching
 	- Auto DDL creation
 
 ========================================================================================================================================================
 
-3. Types of Relationship:
+2. Types of Relationship:
 
 	1) one to one:
 		- Table: Person ( personid, name, passportid ) , Passport ( passportid, locstion, personid )
 		- Entity: Person ( personid, name, passport ) , Passport ( passportid, locstion, person )
 	
-	2) One to many:
+	2) One to many / Many to one:
 		- Table: Author ( authorId, name ) , Book ( bookId, title, authorId )
 		- Entity: PAuthor ( authorId, name, list<books> ) , Book ( bookId, title, author )
 	
@@ -36,56 +26,12 @@
 
 ========================================================================================================================================================
 
-4. Lifecycle of an entity in hibernate. Methods used in this lifecycle process:
-
-	- Transient State: it's just been instantiated (new Entity ()) and is not associated with any Hibernate Session.
-	- Persistent State: it is associated with a Hibernate Session, and any changes made to the entity will be synchronized with the database during a transaction.
-		- session.save(entity) -- make a transient entity persistent and save it to the database.
-		- session.update(entity) -- Used to make a detached entity persistent.
-		- session.saveOrUpdate(entity) -- Save or update the entity, depending on whether it's transient or detached.
-		- session.merge(entity) -- Merge a detached entity into the session.
-	- Detached State: was once associated with a Hibernate Session but is no longer. 
-		- session.evict(entity) -- Evict a persistent entity from the session, making it detached.
-		- session.clear() -- Clear the session, detaching all entities associated with it.
-	- Removed State: it was previously persistent, but it has been marked for deletion.
-		- session.delete(entity) -- will remove the entity from the database upon transaction commit.
-		
-========================================================================================================================================================
-
-5. flush() vs evict() vs clear() vs close():
-
-	- session.flush();  method is used to forces pending changes to be written to the database. 
-	- session.evict(entity); method is used to detach a specific entity from the Hibernate Session.
-	- session.clear(); method is used to detach all entities from the current session, effectively clearing the session's first-level cache.
-	- session.close(); will close the session and session will be no longer in use so as the managed entities in that session. 
-	
-========================================================================================================================================================
-
-6. get() vs load():
-	
-	- get() uses eager loading, Hibernate immediately retrieves the database record.
-	- get() returns null if object is not found.
-	
-	- get() uses lazy loading, it returns a proxy object, and the actual database retrieval happens when you access a property or method on the proxy object.
-	- load() throws ObjectNotFoundException if object is not found.
-
-========================================================================================================================================================
-
-7. save() vs update() vs saveorupdate() vs merge():
-
-	- save() method is used to make a transient entity persistent and save it to the database.
-	- update() method is used to make a detached entity persistent and update its state in the database. 
-	- saveorupdate() is used to Save or update the entity, depending on whether it's transient or detached.
-	- merge() copies the state of the detached entity to a new managed entity and returns the managed entity.
-
-========================================================================================================================================================
-
-8. First-Level Cache(default):
+3. First-Level Cache(default):
 		- Session-Level Cache.
 		- When the session is closed or cleared, the first-level cache is destroyed.
 		- It is not designed for concurrent processes and it is not thread safe.
 		
-	Second-Level Cache
+   Second-Level Cache
 		- Session Factory-Level Cache.
 		- It is designed for concurrent processes and it is thread safe.
 		- to enable add this to properties file: spring.jpa.hibernate.cache.use_second_level_cache=true
@@ -93,16 +39,15 @@
 
 ========================================================================================================================================================
 
-9. Important hibernate properties:
+4. Important hibernate properties:
 	
 	- hibernate.show_sql: true/false -> Enables or disables the display of SQL statements in the console.
 	- hibernate.hbm2ddl.auto: create/update/validate -> Defines how Hibernate should handle schema generation.
-	- hibernate.cache.use_second_level_cache: true/false -> Enables or disables the second-level cache.
-	- hibernate.c3p0.min_size & hibernate.c3p0.max_size -> Minimum and Maximum number of database connections in the connection pool 
+	- hibernate.c3p0.min_size & hibernate.c3p0.max_size -> Minimum and Maximum number of database connections in the connection pool
 
 ========================================================================================================================================================
 
-10. hibernate.hbm2ddl.auto: create/update/validate:
+5. hibernate.hbm2ddl.auto: create/update/validate:
 
 	- none(default) -- Hibernate will not create or update or validate the database schema based on your entity mappings.
 	- create -- If the database already exists, it will be dropped and recreated.
@@ -111,37 +56,33 @@
 
 ========================================================================================================================================================
 
-11. Fetch Type:
+6. Fetch Type:
 
 	- fetch = FetchType.EAGER -> It is Default for @ManyToOne and @OneToOne.
 	- fetch = FetchType.LAZY -> It is Default for @OneToMany.
 		Author author = session.get(Author.class, authorId); // Load the author.
 		List<Book> books = author.getBooks(); // Load the books associated with the author only when it is accessed.
-	- Note: Writing HQL/JPQL may override the lazy loading.
 	
 ========================================================================================================================================================
 
-12. N+1 problem in hibernate:
+7. N+1 problem in hibernate:
 
 	- Suppose you have a list of authors and their books:
 		-> You fetch a list of authors (N authors) from the database.
 		-> When you access the books for each author, Hibernate generates a separate SQL query to load the books for each author (1 query per author).
 		-> In this scenario, you end up with N authors and N SQL queries to fetch their books, resulting in a total of N+1 queries.
-		
-		
+
 	- Solutions:
 		-> Eager Loading
 		-> Fetch using join query
-		-> batch fetching
 
 ========================================================================================================================================================
 
-13. What is the use of Cascade during entity relationship?
+8. What is the use of Cascade during entity relationship?
 
 	- Defines how associated entities should behave when we perform certain operation on the entity.
 	- There is no default option, if we won't specify, cascading won't happen.
-	
-	
+
 	- CascadeType.PERSIST: When an entity is saved, associated entities will also be saved. This is useful for maintaining the integrity of related objects.
 	- CascadeType.MERGE: When an entity is merged into the persistence context (e.g., via EntityManager.merge()), associated entities will also be merged.
 	- CascadeType.REMOVE: When an entity is removed, associated entities will also be removed. This is useful for ensuring that related data is deleted when the owning entity is deleted.
@@ -150,34 +91,13 @@
 	- CascadeType.ALL: This cascade option includes all the above operations (PERSIST, MERGE, REMOVE, REFRESH, DETACH). It's a shorthand way to specify that all cascade operations should be applied.
 
 ========================================================================================================================================================
-14. Steps to implement basic Stored Procedure using Spring Data JPA:
+9. Steps to implement basic Stored Procedure using Spring Data JPA:
 
-	1. Implement the below stored procedure in Query Console of respective Database:
-	
-					CREATE OR REPLACE FUNCTION update_employee_salary_by_email(
-						IN employee_email VARCHAR,
-						IN new_salary INT
-					) RETURNS VOID AS $$
-					BEGIN
-						UPDATE myapp.employee
-						SET salary = new_salary
-						WHERE email = employee_email;
-					END;
-					$$ LANGUAGE plpgsql;
 
-	2. Implement the below query to check whether Stored Procedure is save or not:
-	
-		SELECT proname, proargnames, proargtypes
-		FROM pg_proc
-		WHERE proname = 'update_employee_salary_by_email';
-
-	3. To Drop the stored procedure incase of any issues:
-	
-		DROP FUNCTION IF EXISTS update_employee_salary_by_email(INT,INT);
 	
 =======================================================================================================================================================
 
-15. How to create composite primary key in jpa entity class & JPA Repository?
+10. How to create composite primary key in jpa entity class & JPA Repository?
 
 		@Entity
 		public class YourEntity {
@@ -197,90 +117,21 @@
 		
 =======================================================================================================================================================
 
-16. Transactions & primary keys:
-
-	- Is it possible to handle Transactions with composite primary key? yes
-	- Is it possible to handle Transactions without primary key? No
+11. primary keys:
 	- Is it possible to create a table without a primary key? yes, but not a good practice.
 
 =======================================================================================================================================================
 
-17. Steps to configure multiple datasource:
+13. Steps to configure multiple datasource:
 
 
-	1. app.properties:
-		#DATASOURCE FOR STORE USER SPECIFIC DATA
-		spring.datasource.user.url=jdbc:postgresql://localhost:5432/java_to_dev_main_db?createDatabaseIfNotExist=true
-		spring.datasource.user.username=postgres
-		spring.datasource.user.password=password
-		spring.datasource.user.driver-class-name=org.postgresql.Driver
 
-		#DATASOURCE FOR STORE BANK SPECIFIC DATA
-		spring.datasource.bank.url=jdbc:postgresql://localhost:5432/java_to_dev_secondary_db?createDatabaseIfNotExist=true
-		spring.datasource.bank.username=postgres
-		spring.datasource.bank.password=password
-		spring.datasource.bank.driver-class-name=org.postgresql.Driver
-
-	2. DataSourceConfugurations -> Create two datasource configurations:
-	
-			@Configuration
-			@EnableJpaRepositories(basePackages = "com.javatodev.api.repository.bank",
-					entityManagerFactoryRef = "bankEntityManagerFactory", transactionManagerRef= "bankTransactionManager")
-			public class BankDataSourceConfiguration {
-
-				@Bean    
-				@ConfigurationProperties("spring.datasource.bank")
-				public DataSource cardDataSource() {
-				}
-
-				@Bean(name = "bankEntityManagerFactory")
-				public LocalContainerEntityManagerFactoryBean bankEntityManagerFactory() {
-					return builder.dataSource(cardDataSource()).packages("com.javatodev.api.model.bank").build();
-				}
-
-				@Bean
-				public PlatformTransactionManager bankTransactionManager() {
-				}
-
-			}
-	
-	3. Now we are good to go. Based on (@EntityScan & @EnableJpaRepositories) base package & repository base package it will decide the datasource.
-	4. Spring Data JPA might not be able to distinguish which entities and repositories are supposed to be associated with Database 1 and Database 2. It could lead to conflicts and unexpected behavior.
 
 =======================================================================================================================================================
 
-18. write code for pagination using Repository class:
+13. Handle Pagination using Spring-data JPA
 
-	Step 1: 
-	public interface YourEntityRepository extends JpaRepository<YourEntity, Long> {
-		Page<YourEntity> findByName(String name, Pageable pageable);
-	}
 
-	Step 2:
-		@Service
-		public class YourEntityService {
 
-			@Autowired
-			private YourEntityRepository yourEntityRepository;
-
-			public Page<YourEntity> getAllEntities(int page, int size) {
-				Pageable pageable = PageRequest.of(page, size);
-				return yourEntityRepository.findAll(pageable);
-			}
-
-			public Page<YourEntity> getEntitiesByName(String name, int page, int size) {
-				Pageable pageable = PageRequest.of(pageNumber, pageSize);
-				return yourEntityRepository.findByName(name, pageable);
-			}
-		}
-
-	page -
-	size - 
-
-=======================================================================================================================================================
-16) JPARepository vs CrudRepository:
-
-	- CrudRepository - It contains methods for CRUD operations. For example save(), saveAll(), findById(), findAll(), etc. 
-	- JpaRepository  - It extends PagingAndSortingRepository that extends CrudRepository.
 
 =======================================================================================================================================================

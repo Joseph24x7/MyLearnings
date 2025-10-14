@@ -14,18 +14,11 @@ Steps:
 	- To rollback for both checked and unchecked exception -> @Transactional(rollbackFor = Exception.class)
 	- For custom rollback - @Transactional(rollbackFor = { CustomException.class }, noRollbackFor = { AnotherException.class })
 	- to rollback only for checked exception -> @Transactional(rollbackFor = CustomCheckedException.class)
+
 ========================================================================================================================================================
 
 3. What is the purpose of Isolation in STM?
 
-	- Isolation ensures that concurrent transactions do not interfere with each other, preserving data consistency and preventing race conditions.
-	
-	- 4 types:
-		- Isolation.DEFAULT -> Typically, this is READ_COMMITTED for most databases.
-		- Isolation.READ_UNCOMMITTED -> uncommitted changes made by other transactions to be visible. May lead to inconsistencies. ( Postgres, Oracle doesn't support this )
-		- Isolation.READ_COMMITTED -> a transaction can only read committed changes made by other transactions.
-		- Isolation.REPEATABLE_READ -> a transaction can prevent other transactions from modifying or inserting new rows that would affect the result set of the transaction.
-		- Isolation.SERIALIZABLE -> This is the highest isolation level. In this mode, transactions are completely isolated from each other. It ensures that no other transaction can read, write, or insert data that would conflict with the current transaction.
 
 ========================================================================================================================================================
 
