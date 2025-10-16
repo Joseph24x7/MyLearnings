@@ -1,12 +1,11 @@
-1. how will you test an private method via junit
+# Spring Testing Guide
 
-	- Reflection API
-	- Through public method which is calling that private method.
-	
-========================================================================================================================================================
+## 1. How to test private methods in JUnit?
+### Methods to Test Private Methods
+1. Using Reflection API
+2. Through public method which calls the private method
 
-2. How to write junit to mock static methods?
-	- Inline mockito
-	- Powermockito
-
-========================================================================================================================================================
+## 2. How to mock static methods?
+### Available Approaches
+1. Inline Mockito
+2. PowerMockito
