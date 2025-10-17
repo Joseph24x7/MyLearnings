@@ -1,9 +1,0 @@
-1. when there is a method with more than 10 parameters, basically it is not the right standard. So how will you ensure to fix this? ( code review )
-1. Name few sonar issues:
-
-	- Unused Code
-	- Code Duplication
-	- Complex Code
-	- Security Vulnerabilities
-	- Null Pointer Dereference
-	- Coding Conventions
