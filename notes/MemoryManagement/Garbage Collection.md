@@ -12,7 +12,7 @@ System.gc();
 - You can explicitly trigger garbage collection, but it's generally not recommended.
 - Calling System.gc() does not guarantee that the finalize() method of objects awaiting finalization will be called immediately.
 
-========================================================================================================================================================
+---
 
 ## 2. Garbage Collection Algorithms
 
@@ -50,7 +50,7 @@ System.gc();
 java -XX:+UseG1GC -jar YourApplication.jar
 ```
 
-========================================================================================================================================================
+---
 
 ## 3. Making Objects Eligible for Garbage Collection
 
@@ -61,7 +61,7 @@ java -XX:+UseG1GC -jar YourApplication.jar
 2. **Reference Reassignment**
    - Make the reference variable refer to another object
 
-========================================================================================================================================================
+---
 
 ## 4. What is the purpose of overriding finalize() method?
 
@@ -69,7 +69,7 @@ java -XX:+UseG1GC -jar YourApplication.jar
 - Called by Garbage collector just before collecting eligible objects
 - Provides last chance for cleanup and resource release
 
-========================================================================================================================================================
+---
 
 ## 5. Islands of Isolation
 
@@ -78,7 +78,7 @@ java -XX:+UseG1GC -jar YourApplication.jar
 - Creates a cycle of objects
 - Cannot be collected by the garbage collector
 
-========================================================================================================================================================
+---
 
 ## 6. Daemon Thread Characteristics
 - Runs as a Daemon thread in the background
@@ -86,4 +86,4 @@ java -XX:+UseG1GC -jar YourApplication.jar
 - Destroys unreachable objects
 - Manages objects no longer referenced by the program
 
-========================================================================================================================================================
+---

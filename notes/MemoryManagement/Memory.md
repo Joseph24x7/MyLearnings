@@ -21,7 +21,7 @@
 
 Note: Except Native Memory and Registers, Rest of all are managed by JVM.
 
-========================================================================================================================================================
+---
 
 ## 2. Time Complexity:
 
@@ -30,14 +30,14 @@ Note: Except Native Memory and Registers, Rest of all are managed by JVM.
 - O(N^2) - Quadratic Time Complexity - This means that the runtime of an algorithm or code grows with the square of the input size.
 - O(log N) - Logarithmic Time Complexity - This means that the runtime of an algorithm or code increases logarithmically with the input size.
 
-========================================================================================================================================================
+---
 
 ## 3. Space Complexity:
 
 - O(1) - Constant Space Complexity - This means that the amount of memory used by an algorithm or code does not depend on the size of the input data; it's constant.
 - O(N) - Linear Space Complexity - This means that the memory usage of an algorithm or code grows linearly with the size of the input.
 
-========================================================================================================================================================
+---
 
 ## 4. Cyclometric Complexity:
 
@@ -45,7 +45,7 @@ Note: Except Native Memory and Registers, Rest of all are managed by JVM.
 - In Java, you can calculate cyclomatic complexity using the Control Flow Graph (CFG) of a method. 
 - The formula for cyclomatic complexity is: M = E - N + 2P ( E- Edges, N - Nodes or Blocks, P-connectors/pipes)
 
-========================================================================================================================================================
+---
 
 ## 5. What steps u will take to fix outofmemoryerror:
 
@@ -54,7 +54,7 @@ Note: Except Native Memory and Registers, Rest of all are managed by JVM.
 - Increase Heap Size (or) Increase PermGen/Metaspace Size
 - Increase the cloud or hardware instances.
 
-========================================================================================================================================================
+---
 
 ## 6. Heap Memory vs PermGen/Metaspace memory:
 
@@ -64,7 +64,7 @@ Note: Except Native Memory and Registers, Rest of all are managed by JVM.
 	- java -Xmx1024m -Xms512m
 - Both can be modified in VM Arguements in IDEs for the Java Applications.
 
-========================================================================================================================================================
+---
 
 ## 7. "PermGen" vs "Metaspace" (OR) Memory upgrades in Java 8 and above: 
 
@@ -73,7 +73,7 @@ Note: Except Native Memory and Registers, Rest of all are managed by JVM.
 - "PermGen" has the limited space and fixed size whereas "Metaspace" can dynamically expand.
 - Both are responsible for storing class definitions, method and field information, and other metadata.
 
-========================================================================================================================================================
+---
 
 ## 8. What is memory leak? How to analyze and Fix?
 
@@ -82,14 +82,14 @@ Note: Except Native Memory and Registers, Rest of all are managed by JVM.
 - Performance Testing has to be done to identify such issues.
 - may be because we may not be closing the connections/resources (or) deallocate any memory. fixing this will avoid memory leak.
 
-========================================================================================================================================================
+---
 
 ## 9. can we create internal memory in jvm?
 
 - We can modify the size of "heap" / "PermGen" / "Metaspace" memory.
 - But we cannot create our own internal memory.
 
-========================================================================================================================================================
+---
 
 ## 10. can u replicate stackoverflowerror on our own? if yes how
 
@@ -107,7 +107,7 @@ public class StackOverflowExample {
 }
 ```
 
-========================================================================================================================================================
+---
 
 ## 11. can u replicate outofmemoryerror on our own? if yes how
 
@@ -127,11 +127,11 @@ public static void main(String[] args) {
 }
 ```
 
-========================================================================================================================================================
+---
 
 ## 12. dfifference between stackoverflow and outofmemoryerror?
 
 - OutOfMemoryError: Happens when the JVM runs out of heap memory for object allocation.
 - StackOverflowError: Occurs when method calls become too deep, usually due to uncontrolled recursion.
 
-========================================================================================================================================================
+---
