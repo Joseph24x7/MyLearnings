@@ -1,4 +1,4 @@
-package com.mylearnings.java.collections;
+package com.mylearnings.java.custom_collections;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

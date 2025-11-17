@@ -1,31 +1,15 @@
 package com.mylearnings.java.basicJava;
 
 public class InstanceInitializerBlock {
-    public static void main(String[] args) {
-        InstanceInitializerBlock mc = new InstanceInitializerBlock();
-    }
-
     // Instance initializer block
-    // Code to be executed when an instance is created
     {
-        Three three = new Three(); // One,Two,Three
+        // Code to be executed when an instance is created
+        System.out.println("Instance initializer block executed");
     }
 }
 
-class One {
-    public One() {
-        System.out.print("One,");
-    }
-}
-
-class Two extends One {
-    public Two() {
-        System.out.print("Two,");
-    }
-}
-
-class Three extends Two {
-    public Three() {
-        System.out.print("Three");
+class MainClass {
+    void main() {
+        new InstanceInitializerBlock();
     }
 }

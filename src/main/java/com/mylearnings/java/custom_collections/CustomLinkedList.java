@@ -1,10 +1,15 @@
-package com.mylearnings.java.collections;
+package com.mylearnings.java.custom_collections;
 
 import lombok.Data;
+
+import java.util.List;
 
 class MainClass {
 
     public static void main(String[] args) {
+
+        List<String> arrayList = new java.util.ArrayList<>();
+        arrayList.add("element1");
 
         LinkedList linkedList = new LinkedList();
         linkedList.add("element");
