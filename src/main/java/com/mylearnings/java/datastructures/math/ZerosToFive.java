@@ -1,4 +1,4 @@
-package com.mylearnings.java.datastructures.arrays;
+package com.mylearnings.java.datastructures.math;
 
 public class ZerosToFive {
 

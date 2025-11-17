@@ -4,12 +4,9 @@ import java.util.Stack;
 
 public class StackBrackets {
 
-    public static void main(String[] args) {
-
+    void main() {
         String str = "()";
-
         System.out.println(isBracketsValid(str));
-
     }
 
     private static boolean isBracketsValid(String str) {

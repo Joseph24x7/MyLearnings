@@ -51,6 +51,8 @@ class Products {
 public class BuilderDesignPattern {
 
     public static void main(String[] args) {
+
+        // @Builder from lombok also does the same job as below code
         Products product = Products.builder()
                 .part1("Part 1")
                 .part2("Part 2")
@@ -62,4 +64,4 @@ public class BuilderDesignPattern {
     }
 }
 
-// @Builder from lombok has been implemented internally
+

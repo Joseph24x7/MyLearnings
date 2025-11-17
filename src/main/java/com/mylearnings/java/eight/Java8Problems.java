@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 public class Java8Problems {
 
-    public static void main(String[] args) {
+    void main() {
 
         // Q1 convert all the String to upper case and join them
         List<String> str = List.of("Stri1", "Str22ng2", "Stri33wg3");
@@ -68,6 +68,41 @@ public class Java8Problems {
         Map<String, Long> counts = lists.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         System.out.println(counts.entrySet().stream().filter(stringLongEntry -> stringLongEntry.getValue() == 1).map(Map.Entry::getKey).toList());
         System.out.println(lists.stream().filter(i -> Collections.frequency(lists, i) == 1).toList());
+
+        // Q14 - top 3 students by marks
+        List<Student> student = List.of(new Student("Alice", 95.0f), new Student("Bob", 85.5f),
+                new Student("Charlie", 92.0f), new Student("David", 88.5f), new Student("Eve", 91.0f));
+        List<Student> sortedStudentsFirstThree = student.stream().sorted((s1, s2) -> Float.compare(s2.getMarks(), s1.getMarks()))
+                .limit(3).skip(0)
+                .toList();
+        System.out.println(sortedStudentsFirstThree);
+        System.out.println("----------");
+
+        // Q15 - sort map by key and by value
+        Map<Student, Student> studentsMap = Map.of(
+               new Student("Alice", 95.0f), new Student("Alice", 95.0f),
+                new Student("Bob", 85.5f), new Student("Bob", 85.5f),
+                new Student("Charlie", 92.0f), new Student("Charlie", 92.0f),
+                new Student("David", 88.5f), new Student("David", 88.5f),
+                new Student("Eve", 91.0f), new Student("Eve", 91.0f)
+        );
+        Map<Student, Student> sortedMapUsingKeyMarks = studentsMap.entrySet()
+                .stream().sorted((k1,k2) -> Float.compare(k1.getKey().getMarks(),k2.getKey().getMarks()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+        System.out.println(sortedMapUsingKeyMarks);
+        System.out.println("----------");
+
+        Map<Student, Student> sortedDescMapUsingValueMarks = studentsMap.entrySet().stream()
+                .sorted((e1, e2) -> Float.compare(e2.getValue().getMarks(), e1.getValue().getMarks()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+        System.out.println(sortedDescMapUsingValueMarks);
+        System.out.println("----------");
+
+
+        // Q16 - Group students by marks
+        System.out.println(students.stream().collect(Collectors.groupingBy(Student::getMarks)));
 
     }
 

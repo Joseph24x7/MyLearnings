@@ -93,18 +93,16 @@ class ListMainClass {
     void main() {
         CustomList<String> customList = new CustomList<>();
         customList.add("element1");
-        customList.add("elerment2");
         customList.add("elrement2");
-        customList.add("elefmernt2");
         customList.add("elem4ent2");
         customList.add("element2");
         customList.add("element2");
         customList.add("elemfent2");
-        customList.add("ele3ment2");
         customList.add("element2");
         customList.add("ele5ment2");
         customList.add("elem4ent2");
         customList.add("eleme4nt2");
+        customList.add("ele3ment2");
         customList.add("ele3ment2");
         System.out.println(customList);
         System.out.println(customList.size);

@@ -1,10 +1,10 @@
-package com.mylearnings.java.custom_collections;
+package com.mylearnings.java.datastructures.tree;
 
 import lombok.Data;
 
 class BSTMainClass {
 
-    public static void main(String[] args) {
+    void main() {
 
         BinaryTree bst = new BinaryTree();
         bst.add(5);
@@ -23,14 +23,6 @@ class BSTMainClass {
         boolean areBinaryTreeIdentical = areBinaryTreeIdentical(bst.getHead(), bst2.getHead());
         System.out.println("areBinaryTreeIdentical: " + areBinaryTreeIdentical);
 
-        System.out.print("In-order traversal: ");
-        inOrderTraversal(bst.getHead());
-        System.out.println();
-        System.out.print("Pre-order traversal: ");
-        preOrderTraversal(bst.getHead());
-        System.out.println();
-        System.out.print("Post-order traversal: ");
-        postOrderTraversal(bst.getHead());
     }
 
     private static boolean areBinaryTreeIdentical(TreeNode bst1, TreeNode bst2) {
@@ -46,34 +38,10 @@ class BSTMainClass {
         return leftIdentical && rightIdentical;
     }
 
-    private static void inOrderTraversal(TreeNode node) {
-        if (node != null) {
-            inOrderTraversal(node.getLeft());
-            System.out.print(node.getVal() + " ");
-            inOrderTraversal(node.getRight());
-        }
-    }
-
-    private static void preOrderTraversal(TreeNode node) {
-        if (node != null) {
-            System.out.print(node.getVal() + " ");
-            preOrderTraversal(node.getLeft());
-            preOrderTraversal(node.getRight());
-        }
-    }
-
-    private static void postOrderTraversal(TreeNode node) {
-        if (node != null) {
-            postOrderTraversal(node.getLeft());
-            postOrderTraversal(node.getRight());
-            System.out.print(node.getVal() + " ");
-        }
-    }
-
 }
 
 @Data
-public class BinaryTree {
+class BinaryTree {
     private TreeNode head;
 
     public void add(Integer num) {
