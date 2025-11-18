@@ -1,4 +1,4 @@
-package com.mylearnings.java.eight;
+package com.mylearnings.java.advanced_java;
 
 import java.util.ArrayList;
 import java.util.List;

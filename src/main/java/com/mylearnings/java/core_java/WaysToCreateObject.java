@@ -1,4 +1,4 @@
-package com.mylearnings.java.basicJava;
+package com.mylearnings.java.core_java;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +23,7 @@ public class WaysToCreateObject {
         System.out.println(clone.hashCode());
 
         // Reflectively create an object
-        Class<?> clazz = Class.forName("com.mylearnings.java.basicJava.Person");
+        Class<?> clazz = Class.forName("com.mylearnings.java.core_java.Person");
         Person ref = (Person) clazz.newInstance();
         System.out.println(ref.hashCode());
 

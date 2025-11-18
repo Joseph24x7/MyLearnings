@@ -2,9 +2,7 @@
 
 ---
 
-## 1. Java 8 to Java 25 Features
-
-### -> Java 8 Features:
+## 1. Java 8 Features:
 - Lambda Expressions, Streams API, Functional Interfaces
 - Default and Static Methods in Interfaces
 - Optional Class - used to do null check in a more structured way.
@@ -12,37 +10,6 @@
 - Improved Concurrency APIs - CompletableFuture, Fork/Join Framework
 - Method References - basically a compact and easy form of the lambda expression
 - Metaspace (replacing PermGen)
-
-### -> Java 11 Features (from Java 8 → 11):
-- var Keyword for Local Variable Type Inference
-- HTTP Client (standardized from incubator)
-- Epsilon (No-Op) Garbage Collector
-- Immutable Collections (List.of(), Set.of(), Map.of())
-
-### -> Java 17 Features (from Java 11 → 17):
-- records - immutable data carriers
-- Sealed Classes and Interfaces - Allows you to control which classes can extend or implement them.
-- Pattern Matching for instanceof
-- Switch Expressions (standard feature)
-- Text Blocks (multi-line strings)
-- Z Garbage Collector (Production Ready)
-
-### -> Java 21 Features (from Java 17 → 21):
-- Virtual Threads (Project Loom) – lightweight concurrency
-- Sequenced Collections (ordered access to lists, sets, maps)
-- Record Patterns (enhanced pattern matching)
-- Pattern Matching for switch (standardized)
-- Default UTF-8 Charset
-- Generational ZGC and performance improvements
-
-### -> Java 25 Features (from Java 21 → 25):
-- Flexible Constructor Bodies Initialization
-- Module Import Declarations
-- Compact Source Files & Instance Main Methods
-- Compact Object Headers
-- Generational Shenandoah GC
-- Key Derivation Function API
-- Scoped Values
 
 ---
 

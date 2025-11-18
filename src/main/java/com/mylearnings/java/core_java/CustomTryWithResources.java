@@ -1,4 +1,4 @@
-package com.mylearnings.java.basicJava;
+package com.mylearnings.java.core_java;
 
 public class CustomTryWithResources {
     public static void main(String[] args) throws Exception {
