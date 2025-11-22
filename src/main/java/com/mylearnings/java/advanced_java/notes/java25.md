@@ -2,7 +2,7 @@
 
 ---
 
-## -> Java 25 Features (from Java 21 → 25):
+## 1. Java 25 Features (from Java 21 → 25):
 - Flexible Constructor Bodies Initialization
 - Module Import Declarations
 - Compact Source Files & Instance Main Methods

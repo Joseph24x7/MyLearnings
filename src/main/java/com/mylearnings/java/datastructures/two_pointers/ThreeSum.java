@@ -30,7 +30,7 @@ public class ThreeSum {
         return result;
     }
 
-    public static void main(String[] args) {
+    void main() {
         ThreeSum threeSum = new ThreeSum();
         int[] nums = {-1, 0, 1, 2, -1, -4};
         List<List<Integer>> result = threeSum.threeSum(nums);
