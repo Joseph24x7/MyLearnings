@@ -40,5 +40,7 @@ public class Java8Features {
         });
         System.out.println("Sum: " + sum); // Sum: 10
 
+        //
+
     }
 }

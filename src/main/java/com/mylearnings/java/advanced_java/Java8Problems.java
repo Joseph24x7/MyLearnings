@@ -1,125 +1,75 @@
 package com.mylearnings.java.advanced_java;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-import java.util.*;
-import java.util.function.Function;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Java8Problems {
 
     void main() {
 
         // Q1 convert all the String to upper case and join them
-        List<String> str = List.of("Stri1", "Str22ng2", "Stri33wg3");
-        System.out.println(str.stream().map(String::toUpperCase).collect(Collectors.joining(",")));
+        List<String> strings = List.of("apple", "banana", "cherry", "date", "apple", "banana");
+        System.out.println("------Q1------");
+        System.out.println(strings.parallelStream().map(String::toUpperCase).collect(Collectors.joining(",")));
+        System.out.println("--------------");
 
-        // Q2 Find the length of each string
-        Map<String, Integer> lengthOfString = str.stream().distinct().collect(Collectors.toMap(t -> t, String::length));
-        System.out.println(lengthOfString);
+        // Q2 Find the occurrences of each string
+        System.out.println("------Q2------");
+        System.out.println(strings.parallelStream().collect(Collectors.groupingBy(s -> s, Collectors.counting())));
+        System.out.println("--------------");
 
-        // Q3 Find the occurrences of each string
-        Map<String, Long> noOfOccurrences = str.stream().collect(Collectors.groupingBy(t -> t, Collectors.counting()));
-        System.out.println(noOfOccurrences);
+        // Q3 Given a list of integers, find the maximum and minimum value element present in it using Stream functions?
+        System.out.println("------Q3------");
+        List<Integer> integers = List.of(5, 3, 8, 1, 2, 7, 4, 6);
 
-        // Q4 Given a list of integers, find out all the numbers starting with 1 using Stream functions
-        List<Integer> myList = Arrays.asList(10, 15, 8, 49, 25, 98, 32);
-        System.out.println(myList.stream().map(s -> s + "").filter(s -> s.startsWith("1")).toList());
+        System.out.println("Option 1:");
+        System.out.println(integers.stream().min(Comparator.naturalOrder()).get());
+        System.out.println(integers.stream().max(Integer::compareTo).get());
 
-        // Q5 How to find duplicate elements in a given integers list in java using Stream functions?
-        List<Integer> myList2 = Arrays.asList(10, 15, 8, 49, 25, 98, 98, 32, 15);
-        Set<Integer> set = new HashSet<>();
-        System.out.println(myList2.stream().filter(i -> !set.add(i)).toList());
+        System.out.println("Option 2:");
+        List<Integer> sorted = integers.stream().sorted().toList();
+        System.out.println(sorted.getFirst());
+        System.out.println(sorted.getLast());
 
-        // Q6 How to find the first duplicate elements in a given integers list in java using Stream functions
-        System.out.println(myList2.stream().filter(i -> !set.add(i)).findFirst().get());
+        System.out.println("--------------");
 
-        // Q7 Given a list of integers, find the maximum and minimum value element present in it using Stream functions?
-        System.out.println(myList2.stream().max(Comparator.comparingInt(i -> i)).get());
-        System.out.println(myList2.stream().min(Comparator.comparingInt(i -> i)).get());
+        // Q4 Given a list of integers, sort all the values present in it in descending order using Stream functions?
+        System.out.println("------Q4------");
+        System.out.println("Option 1:");
+        System.out.println(integers.stream().sorted((i1, i2) -> i2 - i1).toList());
+        System.out.println("Option 2:");
+        System.out.println(integers.stream().sorted(Comparator.reverseOrder()).toList());
+        System.out.println("--------------");
 
-        // Q8 Given a list of integers, sort all the values present in it in descending order using Stream functions?
-        System.out.println(myList2.stream().sorted((i1, i2) -> i2 - i1).toList());
+        // Q5 - sum - average and count
+        System.out.println("------Q5------");
+        System.out.println("Sum: " + integers.stream().mapToInt(Integer::intValue).sum());
+        System.out.println("Average: " + integers.stream().mapToInt(Integer::intValue).average().orElse(0));
+        System.out.println("--------------");
 
-        // Q9 - sum - average and count
-        System.out.println(myList.stream().mapToInt(i -> i).sum());
-        System.out.println(myList.stream().mapToInt(i -> i).average().orElse(0d));
-        System.out.println(myList.stream().mapToInt(i -> i).count());
+        // Q6 - Merge two sorted array list
+        System.out.println("------Q6------");
+        List<List<Integer>> listOfLists = List.of(List.of(1, 3, 5, 7, 9), List.of(2, 4, 6, 8, 10));
+        System.out.println(listOfLists.stream().flatMap(Collection::stream).sorted().toList());
+        System.out.println("--------------");
+
+        // Q7 - Program to reverse each word in a given string
+        System.out.println("------Q7------");
+        String sentence = "Hello World from Java Streams";
+        String reversedWords = Arrays.stream(sentence.split(" ")).map(word -> new StringBuilder(word).reverse().toString())
+                .collect(Collectors.joining(" "));
+        System.out.println(reversedWords);
+        System.out.println("--------------");
 
         // Q10 - students with distinction
-        List<Student> students = Arrays.asList(new Student("john", 85.0f), new Student("Ajay", 70.0f), new Student("Mani", 85.0f), new Student("Vikram", 60.0f));
-        System.out.println(students.stream().filter(s -> s.getMarks() >= 80.0f).peek(s -> s.setDistinction(true)).toList());
-
-        // Q11 - Merge two sorted array list
-        List<Integer> list1 = Arrays.asList(10, 15, 8, 49, 25, 98, 32);
-        List<Integer> list2 = Arrays.asList(11, 9, 8, 19, 4, 968, 90);
-        System.out.println(Stream.of(list1, list2).flatMap(Collection::stream).sorted().toList());
-
-        // Q12 - Program to reverse each word in a given string
-        String string = "My name is Joseph";
-        System.out.println(Arrays.stream(string.split(" ")).map(s -> new StringBuilder(s).reverse()).toList());
-
         // Q13 - find non-repetitive words
-        String s = "red green white red blue white black ";
-        String[] arr = s.split(" ");
-        List<String> lists = Arrays.asList(arr);
-        Map<String, Long> counts = lists.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        System.out.println(counts.entrySet().stream().filter(stringLongEntry -> stringLongEntry.getValue() == 1).map(Map.Entry::getKey).toList());
-        System.out.println(lists.stream().filter(i -> Collections.frequency(lists, i) == 1).toList());
-
         // Q14 - top 3 students by marks
-        List<Student> student = List.of(new Student("Alice", 95.0f), new Student("Bob", 85.5f),
-                new Student("Charlie", 92.0f), new Student("David", 88.5f), new Student("Eve", 91.0f));
-        List<Student> sortedStudentsFirstThree = student.stream().sorted((s1, s2) -> Float.compare(s2.getMarks(), s1.getMarks()))
-                .limit(3).skip(0)
-                .toList();
-        System.out.println(sortedStudentsFirstThree);
-        System.out.println("----------");
-
         // Q15 - sort map by key and by value
-        Map<Student, Student> studentsMap = Map.of(
-               new Student("Alice", 95.0f), new Student("Alice", 95.0f),
-                new Student("Bob", 85.5f), new Student("Bob", 85.5f),
-                new Student("Charlie", 92.0f), new Student("Charlie", 92.0f),
-                new Student("David", 88.5f), new Student("David", 88.5f),
-                new Student("Eve", 91.0f), new Student("Eve", 91.0f)
-        );
-        Map<Student, Student> sortedMapUsingKeyMarks = studentsMap.entrySet()
-                .stream().sorted((k1,k2) -> Float.compare(k1.getKey().getMarks(),k2.getKey().getMarks()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-
-        System.out.println(sortedMapUsingKeyMarks);
-        System.out.println("----------");
-
-        Map<Student, Student> sortedDescMapUsingValueMarks = studentsMap.entrySet().stream()
-                .sorted((e1, e2) -> Float.compare(e2.getValue().getMarks(), e1.getValue().getMarks()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-
-        System.out.println(sortedDescMapUsingValueMarks);
-        System.out.println("----------");
-
-
         // Q16 - Group students by marks
-        System.out.println(students.stream().collect(Collectors.groupingBy(Student::getMarks)));
 
-    }
-
-}
-
-@Data
-@AllArgsConstructor
-class Student {
-
-    private String name;
-    private Float marks;
-    private Boolean distinction;
-
-    public Student(String name, Float marks) {
-        super();
-        this.name = name;
-        this.marks = marks;
     }
 
 }
