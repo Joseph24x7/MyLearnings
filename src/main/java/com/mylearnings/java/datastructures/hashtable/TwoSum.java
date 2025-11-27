@@ -5,15 +5,6 @@ import java.util.*;
 public class TwoSum {
 
     public int[] twoSum(int[] nums, int target) {
-
-        SequencedSet<String> sequencedSet = new LinkedHashSet<>();
-        sequencedSet.add("A");
-        sequencedSet.add("B");
-        sequencedSet.add("C");
-
-        System.out.println(sequencedSet.getFirst());
-        System.out.println(sequencedSet.reversed());
-
         Map<Integer, Integer> maps = new HashMap<>();
         int[] arr = new int[2];
         for (int i = 0; i < nums.length; i++) {
