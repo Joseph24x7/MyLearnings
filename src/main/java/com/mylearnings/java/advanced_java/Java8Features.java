@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Java8Features {
 
@@ -16,7 +17,7 @@ public class Java8Features {
                 Arrays.asList(1, 2, 3),
                 Arrays.asList(4, 5, 6)
         );
-        List<Integer> flatList = nestedList.stream().flatMap(Collection::stream).toList(); // Result: [1, 2, 3, 4, 5, 6]
+        List<Integer> flatList = nestedList.stream().flatMap(Collection::stream).collect(Collectors.toList()); // Result: [1, 2, 3, 4, 5, 6]
         System.out.println(flatList);
 
         // toArray() Method
@@ -34,7 +35,7 @@ public class Java8Features {
 
         //distinct() Method:
         List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 2, 3, 5);
-        System.out.println(numbers.stream().distinct().toList()); // [1, 2, 3, 4, 5]
+        System.out.println(numbers.stream().distinct().collect(Collectors.toList()));  // [1, 2, 3, 4, 5]
 
         // reduce() Method:
         List<Integer> nums = Arrays.asList(1, 2, 3, 4);
@@ -51,7 +52,7 @@ public class Java8Features {
         Predicate<String> combinedPredicateUsingAnd = startsWithA.and(lengthGreaterThan5);
         Predicate<String> combinedPredicateUsingOr = startsWithA.or(lengthGreaterThan5);
         Predicate<String> negatedPredicate = combinedPredicateUsingAnd.negate();
-        System.out.println(strings.stream().filter(negatedPredicate).filter(combinedPredicateUsingOr).toList()); // [apple, banana, blueberry]
+        System.out.println(strings.stream().filter(negatedPredicate).filter(combinedPredicateUsingOr).collect(Collectors.toList())); // [apple, banana, blueberry]
 
         // Difference between andThen and compose methods in Function interface:
         List<Integer> values = Arrays.asList(1, 2, 3);
@@ -64,10 +65,10 @@ public class Java8Features {
 
         List<Integer> resultAndThen = values.stream()
                 .map(add2.andThen(multiplyBy3))
-                .toList(); // ((x + 2) * 3)
+                .collect(Collectors.toList()); // ((x + 2) * 3)
         List<Integer> resultCompose = values.stream()
                 .map(add2.compose(multiplyBy3))
-                .toList(); // ((x * 3) + 2)
+                .collect(Collectors.toList()); // ((x * 3) + 2)
         System.out.println("Result using andThen: " + resultAndThen); // [9, 12, 15]
         System.out.println("Result using compose: " + resultCompose); // [5, 8, 11]
 
