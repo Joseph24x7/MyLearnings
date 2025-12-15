@@ -6,27 +6,50 @@ public class AddTwoNumbers {
 
     public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
 
-        BigInteger s = new BigInteger("0");
-        BigInteger t = new BigInteger("0");
-        while (l1 != null) {
-            s = s.multiply(BigInteger.valueOf(10)).add(BigInteger.valueOf(l1.val));
-            l1 = l1.next;
+        int sum = l1.val + l2.val;
+
+        int carry = 0;
+
+        if (sum > 9) {
+            sum = sum % 10;
+            carry = 1;
         }
-        while (l2 != null) {
-            t = t.multiply(BigInteger.valueOf(10)).add(BigInteger.valueOf(l2.val));
-            l2 = l2.next;
+
+        l1 = l1.next;
+        l2 = l2.next;
+
+        ListNode dummyHead = new ListNode(sum);
+        ListNode current = dummyHead;
+
+        while (l1 != null || l2 != null) {
+
+            if (l1 == null) {
+                l1 = new ListNode(0);
+            }
+            if (l2 == null) {
+                l2 = new ListNode(0);
+            }
+
+            if (l1 != null && l2 != null) {
+                sum = l1.val + l2.val + carry;
+                if (sum > 9) {
+                    sum = sum % 10;
+                    carry = 1;
+                } else {
+                    carry = 0;
+                }
+                l1 = l1.next;
+                l2 = l2.next;
+            }
+
+            current.next = new ListNode(sum);
+            current = current.next;
         }
-        BigInteger sum = s.add(t);
-        String sumStr = sum.toString();
-        int index = sumStr.length() - 1;
-        ListNode dummyHead = new ListNode(Character.getNumericValue(sumStr.charAt(index)));
-        ListNode newNode = dummyHead;
-        index--;
-        while(index >= 0) {
-            newNode.next = new ListNode(Character.getNumericValue(sumStr.charAt(index)));
-            newNode = newNode.next;
-            index--;
+
+        if (carry > 0) {
+            current.next = new ListNode(carry);
         }
+
         return dummyHead;
 
     }
@@ -41,16 +64,17 @@ public class AddTwoNumbers {
         l1.next.next.next.next.next = new ListNode(9);
         l1.next.next.next.next.next.next = new ListNode(9);
 
-
         ListNode l2 = new ListNode(9);
         l2.next = new ListNode(9);
         l2.next.next = new ListNode(9);
         l2.next.next.next = new ListNode(9);
+
         ListNode result = obj.addTwoNumbers(l1, l2);
         while (result != null) {
-            System.out.println(result.val);
+            System.out.print(result.val + " ");
             result = result.next;
         }
+
     }
 
 }
