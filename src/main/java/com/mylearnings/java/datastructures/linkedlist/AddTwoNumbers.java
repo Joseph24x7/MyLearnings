@@ -1,7 +1,5 @@
 package com.mylearnings.java.datastructures.linkedlist;
 
-import java.math.BigInteger;
-
 public class AddTwoNumbers {
 
     public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
@@ -30,17 +28,15 @@ public class AddTwoNumbers {
                 l2 = new ListNode(0);
             }
 
-            if (l1 != null && l2 != null) {
-                sum = l1.val + l2.val + carry;
-                if (sum > 9) {
-                    sum = sum % 10;
-                    carry = 1;
-                } else {
-                    carry = 0;
-                }
-                l1 = l1.next;
-                l2 = l2.next;
+            sum = l1.val + l2.val + carry;
+            if (sum > 9) {
+                sum = sum % 10;
+                carry = 1;
+            } else {
+                carry = 0;
             }
+            l1 = l1.next;
+            l2 = l2.next;
 
             current.next = new ListNode(sum);
             current = current.next;
@@ -54,7 +50,7 @@ public class AddTwoNumbers {
 
     }
 
-    public static void main(String[] args) {
+    void main() {
         AddTwoNumbers obj = new AddTwoNumbers();
         ListNode l1 = new ListNode(9);
         l1.next = new ListNode(9);

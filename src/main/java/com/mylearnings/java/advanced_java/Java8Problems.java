@@ -1,5 +1,8 @@
 package com.mylearnings.java.advanced_java;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -64,6 +67,20 @@ public class Java8Problems {
         System.out.println(reversedWords);
         System.out.println("--------------");
 
+        // Q8 - Employee grouping by ID problem but values is List<name>
+        List<Employee> employeeList = List.of(
+                new Employee(1, "onea"),
+                new Employee(1, "oneb"),
+                new Employee(2, "twoa"),
+                new Employee(3, "threea"),
+                new Employee(2, "twob")
+        );
+        System.out.println(employeeList.stream()
+                .collect(Collectors.groupingBy(
+                        Employee::getId,
+                        Collectors.mapping(Employee::getName, Collectors.toList())
+                )));
+
         // Q10 - students with distinction
         // Q13 - find non-repetitive words
         // Q14 - top 3 students by marks
@@ -72,4 +89,11 @@ public class Java8Problems {
 
     }
 
+}
+
+@Data
+@AllArgsConstructor
+class Employee {
+    private Integer id;
+    private String name;
 }
