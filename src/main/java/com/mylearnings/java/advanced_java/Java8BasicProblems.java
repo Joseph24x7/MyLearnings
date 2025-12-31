@@ -3,13 +3,27 @@ package com.mylearnings.java.advanced_java;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class Java8Problems {
+public class Java8BasicProblems {
+
+    public static final List<Employee> employees = new ArrayList<>();
+    public static final List<Transaction> transactions = new ArrayList<>();
+
+    static {
+        employees.add(new Employee(1, "John", "MECH", 40000D));
+        employees.add(new Employee(2, "Jane", "CSE", 50000D));
+        employees.add(new Employee(3, "Ben", "ECE", 30000D));
+        employees.add(new Employee(4, "Mat", "MECH", 70000D));
+        employees.add(new Employee(5, "Jane", "CSE", 50000D));
+
+        transactions.add(new Transaction(1, 1000.0, "A", "CREDIT"));
+        transactions.add(new Transaction(2, 200.0, "A", "DEBIT"));
+        transactions.add(new Transaction(3, 500.0, "B", "CREDIT"));
+        transactions.add(new Transaction(4, 150.0, "A", "DEBIT"));
+        transactions.add(new Transaction(5, 100.0, "B", "DEBIT"));
+    }
 
     void main() {
 
@@ -67,19 +81,17 @@ public class Java8Problems {
         System.out.println(reversedWords);
         System.out.println("--------------");
 
-        // Q8 - Employee grouping by ID problem but values is List<name>
-        List<Employee> employeeList = List.of(
-                new Employee(1, "onea"),
-                new Employee(1, "oneb"),
-                new Employee(2, "twoa"),
-                new Employee(3, "threea"),
-                new Employee(2, "twob")
-        );
-        System.out.println(employeeList.stream()
-                .collect(Collectors.groupingBy(
-                        Employee::getId,
-                        Collectors.mapping(Employee::getName, Collectors.toList())
-                )));
+        // Grouping By Department and Getting Count
+        System.out.println("Grouping By Department and Getting Count");
+        System.out.println(employees.stream().collect(Collectors.groupingBy(Employee::getDepartment)));
+        System.out.println(employees.stream().collect(Collectors.groupingBy(Employee::getDepartment, Collectors.counting())));
+        System.out.println("--------------------------------------");
+
+        // Employee with maximum salary
+        System.out.println("Employee with Maximum Salary using Max and Reduce");
+        System.out.println(employees.stream().max(Comparator.comparingDouble(Employee::getSalary)));
+        System.out.println(employees.stream().reduce((Employee e1, Employee e2) -> e1.getSalary() > e2.getSalary() ? e1 : e2));
+        System.out.println("--------------------------------------");
 
         // Q10 - students with distinction
         // Q13 - find non-repetitive words
@@ -96,4 +108,15 @@ public class Java8Problems {
 class Employee {
     private Integer id;
     private String name;
+    private String Department;
+    private Double Salary;
+}
+
+@Data
+@AllArgsConstructor
+class Transaction {
+    private int id;
+    private Double amount;
+    private String account_holder;
+    private String type;
 }
