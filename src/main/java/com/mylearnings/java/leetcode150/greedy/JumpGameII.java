@@ -1,4 +1,4 @@
-package com.mylearnings.java.datastructures.leetcode150.greedy;
+package com.mylearnings.java.leetcode150.greedy;
 
 public class JumpGameII {
 
