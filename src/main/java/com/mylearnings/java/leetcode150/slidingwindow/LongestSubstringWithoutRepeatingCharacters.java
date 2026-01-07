@@ -1,4 +1,4 @@
-package com.mylearnings.java.datastructures.hashtable;
+package com.mylearnings.java.leetcode150.slidingwindow;
 
 import java.util.HashSet;
 import java.util.Set;
