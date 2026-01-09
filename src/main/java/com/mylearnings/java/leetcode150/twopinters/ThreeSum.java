@@ -1,4 +1,4 @@
-package com.mylearnings.java.datastructures.two_pointers;
+package com.mylearnings.java.leetcode150.twopinters;
 
 import java.util.ArrayList;
 import java.util.Arrays;
