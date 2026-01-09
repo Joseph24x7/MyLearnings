@@ -1,4 +1,4 @@
-package com.mylearnings.java.custom_collections;
+package com.mylearnings.java.java_code.custom_collections;
 
 public class CustomList<T> {
 

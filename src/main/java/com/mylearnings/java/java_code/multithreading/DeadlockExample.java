@@ -1,4 +1,4 @@
-package com.mylearnings.java.multithreading;
+package com.mylearnings.java.java_code.multithreading;
 
 public class DeadlockExample {
 

@@ -1,6 +1,4 @@
-package com.mylearnings.java.multithreading;
-
-import lombok.Getter;
+package com.mylearnings.java.java_code.multithreading;
 
 public class VolatileExample {
     private static volatile boolean flag = false;

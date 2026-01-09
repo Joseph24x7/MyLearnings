@@ -1,11 +1,11 @@
-package com.mylearnings.java.advanced_java;
+package com.mylearnings.java.java_code.advanced_java;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.mylearnings.java.advanced_java.Java8BasicProblems.employees;
-import static com.mylearnings.java.advanced_java.Java8BasicProblems.transactions;
+import static com.mylearnings.java.java_code.advanced_java.Java8BasicProblems.employees;
+import static com.mylearnings.java.java_code.advanced_java.Java8BasicProblems.transactions;
 
 public class Java8GroupingByReducing {
 

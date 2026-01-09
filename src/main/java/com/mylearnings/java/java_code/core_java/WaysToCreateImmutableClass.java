@@ -1,4 +1,4 @@
-package com.mylearnings.java.core_java;
+package com.mylearnings.java.java_code.core_java;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

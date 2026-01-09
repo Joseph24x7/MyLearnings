@@ -1,4 +1,4 @@
-package com.mylearnings.java.advanced_java;
+package com.mylearnings.java.java_code.advanced_java;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

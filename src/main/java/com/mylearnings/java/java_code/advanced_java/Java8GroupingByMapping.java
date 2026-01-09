@@ -1,8 +1,8 @@
-package com.mylearnings.java.advanced_java;
+package com.mylearnings.java.java_code.advanced_java;
 
 import java.util.stream.Collectors;
 
-import static com.mylearnings.java.advanced_java.Java8BasicProblems.employees;
+import static com.mylearnings.java.java_code.advanced_java.Java8BasicProblems.employees;
 
 public class Java8GroupingByMapping {
 
