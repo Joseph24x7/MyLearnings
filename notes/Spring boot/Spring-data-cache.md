@@ -473,3 +473,61 @@ public User find(String firstName, String lastName) { }
 ```
 
 ---
+
+## 8. How to Improve Cache Performance for SQL Database from Spring Boot?
+
+### Multi-Level Caching Strategy
+
+| Level | Tool | Use Case |
+|-------|------|----------|
+| **L1** | Hibernate L1 Cache | Within session (automatic) |
+| **L2** | Hibernate L2 + Ehcache | Across sessions, single node |
+| **Application** | Spring @Cacheable | Service layer caching |
+| **Distributed** | Redis/Hazelcast | Multi-instance, microservices |
+| **Database** | Query optimization, indexes | Reduce DB load |
+
+### 1. Enable Hibernate Second-Level Cache
+```properties
+spring.jpa.properties.hibernate.cache.use_second_level_cache=true
+spring.jpa.properties.hibernate.cache.region.factory_class=org.hibernate.cache.ehcache.EhCacheRegionFactory
+```
+
+```java
+@Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class Product { }
+```
+
+### 2. Use Spring @Cacheable on Service Layer
+```java
+@Cacheable(value = "products", key = "#id", unless = "#result == null")
+public Product getProductById(Long id) {
+    return productRepository.findById(id).orElse(null);
+}
+```
+
+### 3. Implement Query Caching
+```java
+@Query("SELECT p FROM Product p WHERE p.category = :category")
+@QueryHints(@QueryHint(name = "org.hibernate.cacheable", value = "true"))
+List<Product> findByCategory(String category);
+```
+
+### 4. Add Database-Level Optimization
+- **Indexes** on frequently queried columns
+- **Materialized views** for complex queries
+- **Read replicas** for read-heavy workloads
+- **Connection pooling** (HikariCP)
+
+### 5. Use Redis for Distributed Caching
+```java
+@Bean
+public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
+    RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+        .entryTtl(Duration.ofMinutes(30))
+        .disableCachingNullValues();
+    return RedisCacheManager.builder(factory).cacheDefaults(config).build();
+}
+```
+

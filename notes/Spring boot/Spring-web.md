@@ -96,3 +96,204 @@ server.servlet.context-path=/your-context-path
 8. Lombok
 9. MapStruct
 10. TestContainers
+
+---
+
+## 11. How do you handle backend failures gracefully?
+### Exception Handling Strategies
+1. **Global Exception Handler** - Use `@ControllerAdvice` with `@ExceptionHandler`
+2. **Custom Exceptions** - Create domain-specific exceptions
+3. **Proper HTTP Status Codes** - Return appropriate status (4xx, 5xx)
+4. **Circuit Breaker** - Use Resilience4j to prevent cascade failures
+5. **Retry Mechanism** - Retry transient failures with exponential backoff
+6. **Fallback Methods** - Provide default responses when service is down
+
+```java
+@ControllerAdvice
+public class GlobalExceptionHandler {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new ErrorResponse(ex.getMessage(), "NOT_FOUND"));
+    }
+}
+```
+
+---
+
+## 12. Design a REST Application with Simple CRUD Operations
+### REST Controller Design
+```java
+@RestController
+@RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
+public class UserController {
+    private final UserService userService;
+
+    @PostMapping
+    public ResponseEntity<User> create(@RequestBody @Valid UserDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.create(dto));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.findById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<User>> getAll() {
+        return ResponseEntity.ok(userService.findAll());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<User> update(@PathVariable Long id, @RequestBody @Valid UserDTO dto) {
+        return ResponseEntity.ok(userService.update(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}
+```
+
+---
+
+## 13. How to Handle Payment Gateway Sync and Async Calls?
+### Synchronous Call (Blocking)
+- Use `RestTemplate` or `WebClient.block()`
+- Wait for payment confirmation before proceeding
+- Suitable for real-time confirmation requirements
+
+### Asynchronous Call (Non-Blocking)
+- Use `WebClient` with reactive streams or `CompletableFuture`
+- Payment gateway sends webhook callback on completion
+- Store transaction status as PENDING, update via webhook
+
+```java
+// Sync call
+PaymentResponse response = restTemplate.postForObject(url, request, PaymentResponse.class);
+
+// Async call with webhook
+@PostMapping("/initiate")
+public ResponseEntity<String> initiatePayment(@RequestBody PaymentRequest req) {
+    webClient.post().uri(gatewayUrl).bodyValue(req).retrieve().subscribe();
+    return ResponseEntity.ok("Payment initiated, awaiting callback");
+}
+
+@PostMapping("/webhook")
+public void handleCallback(@RequestBody PaymentCallback callback) {
+    paymentService.updateStatus(callback.getTransactionId(), callback.getStatus());
+}
+```
+
+---
+
+## 14. What is @Qualifier and When to Use It?
+
+### Scenario
+When multiple beans of same type exist, Spring doesn't know which one to inject.
+
+```java
+@Component("mysqlRepo")
+public class MySQLRepository implements UserRepository { }
+
+@Component("mongoRepo") 
+public class MongoRepository implements UserRepository { }
+```
+
+### Problem - Ambiguity
+```java
+@Autowired
+private UserRepository userRepository; // Which one? Error!
+```
+
+### Solution - Use @Qualifier
+```java
+@Autowired
+@Qualifier("mysqlRepo")
+private UserRepository userRepository; // Injects MySQLRepository
+```
+
+### Alternative - Use @Primary
+```java
+@Component
+@Primary
+public class MySQLRepository implements UserRepository { }
+// This becomes the default when no @Qualifier specified
+```
+
+---
+
+## 15. How to Fix Circular Dependency in Spring?
+
+### Scenario - Circular Dependency
+```java
+@Service
+public class ServiceA {
+    @Autowired
+    private ServiceB serviceB; // A depends on B
+}
+
+@Service
+public class ServiceB {
+    @Autowired
+    private ServiceA serviceA; // B depends on A - CIRCULAR!
+}
+```
+
+### Solutions
+
+**1. Use @Lazy (Quick Fix)**
+```java
+@Service
+public class ServiceA {
+    @Autowired
+    @Lazy
+    private ServiceB serviceB; // Delays injection until first use
+}
+```
+**2. Refactor - Extract Common Logic (Best Practice)**
+```java
+@Service
+public class CommonService { /* shared logic */ }
+
+@Service
+public class ServiceA {
+    @Autowired private CommonService commonService;
+}
+
+@Service
+public class ServiceB {
+    @Autowired private CommonService commonService;
+}
+```
+---
+
+## 16. Does AOP Work on Private Methods?
+
+### Answer: NO, AOP Does NOT Work on Private Methods
+
+### Reason
+- Spring AOP uses **proxy-based mechanism**
+- Proxies can only intercept **public methods** called from outside the class
+- Private methods are not visible to proxy
+
+### What Doesn't Work
+```java
+@Service
+public class MyService {
+    @Transactional  // Won't work!
+    private void privateMethod() { }
+    
+    @Cacheable      // Won't work!
+    private void anotherPrivate() { }
+}
+```
+
+### Workarounds
+1. Make the method **public** and move to another class
+2. Use **AspectJ weaving** (compile-time or load-time) instead of Spring AOP
+3. For `@Transactional`, call via another bean (not self-invocation)
+

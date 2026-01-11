@@ -247,6 +247,97 @@
 		- Choreography - where each service communicates with others through events
 		- Orchestration - where a central service manages the flow of activities in a workflow.
 
+---
+
+## 20. Explain SAGA Design Pattern in Detail
+
+### What is SAGA?
+SAGA is a pattern to maintain **data consistency across multiple microservices** without using distributed transactions (2PC). It breaks a transaction into a sequence of local transactions.
+
+### Why SAGA?
+- Distributed transactions (2PC) don't scale well in microservices
+- Each microservice has its own database
+- Need eventual consistency across services
+
+### Two Implementation Approaches
+
+#### 1. Choreography (Event-Based)
+Each service publishes events and listens to events from other services.
+
+```
+Order Service → [OrderCreated] → Payment Service
+Payment Service → [PaymentCompleted] → Inventory Service  
+Inventory Service → [InventoryReserved] → Shipping Service
+```
+
+**Pros:** Simple, loosely coupled, no single point of failure
+**Cons:** Hard to track, cyclic dependencies possible
+
+#### 2. Orchestration (Central Coordinator)
+A central orchestrator service controls the flow.
+
+```
+Orchestrator → Order Service → "Create Order"
+Orchestrator → Payment Service → "Process Payment"
+Orchestrator → Inventory Service → "Reserve Stock"
+Orchestrator → Shipping Service → "Ship Order"
+```
+
+**Pros:** Easy to track, centralized logic, clear flow
+**Cons:** Single point of failure, orchestrator complexity
+
+### Compensating Transactions (Rollback)
+If any step fails, SAGA executes **compensating transactions** to undo previous steps.
+
+```
+SUCCESS: Order → Payment → Inventory → Shipping ✓
+
+FAILURE at Inventory:
+  Inventory fails → Compensate Payment (Refund) → Compensate Order (Cancel)
+```
+
+### Example: E-Commerce Order Flow
+
+| Step | Service | Action | Compensating Action |
+|------|---------|--------|---------------------|
+| 1 | Order | Create Order | Cancel Order |
+| 2 | Payment | Charge Customer | Refund Customer |
+| 3 | Inventory | Reserve Stock | Release Stock |
+| 4 | Shipping | Ship Order | Cancel Shipment |
+
+### Implementation with Spring + Kafka
+```java
+// Orchestrator
+@Service
+public class OrderSagaOrchestrator {
+    
+    public void createOrder(OrderRequest request) {
+        // Step 1: Create Order
+        kafkaTemplate.send("order-topic", new CreateOrderEvent(request));
+    }
+    
+    @KafkaListener(topics = "order-created")
+    public void onOrderCreated(OrderCreatedEvent event) {
+        // Step 2: Process Payment
+        kafkaTemplate.send("payment-topic", new ProcessPaymentEvent(event));
+    }
+    
+    @KafkaListener(topics = "payment-failed")
+    public void onPaymentFailed(PaymentFailedEvent event) {
+        // Compensate: Cancel Order
+        kafkaTemplate.send("order-topic", new CancelOrderEvent(event));
+    }
+}
+```
+
+### Key Points
+- **Eventual Consistency** - Not immediate, but guaranteed eventually
+- **Idempotency** - Each step must be idempotent (safe to retry)
+- **Timeout Handling** - Handle cases where services don't respond
+- **State Tracking** - Track saga state for recovery
+
+---
+
 - ### Containerization and Orchestration: 
     - Use containerization (e.g., Docker) and container orchestration (e.g., Kubernetes) for managing and deploying microservices.
 

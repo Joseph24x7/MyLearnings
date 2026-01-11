@@ -113,3 +113,36 @@
 | **Thread Safety** | Not thread-safe. Multiple threads can lead to data corruption without external synchronization | Thread-safe. When a thread wants to modify a segment, it locks only that segment |
 | **Performance** | Better performance in single-threaded scenarios | Better performance in multi-threaded scenarios where many threads need to access and modify the map simultaneously |
 | **Concurrency** | No built-in thread safety mechanisms | Allows multiple threads to operate concurrently on different segments |
+
+---
+
+## 13. How to Design a Generic Method to Print List Elements?
+
+### Using Java Generics
+```java
+// Generic method using unbounded wildcard
+public static void printList(List<?> list) {
+    list.forEach(System.out::println);
+}
+
+// Generic method with type parameter
+public static <T> void printElements(List<T> list) {
+    for (T element : list) {
+        System.out.println(element);
+    }
+}
+
+// Usage
+List<String> strings = Arrays.asList("A", "B", "C");
+List<Integer> numbers = Arrays.asList(1, 2, 3);
+
+printList(strings);    // Works with String
+printElements(numbers); // Works with Integer
+```
+
+### Key Points
+- `<T>` - Type parameter allowing any type
+- `<?>` - Wildcard representing unknown type
+- Both approaches accept lists of any type
+- `<T extends Comparable<T>>` - Bounded type for constraints
+
