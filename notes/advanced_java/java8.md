@@ -142,3 +142,262 @@ Function<Integer, Integer> combinedFunction = addThree.compose(multiplyByTwo);
 int result = combinedFunction.apply(5); // (5 * 2) + 3 = 13
 ```
 ---
+
+## 9. Supplier vs Consumer
+
+### Supplier<T>
+- **Purpose:** Supplies/produces a value without taking any input.
+- **Method:** `T get()`
+- **Use Case:** Lazy initialization, factory methods, generating values.
+
+```java
+Supplier<Double> randomSupplier = () -> Math.random();
+System.out.println(randomSupplier.get()); // Outputs random number
+
+Supplier<LocalDate> dateSupplier = LocalDate::now;
+System.out.println(dateSupplier.get()); // Outputs current date
+```
+
+### Consumer<T>
+- **Purpose:** Consumes/accepts a value without returning anything.
+- **Method:** `void accept(T t)`
+- **Use Case:** Performing actions on data, logging, printing.
+
+```java
+Consumer<String> printer = s -> System.out.println(s);
+printer.accept("Hello World"); // Outputs: Hello World
+
+Consumer<List<Integer>> listPrinter = list -> list.forEach(System.out::println);
+listPrinter.accept(Arrays.asList(1, 2, 3)); // Outputs: 1 2 3
+```
+
+### Key Differences
+
+| Feature | Supplier<T> | Consumer<T> |
+|---------|-------------|-------------|
+| **Input** | None | Takes one input |
+| **Output** | Returns a value | Returns nothing (void) |
+| **Method** | `T get()` | `void accept(T t)` |
+| **Use Case** | Producing/generating values | Consuming/processing values |
+
+---
+
+## 10. What is a Functional Interface?
+
+### Definition
+- An interface that contains **exactly one abstract method**.
+- Can have any number of default and static methods.
+- Can be used as the target for lambda expressions and method references.
+- Optionally annotated with `@FunctionalInterface` (recommended for compile-time checking).
+
+### Examples of Built-in Functional Interfaces
+```java
+// Predicate<T> - boolean test(T t)
+Predicate<Integer> isPositive = n -> n > 0;
+
+// Function<T, R> - R apply(T t)
+Function<String, Integer> stringLength = String::length;
+
+// Consumer<T> - void accept(T t)
+Consumer<String> printer = System.out::println;
+
+// Supplier<T> - T get()
+Supplier<Double> random = Math::random;
+
+// BiFunction<T, U, R> - R apply(T t, U u)
+BiFunction<Integer, Integer, Integer> add = (a, b) -> a + b;
+```
+
+### Custom Functional Interface
+```java
+@FunctionalInterface
+public interface Calculator {
+    int calculate(int a, int b); // Single abstract method
+    
+    // Can have default methods
+    default int add(int a, int b) {
+        return a + b;
+    }
+    
+    // Can have static methods
+    static int multiply(int a, int b) {
+        return a * b;
+    }
+}
+
+// Usage with lambda
+Calculator subtractor = (a, b) -> a - b;
+System.out.println(subtractor.calculate(10, 5)); // Output: 5
+```
+
+---
+
+## 11. map() vs flatMap()
+
+### map()
+- **Purpose:** Transforms each element to exactly one output element.
+- **Signature:** `<R> Stream<R> map(Function<T, R> mapper)`
+- **Use Case:** One-to-one transformation.
+
+```java
+List<String> names = Arrays.asList("john", "jane", "doe");
+List<String> upperNames = names.stream()
+    .map(String::toUpperCase)
+    .collect(Collectors.toList());
+// Output: [JOHN, JANE, DOE]
+```
+
+### flatMap()
+- **Purpose:** Transforms each element to zero or more elements and flattens the result.
+- **Signature:** `<R> Stream<R> flatMap(Function<T, Stream<R>> mapper)`
+- **Use Case:** One-to-many transformation, flattening nested structures.
+
+```java
+List<List<Integer>> nestedList = Arrays.asList(
+    Arrays.asList(1, 2),
+    Arrays.asList(3, 4),
+    Arrays.asList(5, 6)
+);
+
+// Using map - returns Stream<List<Integer>>
+List<Stream<Integer>> mapped = nestedList.stream()
+    .map(List::stream)
+    .collect(Collectors.toList());
+
+// Using flatMap - returns Stream<Integer> (flattened)
+List<Integer> flattened = nestedList.stream()
+    .flatMap(List::stream)
+    .collect(Collectors.toList());
+// Output: [1, 2, 3, 4, 5, 6]
+```
+
+### Key Differences
+
+| Feature | map() | flatMap() |
+|---------|-------|-----------|
+| **Transformation** | One-to-one | One-to-many (then flatten) |
+| **Output** | Single element per input | Zero or more elements per input |
+| **Flattening** | No | Yes |
+| **Use Case** | Simple transformations | Nested structures, Optional handling |
+
+### flatMap with Optional
+```java
+Optional<String> getName(int id) { /* ... */ }
+
+// Without flatMap - returns Optional<Optional<String>>
+Optional<Optional<String>> nested = Optional.of(1).map(this::getName);
+
+// With flatMap - returns Optional<String>
+Optional<String> flat = Optional.of(1).flatMap(this::getName);
+```
+
+---
+
+## 12. Why Static and Default Methods in Interface vs Abstract Class
+
+### Why Default Methods in Interface?
+1. **Backward Compatibility:** Add new methods to interfaces without breaking existing implementations.
+2. **Multiple Inheritance of Behavior:** Classes can inherit default implementations from multiple interfaces.
+3. **Optional Methods:** Provide default behavior that implementations can override if needed.
+
+### Why Static Methods in Interface?
+1. **Utility Methods:** Group related utility methods with the interface.
+2. **Factory Methods:** Create instances of implementing classes.
+3. **No Inheritance:** Static methods cannot be overridden, ensuring consistent behavior.
+
+### Interface vs Abstract Class
+
+| Feature | Interface (with default/static) | Abstract Class |
+|---------|--------------------------------|----------------|
+| **Multiple Inheritance** | Yes (can implement multiple interfaces) | No (can extend only one class) |
+| **State (Instance Variables)** | Only constants (public static final) | Can have instance variables |
+| **Constructor** | No constructors | Can have constructors |
+| **Access Modifiers** | Methods are public by default | Can have any access modifier |
+| **Use Case** | Define contracts with optional default behavior | Share common state and behavior |
+
+### Example
+```java
+public interface Vehicle {
+    void start(); // Abstract method
+    
+    // Default method - backward compatible addition
+    default void honk() {
+        System.out.println("Beep beep!");
+    }
+    
+    // Static utility method
+    static int getWheelCount(String type) {
+        return switch (type) {
+            case "car" -> 4;
+            case "bike" -> 2;
+            default -> 0;
+        };
+    }
+}
+```
+
+---
+
+## 14. collect(Collectors.toList()) vs Stream.toList()
+
+| Feature | collect(Collectors.toList()) | toList() (Java 16+) |
+|---------|------------------------------|---------------------|
+| **Introduced** | Java 8 | Java 16 |
+| **Result Type** | Mutable ArrayList | Unmodifiable List |
+| **Null Elements** | Allows null elements | Does NOT allow null elements |
+| **Modification** | Can add/remove elements | Throws UnsupportedOperationException |
+
+### Example
+```java
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+
+// collect(Collectors.toList()) - Returns mutable list
+List<Integer> mutableList = numbers.stream()
+    .filter(n -> n > 2)
+    .collect(Collectors.toList());
+mutableList.add(10); // Works fine
+
+// toList() - Returns unmodifiable list (Java 16+)
+List<Integer> immutableList = numbers.stream()
+    .filter(n -> n > 2)
+    .toList();
+immutableList.add(10); // Throws UnsupportedOperationException
+```
+
+### Best Practice
+- Use `toList()` when you need an immutable result (safer, more concise).
+- Use `collect(Collectors.toList())` when you need to modify the result list.
+- Use `collect(Collectors.toUnmodifiableList())` for immutable list in Java 10+.
+
+---
+
+## 15. Stream Reuse - Will This Execute?
+
+### Code
+```java
+List<Integer> lists = List.of(1, 2, 3, 4, 5, 6);
+Stream<Integer> integerStream = lists.stream().map(i -> i * 2);
+integerStream.forEach(System.out::println);
+List<Integer> finalList = integerStream.collect(Collectors.toList());
+```
+
+### Answer: **IllegalStateException** - Stream has already been operated upon or closed
+
+- **Streams can only be consumed once.**
+- After a terminal operation (`forEach`, `collect`, `reduce`, etc.), the stream is closed.
+- Attempting to reuse the stream throws `IllegalStateException`.
+
+### Correct Approach
+```java
+List<Integer> lists = List.of(1, 2, 3, 4, 5, 6);
+
+// Option 1: Create stream each time
+lists.stream().map(i -> i * 2).forEach(System.out::println);
+List<Integer> finalList = lists.stream().map(i -> i * 2).collect(Collectors.toList());
+
+// Option 2: Store the supplier
+Supplier<Stream<Integer>> streamSupplier = () -> lists.stream().map(i -> i * 2);
+streamSupplier.get().forEach(System.out::println);
+List<Integer> finalList = streamSupplier.get().collect(Collectors.toList());
+```
+

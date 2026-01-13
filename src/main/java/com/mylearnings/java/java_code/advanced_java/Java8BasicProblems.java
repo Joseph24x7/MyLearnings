@@ -2,6 +2,7 @@ package com.mylearnings.java.java_code.advanced_java;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -104,6 +105,7 @@ public class Java8BasicProblems {
 }
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 class Employee {
     private Integer id;
@@ -119,4 +121,10 @@ class Transaction {
     private Double amount;
     private String account_holder;
     private String type;
+}
+
+@Data
+@AllArgsConstructor
+class Tasks {
+    private String description;
 }

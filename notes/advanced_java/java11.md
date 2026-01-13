@@ -121,3 +121,58 @@
 - Use Cases: Suitable for constant data that should not change after creation.
 
 ---
+
+## 9. List.of() Immutability - Will This Execute?
+
+### Code
+```java
+List<Integer> lists = List.of(1, 2, 3, 4, 5, 6);
+lists.set(0, 0); // What will happen?
+```
+
+### Answer: **UnsupportedOperationException**
+
+- `List.of()` returns an **immutable list** (introduced in Java 9).
+- Any modification operation (`add`, `set`, `remove`) throws `UnsupportedOperationException`.
+- The list is also **null-hostile** - cannot contain null elements.
+
+```java
+List<Integer> lists = List.of(1, 2, 3, 4, 5, 6);
+lists.set(0, 0);    // UnsupportedOperationException
+lists.add(7);       // UnsupportedOperationException
+lists.remove(0);    // UnsupportedOperationException
+
+// Null not allowed
+List<Integer> nullList = List.of(1, null, 3); // NullPointerException
+```
+
+### Creating Mutable List from List.of()
+```java
+List<Integer> immutable = List.of(1, 2, 3);
+List<Integer> mutable = new ArrayList<>(immutable);
+mutable.set(0, 0); // Works fine
+```
+
+### Comparison with Arrays.asList()
+
+| Feature | List.of() | Arrays.asList() |
+|---------|-----------|-----------------|
+| **Introduced** | Java 9 | Java 1.2 |
+| **Mutability** | Fully immutable | Structurally immutable (set allowed) |
+| **Null Elements** | Not allowed | Allowed |
+| **set() operation** | UnsupportedOperationException | Works |
+| **add()/remove()** | UnsupportedOperationException | UnsupportedOperationException |
+
+```java
+// Arrays.asList() - allows set, but not add/remove
+List<Integer> arraysList = Arrays.asList(1, 2, 3);
+arraysList.set(0, 0);  // Works
+arraysList.add(4);     // UnsupportedOperationException
+
+// List.of() - no modifications allowed
+List<Integer> listOf = List.of(1, 2, 3);
+listOf.set(0, 0);      // UnsupportedOperationException
+```
+
+---
+

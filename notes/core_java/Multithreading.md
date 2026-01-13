@@ -70,38 +70,32 @@ example for asynchronous and thread safe: CopyOnWriteArrayList, ConcurrentHashMa
 ```
 
 - Replacing Synchronization: Instead of using locks or synchronized blocks to protect critical sections of code, you can often use AtomicInteger to achieve the same results with better performance.
-
+- Internally it uses Retries and Compare-And-Swap (CAS) operations to ensure atomicity without the need for traditional locking mechanisms.
 ---
 
-## 6. Callable vs Runnable:
+## 6. If we have volatile then why we need to go for Atomic Integer?
 
-### Runnable: 
-- You typically use Runnable when you want to perform a task in the background without expecting a result or when you want to encapsulate code to run asynchronously.
-- It does not return any result directly
-- It cannot throw checked exceptions. Any checked exceptions thrown within a Runnable must be caught within the run method.
+- volatile gives visibility, AtomicInteger gives atomicity + visibility.
+- volatile is safe only when - Single thread writes, Multiple threads reads. So race condition can still occur with volatile.
+- But AtomicInteger provides atomic operations that ensure that multiple threads can safely modify the integer value without causing race conditions.
 
-### Callable: 
-- You typically use Callable when you need to execute a task concurrently and receive a result or when you want to handle exceptions more flexibly.
-- It allows a task to return a value (of a specified type) 
-- It allows to throw checked exceptions, which can be captured and handled.
+- Race condition with volatile:
+```java
+    volatile int counter = 0;
 
----
+    public void increment() {
+        counter++; // Not atomic
+    }
+```
+- In the above example, multiple threads incrementing the counter simultaneously can lead to lost updates and inconsistent results.
+- To ensure atomicity, we can use AtomicInteger:
+```java
+    AtomicInteger counter = new AtomicInteger(0);
 
-## 7. Volatile vs Atomic Integer:
-
-### AtomicInteger:
-- Purpose: AtomicInteger is primarily used for performing atomic operations on integer variables in a thread-safe manner. 
-- Atomic Operations: Ensures multiple threads can safely increment, decrement, compare-and-set, or get-and-set values without the need for explicit synchronization.
-- Use Cases: Use AtomicInteger when you need to perform thread-safe, atomic operations on integer variables, such as maintaining counters,etc.,
-
-### Volatile:
-- Purpose: Its primary purpose is to ensure visibility of changes across threads.
-- Visibility: volatile guarantees that changes made to the volatile variable by one thread are immediately visible to other threads.
-- Atomic Operations: Unlike AtomicInteger, volatile does not provide atomic compound operations. It is focused solely on visibility, not atomicity.
-
-In Short, 
-- Atomicity ensures that an operation is indivisible, preventing concurrent threads from interfering with each other during the operation. It's critical for maintaining data integrity.
-- Visibility ensures that changes made by one thread are immediately seen by other threads, allowing for effective communication and coordination between threads.
+    public void increment() {
+        counter.incrementAndGet(); // Atomic operation
+    }
+```
 
 ---
 
@@ -122,6 +116,43 @@ In Short,
 ### types:
 - circular deadlock
 - resource wait deadlock
+
+### Coding Example for Circular Deadlock:
+```java
+public class DeadlockExample {
+    public static void main(String[] args) {
+        final Object resource1 = "Resource1";
+        final Object resource2 = "Resource2";
+        Thread t1 = new Thread(() -> {
+            synchronized (resource1) {
+                System.out.println("Thread 1: Holding Resource 1...");
+                try { Thread.sleep(100); } catch (InterruptedException e) {}
+                System.out.println("Thread 1: Waiting for Resource 2...");
+                synchronized (resource2) {
+                    System.out.println("Thread 1: Acquired Resource 2!");
+                }
+            }
+        });
+        Thread t2 = new Thread(() -> {
+            synchronized (resource2) {
+                System.out.println("Thread 2: Holding Resource 2...");
+                try { Thread.sleep(100); } catch (InterruptedException e) {}
+                System.out.println("Thread 2: Waiting for Resource 1...");
+                synchronized (resource1) {
+                    System.out.println("Thread 2: Acquired Resource 1!");
+                }
+            }
+        });
+        t1.start();
+        t2.start();
+    }
+}
+```
+
+### Solutions to Avoid Deadlock:
+- Lock Ordering: Establish a consistent order in which locks are acquired by threads.
+- Lock Timeout: Implement timeouts when trying to acquire locks.
+- Deadlock Detection: Use algorithms to detect deadlocks and take corrective actions.
 
 ---
 
@@ -156,48 +187,66 @@ In some scenarios the result of t1 thread may be required for main thread to pro
 
 ---
 
-## 13. Thread pooling concept in parallel streams:
+## 13. Parallel Stream and ForkJoinPool: 
 
-- Thread pooling for parallel streams is managed by the ForkJoinPool, which is a specialized type of thread pool designed for parallelism. 
-
+- Parallel Stream:
+- Parallel streams in Java allow you to process collections of data in parallel, utilizing multiple threads to improve performance for large datasets.
+- It uses the ForkJoinPool internally to manage threads and divide the workload.
+```java
+    List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+    int sum = numbers.parallelStream()
+                     .mapToInt(Integer::intValue)
+                     .sum();
+```
 - ForkJoinPool Creation: The ForkJoinPool automatically manages a pool of worker threads and divides the workload among them to execute tasks concurrently.
-- Work Partitioning: This recursive splitting of task partitioning continues until the tasks are small enough to be executed efficiently.
-- Task Execution: The worker threads from the ForkJoinPool execute these subtasks concurrently. 
-- Joining Results: This may also involve combining results from multiple levels of subtasks after execution is completed.
+- It uses CPU cores efficiently by dynamically adjusting the number of threads based on the available resources.
+- Ideal for smaller tasks that can be broken down into smaller subtasks and executed in parallel.
 
 ---
 
-## 14. What is a thread pool, and why is it useful in multithreaded applications?
+## 14. newCachedThreadPool() vs newFixedThreadPool() in Executor Service. What is the best advisable approach for I/O intensive tasks?
 
-- helps to reuse threads from a pre-allocated pool, reducing the overhead of thread creation and destruction. 
-- helps to control the number of concurrently executing threads to avoid potential performance issues.
-- helps with the task queue which allows you to submit tasks for processing, and the thread pool assigns them to available threads.
-- Can be configured accordingly to the hardware capabilities which helps in the scalability which allows applications to efficiently utilize available hardware resources.
+ExecutorService executor = Executors.newCachedThreadPool();
+- This method creates an executor with an expandable thread pool that can dynamically adjust its size based on the number of incoming tasks.
+- If a thread is not used for a specified amount of time (60 seconds in the case of the default implementation), it will be terminated and removed from the pool.
+- It is suitable for scenarios where the number of tasks is not known in advance, and you want to reuse threads efficiently.
+- Not Advised for CPU intensive tasks as it can create too many threads leading to resource exhaustion.
 
-popular example: ExecutorService 
+ExecutorService executor = Executors.newFixedThreadPool(poolSize - 10);
+- This method creates an executor with a fixed-size thread pool where the number of threads is specified during pool creation.
+- Tasks are queued if all threads are busy. If a thread encounters an exception and terminates, a new one will be created to replace it.
+- It is suitable for scenarios where you want to limit the number of concurrently executing tasks.
+- Not Advised for I/O intensive tasks as threads may remain idle waiting for I/O operations to complete.
+
+Advised Replacement for I/O intensive tasks:
+- We can make use of ThreadPoolExecutor with a custom configuration.
+```java
+    int corePoolSize = 10;
+    int maximumPoolSize = 50;
+    long keepAliveTime = 60L;
+    TimeUnit unit = TimeUnit.SECONDS;
+    BlockingQueue<Runnable> workQueue = new SynchronousQueue<>();
+
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(
+        corePoolSize,
+        maximumPoolSize,
+        keepAliveTime,
+        unit,
+        workQueue
+    );
+```
+- This configuration allows for a flexible thread pool that can grow and shrink based on the workload, making it suitable for I/O-intensive tasks.
 
 ---
 
-## 15. run() vs start():
-
-- during start() method a new Thread is created and code inside run() method is executed in new Thread.
-- if you call run() method directly no new Thread is created and code inside run() will execute on the current Thread.
-
----
-
-## 16. how to lock a resource in java?
-- By using synchronized keyword
-
----
-
-## 17. if a method is synchronized and static, how will java behave?
+## 15. if a method is synchronized and static, how will java behave?
 
 - If a method is synchronized and static, it means that the lock associated with the method is at the class level. Only one thread can execute any synchronized static method of the class at a time.
 - If a method is synchronized and not static, it means that the lock associated with the method is at the instance level. Only one thread can execute any synchronized non-static method on a particular instance of the class at a time.
 
 ---
 
-## 18. Difference between completableFuture & Future? which is preferred?
+## 16. Difference between completableFuture & Future? which is preferred?
 
 ### Using CompletableFuture:
 - CompletableFuture is used when you need to perform asynchronous tasks that may return results or be composed together. You can easily combine multiple CompletableFutures to create more complex asynchronous workflows using methods like thenCompose, thenApply, thenAccept, and so on.
@@ -211,21 +260,7 @@ popular example: ExecutorService
 
 ---
 
-## 19. newCachedThreadPool() vs newFixedThreadPool() in Executor Service:
-
-ExecutorService executor = Executors.newCachedThreadPool();
-- This method creates an executor with an expandable thread pool that can dynamically adjust its size based on the number of incoming tasks.
-- If a thread is not used for a specified amount of time (60 seconds in the case of the default implementation), it will be terminated and removed from the pool.
-- It is suitable for scenarios where the number of tasks is not known in advance, and you want to reuse threads efficiently.
-
-ExecutorService executor = Executors.newFixedThreadPool(poolSize - 10);
-- This method creates an executor with a fixed-size thread pool where the number of threads is specified during pool creation.
-- Tasks are queued if all threads are busy. If a thread encounters an exception and terminates, a new one will be created to replace it.
-- It is suitable for scenarios where you want to limit the number of concurrently executing tasks.
-
----
-
-## 20. Lifecycle of a Thread:
+## 17. Lifecycle of a Thread:
 
 1. New: 
 - Thread t1 = new Thread(() -> //task); //It is in this state after the instantiation of the thread object.
@@ -253,3 +288,4 @@ ExecutorService executor = Executors.newFixedThreadPool(poolSize - 10);
 - Once a thread is terminated, it cannot return to any other state.
 
 ---
+

@@ -5,26 +5,11 @@ Below is a **clean grouping of all questions by topic**, as requested.
 
 ## **Java Core**
 
-* Java serialization
-* Underlying data structures HashMap uses
-* AutoCloseable vs Closeable interface
-* Cloning – types
-* Why clone an object vs creating a new object
-* Use of shallow cloning
 * Java 8 features
-* HashMap using binary tree instead of linked list (Java 8)
-* Class loader
-* Types of classloader
-* Why String is immutable
-* Wrapper classes
-* HashMap / HashSet implementation
-* Collision
 * Runnable vs Callable
 * Ways to create thread
 * Which is better thread creation logic
 * Notify vs NotifyAll
-* String pool concept
-* Java memory management
 
 ---
 
