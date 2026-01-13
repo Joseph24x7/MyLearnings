@@ -11,3 +11,7 @@
 ## 5. Use of Header Segments in Kafka?
 
 ## 6. How to ensure Authentication and Authorization in Kafka?
+
+## 7. Explain about Kafka Retention Policy?
+
+## 8. Explain the purpose of DLT or DLQ in messaging systems?

@@ -1,137 +1,288 @@
 # Memory Management in Java
 
-## 1. Types of memory
+## 1. List and explain different memory types allocated by JVM
 
-- Heap Memory: It is where objects, including instances of classes and arrays, are allocated during runtime. 
+| Memory Area | Stores | Scope | Size Config |
+|-------------|--------|-------|-------------|
+| **Heap** | Objects, instance variables | Shared across threads | `-Xms` (initial), `-Xmx` (max) |
+| **Stack** | Local variables, method calls, partial results | Per thread | `-Xss` (default 512KB-1MB) |
+| **Metaspace** | Class metadata, method info, constant pool | Shared | `-XX:MaxMetaspaceSize` |
+| **Code Cache** | JIT compiled native code | Shared | `-XX:ReservedCodeCacheSize` |
+| **Native Memory** | Native method stacks, direct buffers | Per thread | OS dependent |
 
-- Stack Memory: 
-	- Contains the reference to that heap object. Stack memory is generally smaller and faster to access than heap memory.
-	- Primitive data type, stored in stack memory
-	- Local variables stored in the stack memory
-
-- Method Area (PermGen/Metaspace): 
-	- This area is responsible for storing class definitions, method and field information, and other metadata.
-	- In Java 8 and later versions, the "PermGen" space was replaced with "Metaspace," which serves a similar purpose but is not limited by a fixed size and can dynamically expand. 
-
-- Native Memory: Native memory is typically used for purposes like managing I/O, native method calls, and direct buffers.
-
-- Program Counter (PC) Register: Each thread in Java has its own Program Counter (PC) register, which keeps track of the currently executing instruction.
-
-- Registers: Registers are small, fast storage locations within the CPU and it is not directly managed by Java developers, they play a crucial role in the execution of Java code.
-
-Note: Except Native Memory and Registers, Rest of all are managed by JVM.
-
----
-
-## 2. Time Complexity:
-
-- O(1) - Constant Time Complexity - it takes a constant amount of time to retrieve the first element.
-- O(N) - Linear Time Complexity - This means that the runtime of an algorithm or code grows linearly with the size of the input.
-- O(N^2) - Quadratic Time Complexity - This means that the runtime of an algorithm or code grows with the square of the input size.
-- O(log N) - Logarithmic Time Complexity - This means that the runtime of an algorithm or code increases logarithmically with the input size.
-
----
-
-## 3. Space Complexity:
-
-- O(1) - Constant Space Complexity - This means that the amount of memory used by an algorithm or code does not depend on the size of the input data; it's constant.
-- O(N) - Linear Space Complexity - This means that the memory usage of an algorithm or code grows linearly with the size of the input.
-
----
-
-## 4. Cyclometric Complexity:
-
-- Cyclomatic complexity is a software metric used to measure the complexity of a program's control flow. 
-- In Java, you can calculate cyclomatic complexity using the Control Flow Graph (CFG) of a method. 
-- The formula for cyclomatic complexity is: M = E - N + 2P ( E- Edges, N - Nodes or Blocks, P-connectors/pipes)
-
----
-
-## 5. What steps u will take to fix outofmemoryerror:
-
-- Optimize the Data Structures by reducing the time & space complexity.
-- Check for Memory Leaks ( not closing the connections/resources )
-- Increase Heap Size (or) Increase PermGen/Metaspace Size
-- Increase the cloud or hardware instances.
-
----
-
-## 6. Heap Memory vs PermGen/Metaspace memory:
-
-- PermGen/Metaspace: This area is responsible for storing class definitions, method and field information, and other metadata.
-	- XX:MaxPermSize or -XX:MaxMetaspaceSize
-- Heap Memory: It is where objects, including instances of classes and arrays, are allocated during runtime.
-	- java -Xmx1024m -Xms512m
-- Both can be modified in VM Arguements in IDEs for the Java Applications.
-
----
-
-## 7. "PermGen" vs "Metaspace" (OR) Memory upgrades in Java 8 and above: 
-
-- In older versions of Java (up to Java 7), there was a "PermGen" (Permanent Generation) area for storing class metadata and constant pool information. 
-- In Java 8 and later versions, the PermGen space was replaced with "Metaspace," which serves a similar purpose.
-- "PermGen" has the limited space and fixed size whereas "Metaspace" can dynamically expand.
-- Both are responsible for storing class definitions, method and field information, and other metadata.
-
----
-
-## 8. What is memory leak? How to analyze and Fix?
-
-- A memory leak in a software application occurs when the application allocates memory for objects or data but fails to release or deallocate that memory when it's no longer needed.
-- It will lead to an "OutOfMemoryError" or degrade system performance.
-- Performance Testing has to be done to identify such issues.
-- may be because we may not be closing the connections/resources (or) deallocate any memory. fixing this will avoid memory leak.
-
----
-
-## 9. can we create internal memory in jvm?
-
-- We can modify the size of "heap" / "PermGen" / "Metaspace" memory.
-- But we cannot create our own internal memory.
-
----
-
-## 10. can u replicate stackoverflowerror on our own? if yes how
-
-- A StackOverflowError occurs when the call stack, which is used to keep track of method calls, becomes too deep.
+**Heap Structure (Generational):**
+```
+Heap
+├── Young Generation (Eden + S0 + S1) - New objects, Minor GC
+│   ├── Eden Space (80%) - New allocations
+│   ├── Survivor 0 (10%) - Survived 1+ GC
+│   └── Survivor 1 (10%) - Swap with S0
+└── Old Generation (Tenured) - Long-lived objects, Major GC
+```
 
 ```java
-public class StackOverflowExample {
-    public static void main(String[] args) {
-        recursiveMethod();
-    }
-
-    public static void recursiveMethod() {
-        recursiveMethod(); // This recursive call will eventually lead to a StackOverflowError.
+class Example {
+    int instanceVar;           // Heap (with object)
+    static int staticVar;      // Metaspace (class-level)
+    
+    void method() {
+        int localVar = 10;     // Stack (primitive)
+        Integer boxed = 10;    // Reference in Stack, Integer object in Heap
+        Object obj = new Object(); // Reference in Stack, Object in Heap
+        String str = "hello";  // Reference in Stack, String in String Pool (Heap)
     }
 }
 ```
 
+**Common JVM Memory Flags:**
+```bash
+java -Xms512m -Xmx2g -Xss1m -XX:MaxMetaspaceSize=256m -jar app.jar
+```
+
 ---
 
-## 11. can u replicate outofmemoryerror on our own? if yes how
+## 2. Cyclomatic Complexity
 
-- One common way to trigger an OutOfMemoryError is by creating a large number of objects or allocating a large amount of memory that exceeds the available heap space. 
+- Measures code complexity based on **independent execution paths**
+- **Formula:** `M = E - N + 2P` (Edges - Nodes + 2×Connected Components)
+- **Simple Rule:** Count (if, for, while, case, catch, &&, ||, ?:) + 1
+
+| Score | Risk | Action |
+|-------|------|--------|
+| 1-10 | Low | Maintainable |
+| 11-20 | Moderate | Review needed |
+| 21-50 | High | Refactor recommended |
+| 50+ | Very High | Must refactor |
+
+**Example:**
+```java
+// Complexity = 4 (1 + if + && + else)
+public String check(int x, boolean flag) {
+    if (x > 0 && flag) {
+        return "positive";
+    } else {
+        return "other";
+    }
+}
+```
+
+**Tools:** SonarQube, PMD, Checkstyle
+
+---
+
+## 3. JVM Memory Tuning Best Practices
+
+- Set `-Xms` = `-Xmx` to avoid heap resizing overhead
+- Young Gen should be 1/3 to 1/4 of total heap
+- Monitor GC logs: `-Xlog:gc*:file=gc.log`
+- Use `-XX:+HeapDumpOnOutOfMemoryError` in production
+
+---
+
+## 4. Types of OutOfMemoryError
+
+| Error Type | Cause | Fix |
+|------------|-------|-----|
+| `Java heap space` | Too many objects | Increase `-Xmx`, fix leaks |
+| `Metaspace` | Too many classes loaded | Increase `-XX:MaxMetaspaceSize` |
+| `GC overhead limit` | 98% time in GC, <2% heap freed | Fix memory leak |
+| `Direct buffer memory` | NIO direct buffers exhausted | Increase `-XX:MaxDirectMemorySize` |
+| `Unable to create native thread` | OS thread limit | Reduce `-Xss` or increase ulimit |
+
+---
+
+## 5. Steps to Fix OutOfMemoryError
+
+1. **Enable Heap Dump:** `-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/path/`
+2. **Analyze Dump:** Use Eclipse MAT, VisualVM, or JProfiler
+3. **Identify Root Cause:**
+   - Look for **Dominator Tree** - objects holding most memory
+   - Check **Leak Suspects Report** - automatic detection
+   - Analyze **Histogram** - object count by class
+4. **Common Fixes:**
+   - Close resources properly (use try-with-resources)
+   - Clear static collections or use `WeakHashMap`
+   - Use pagination/streaming for large datasets
+   - Review caching strategy (use bounded caches like Caffeine)
+   - Check for growing collections in long-running loops
 
 ```java
-public static void main(String[] args) {
-    List<Object> list = new ArrayList<>();
+// Bad - Memory Leak
+static Map<String, Object> cache = new HashMap<>();
 
-    try {
-        while (true) {
-            list.add(new byte[1_000_000]); // Allocate 1MB of memory for each object
+// Good - Bounded Cache
+Cache<String, Object> cache = Caffeine.newBuilder()
+    .maximumSize(1000)
+    .expireAfterWrite(10, TimeUnit.MINUTES)
+    .build();
+```
+
+---
+
+## 6. Heap Memory vs PermGen/Metaspace
+
+| Aspect | Heap | Metaspace |
+|--------|------|-----------|
+| **Stores** | Objects, arrays, String pool | Class metadata, method bytecode |
+| **Location** | JVM managed | Native memory (outside heap) |
+| **Config** | `-Xmx1024m -Xms512m` | `-XX:MaxMetaspaceSize=256m` |
+| **GC** | Young/Old Gen GC | Class unloading (rare) |
+| **Growth** | Fixed max | Metaspace is unbounded (can grow until OS memory). |
+
+---
+
+## 7. PermGen vs Metaspace (Java 8+ Upgrade)
+
+| PermGen (Java 7-) | Metaspace (Java 8+) |
+|-------------------|---------------------|
+| Fixed size, contiguous heap space | Auto-grows, native memory |
+| `OutOfMemoryError: PermGen space` | `OutOfMemoryError: Metaspace` |
+| `-XX:PermSize`, `-XX:MaxPermSize` | `-XX:MetaspaceSize`, `-XX:MaxMetaspaceSize` |
+| Required tuning for app servers | Self-tuning, less config needed |
+| GC during Full GC only | More efficient class unloading |
+
+**Why Changed?**
+- PermGen had **fixed size** causing frequent OOM in apps with dynamic class loading (Spring, Hibernate, OSGi)
+- Difficult to tune - too small = OOM, too large = wasted memory
+- Metaspace uses **native memory** - grows as needed, limited only by OS
+
+**Migration:**
+```bash
+# Java 7
+java -XX:PermSize=128m -XX:MaxPermSize=256m -jar app.jar
+
+# Java 8+
+java -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m -jar app.jar
+```
+
+---
+
+## 8. What is Memory Leak? How to Analyze and Fix?
+
+**Memory Leak:** Objects no longer needed but still referenced, preventing GC from reclaiming memory.
+
+**Common Causes & Fixes:**
+
+| Cause | Example | Fix |
+|-------|---------|-----|
+| Unclosed resources | Streams, connections | `try-with-resources` |
+| Static collections | `static List cache` | Use bounded cache, WeakHashMap |
+| Inner class references | Non-static inner class | Make inner class static |
+| Listeners not removed | Event listeners | `removeListener()` on cleanup |
+| ThreadLocal not cleared | `ThreadLocal<User>` | Call `remove()` in finally block |
+| String.intern() abuse | Interning user data | Avoid interning dynamic strings |
+
+```java
+// Memory Leak Example
+class Service {
+    static List<byte[]> cache = new ArrayList<>();  // Grows forever
+    
+    void process() {
+        cache.add(new byte[1024 * 1024]);  // 1MB added, never removed
+    }
+}
+
+// Fixed with Bounded Cache
+class Service {
+    static Map<String, byte[]> cache = new LinkedHashMap<>(100, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry eldest) {
+            return size() > 100;  // LRU eviction
         }
-    } catch (OutOfMemoryError e) {
-        System.out.println("OutOfMemoryError occurred!");
-    }
+    };
 }
+```
+
+**Analysis Tools:**
+- **Eclipse MAT** - Heap dump analysis, leak suspect reports
+- **VisualVM** - Real-time monitoring, sampling
+- **JProfiler/YourKit** - Commercial, comprehensive profiling
+- **jmap** - `jmap -dump:format=b,file=heap.hprof <pid>`
+
+---
+
+## 9. Can you replicate StackOverflowError?
+
+**Cause:** Stack memory exhausted due to deep/infinite recursion.
+
+```java
+// Infinite recursion
+public void recursiveMethod() {
+    recursiveMethod();  // Each call adds a stack frame
+}
+// Throws: java.lang.StackOverflowError
+
+// Deep recursion (large input)
+public int factorial(int n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);  // Fails for large n
+}
+
+// Fix: Use iteration or tail recursion optimization
+public int factorialIterative(int n) {
+    int result = 1;
+    for (int i = 2; i <= n; i++) result *= i;
+    return result;
+}
+```
+
+**Stack size:** Default ~512KB-1MB. Increase with `-Xss2m` if needed.
+
+---
+
+## 10. Can you replicate OutOfMemoryError?
+
+**Heap Space:**
+```java
+List<byte[]> list = new ArrayList<>();
+while (true) {
+    list.add(new byte[1024 * 1024]);  // 1MB each, never released
+}
+// Throws: java.lang.OutOfMemoryError: Java heap space
+```
+
+**Metaspace (Dynamic Class Loading):**
+```java
+while (true) {
+    Enhancer enhancer = new Enhancer();  // CGLIB
+    enhancer.setSuperclass(Object.class);
+    enhancer.create();  // Creates new class each time
+}
+// Throws: java.lang.OutOfMemoryError: Metaspace
+```
+
+**Direct Buffer:**
+```java
+List<ByteBuffer> buffers = new ArrayList<>();
+while (true) {
+    buffers.add(ByteBuffer.allocateDirect(1024 * 1024));
+}
+// Throws: java.lang.OutOfMemoryError: Direct buffer memory
 ```
 
 ---
 
-## 12. dfifference between stackoverflow and outofmemoryerror?
+## 11. Heap vs Stack Memory
 
-- OutOfMemoryError: Happens when the JVM runs out of heap memory for object allocation.
-- StackOverflowError: Occurs when method calls become too deep, usually due to uncontrolled recursion.
+| Aspect | Heap | Stack |
+|--------|------|-------|
+| **Stores** | Objects, arrays | Primitives, references, method frames |
+| **Scope** | Shared across all threads | Thread-specific (isolated) |
+| **Lifetime** | Until GC reclaims | Until method returns |
+| **Access Speed** | Slower (pointer lookup) | Faster (LIFO, contiguous) |
+| **Size** | Large (GBs possible) | Small (512KB-1MB default) |
+| **Allocation** | Dynamic, complex | Simple, automatic |
+| **Thread Safety** | Requires synchronization | Inherently thread-safe |
+| **Config** | `-Xmx`, `-Xms` | `-Xss` |
+| **Error** | `OutOfMemoryError` | `StackOverflowError` |
 
----
+**Visual:**
+```
+Thread 1 Stack    Thread 2 Stack         Heap (Shared)
+┌──────────────┐  ┌──────────────┐       ┌─────────────────┐
+│ main()       │  │ run()        │       │ Object A        │
+│  int x = 5   │  │  int y = 10  │  ──►  │ Object B        │
+│  ref → ──────┼──┼──────────────┼───────┤ Object C        │
+│ method1()    │  │ method2()    │       │ String Pool     │
+└──────────────┘  └──────────────┘       └─────────────────┘
+```
