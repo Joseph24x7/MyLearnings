@@ -122,9 +122,3 @@ class Transaction {
     private String account_holder;
     private String type;
 }
-
-@Data
-@AllArgsConstructor
-class Tasks {
-    private String description;
-}
