@@ -96,14 +96,6 @@
 
 ---
 
-## 11. Ways to Create Immutable Class
-
-- `@Value`
-- Manually creating
-- `record` – introduced in Java 16 (stable)
-
----
-
 ## 12. HashMap vs ConcurrentHashMap
 
 | Feature | HashMap | ConcurrentHashMap |
@@ -147,55 +139,15 @@ printElements(numbers); // Works with Integer
 
 ---
 
-## 14. Underlying Data Structures HashMap Uses
-
-| Java Version | Data Structure |
-|--------------|----------------|
-| **Before Java 8** | Array of linked lists (buckets) |
-| **Java 8+** | Array of linked lists that convert to balanced trees (Red-Black Trees) when threshold is exceeded |
-
-### Key Components
-- **Array (Bucket Array):** Main structure holding entries, default initial capacity is 16.
-- **Linked List:** Used to handle collisions within each bucket.
-- **Red-Black Tree:** Replaces linked list when bucket size exceeds threshold (8 entries) for O(log n) lookup.
-
----
-
 ## 16. Cloning – Types
 
-### Types of Cloning
+- **Shallow Clone**:
+  - Creates a new object but copies references of nested objects. Changes in nested objects affect both original and clone.
+  - Default `clone()` method behavior.
 
-| Type | Description | Implementation |
-|------|-------------|----------------|
-| **Shallow Clone** | Creates a new object but copies references of nested objects. Changes in nested objects affect both original and clone. | Default `clone()` method behavior |
-| **Deep Clone** | Creates a new object and recursively copies all nested objects. Completely independent copy. | Manual implementation required |
-
-### Implementation Example
-```java
-// Shallow Clone
-class Employee implements Cloneable {
-    String name;
-    Address address;  // Reference type
-    
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();  // Shallow copy
-    }
-}
-
-// Deep Clone
-class Employee implements Cloneable {
-    String name;
-    Address address;
-    
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        Employee cloned = (Employee) super.clone();
-        cloned.address = (Address) address.clone();  // Clone nested object
-        return cloned;
-    }
-}
-```
+- **Deep Clone**:
+  - Creates a new object and recursively copies all nested objects. Completely independent copy.
+  - Manual implementation required.
 
 ### Other Ways to Clone
 - **Copy Constructor:** `new Employee(existingEmployee)`
@@ -211,37 +163,6 @@ class Employee implements Cloneable {
 2. **Index Calculation:** `index = hash(key) & (n-1)` where n is bucket array size.
 3. **Storage:** Entry stored at calculated index. If collision occurs, entry is added to linked list/tree at that bucket.
 4. **Retrieval:** `get(key)` uses same hash calculation to find bucket, then traverses list/tree using `equals()`.
-
-### HashSet Implementation
-- **Backed by HashMap:** HashSet internally uses HashMap.
-- **Elements as Keys:** Set elements are stored as keys in the HashMap.
-- **Dummy Value:** A constant dummy object (`PRESENT`) is used as value for all entries.
-
-```java
-// HashSet internally
-private transient HashMap<E, Object> map;
-private static final Object PRESENT = new Object();
-
-public boolean add(E e) {
-    return map.put(e, PRESENT) == null;
-}
-```
-
-### Hash Collision Upgrades in Java 8
-
-| Aspect | Before Java 8 | Java 8+ |
-|--------|---------------|---------|
-| **Collision Handling** | Only Linked List | Linked List → Red-Black Tree |
-| **Worst Case Lookup** | O(n) | O(log n) |
-| **Treeify Threshold** | N/A | 8 (converts to tree when bucket has > 8 entries) |
-| **Untreeify Threshold** | N/A | 6 (converts back to list when entries reduce to 6) |
-| **Min Tree Capacity** | N/A | 64 (bucket array must be ≥ 64 for treeification) |
-
-### Why This Upgrade?
-- **DoS Attack Prevention:** Malicious inputs with same hash could degrade HashMap to O(n).
-- **Performance Guarantee:** Red-Black Tree ensures O(log n) even in worst case.
-- **Key Requirement:** Keys should implement `Comparable` for tree ordering; otherwise, identity hash is used.
-
 
 ---
 
@@ -281,195 +202,40 @@ System.out.println(identityMap.size()); // Output: 2
 ---
 
 ## 19. How to Create an Immutable Class
-
-### Requirements for Immutable Class
-1. Declare the class as `final` (prevent inheritance).
-2. Make all fields `private` and `final`.
-3. Don't provide setter methods.
-4. Initialize all fields via constructor.
-5. Perform deep copy for mutable objects in constructor and getters.
-
-### Manual Implementation
-```java
-public final class ImmutablePerson {
-    private final String name;
-    private final int age;
-    private final List<String> hobbies;
-
-    public ImmutablePerson(String name, int age, List<String> hobbies) {
-        this.name = name;
-        this.age = age;
-        // Deep copy of mutable object
-        this.hobbies = new ArrayList<>(hobbies);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public List<String> getHobbies() {
-        // Return defensive copy
-        return new ArrayList<>(hobbies);
-    }
-}
-```
-
-### Using Java Record (Java 16+)
-```java
-public record Person(String name, int age) {
-    // Automatically immutable, final fields, getters, equals, hashCode, toString
-}
-```
-
-### Using Lombok @Value
-```java
-@Value
-public class Person {
-    String name;
-    int age;
-    // Lombok generates final fields, getters, equals, hashCode, toString
-}
-```
+- **Custom way**:
+  - class as `final`
+  - Make all fields `private` and `final`.
+  - Don't provide setter methods.
+  - Initialize all fields via constructor.
+  - Perform deep copy for mutable objects in constructor and getters.
+- **Java Records**
+- **Using Lombok @Value**
 
 ---
 
 ## 20. Try-With-Resources and Order of Resource Closure
-
-### What is Try-With-Resources?
-- Introduced in Java 7.
+- Try-With-Resources was introduced in Java 7.
 - Automatically closes resources that implement `AutoCloseable` or `Closeable`.
 - Resources are closed in **reverse order** of their declaration (LIFO - Last In First Out).
 - Ensures resources are closed even if an exception occurs.
 
-### Code Example
-```java
-try (FileInputStream s1 = new FileInputStream("file1.txt");
-     FileInputStream s2 = new FileInputStream("file2.txt")) {
-    // Use resources
-}
-// s2 is closed first, then s1
-```
+---
 
-### Order of Closure: **s2 closes first, then s1**
+## 21. Is "null" key/values allowed in HashMap/HashSet
 
-### Why Reverse Order?
-- Resources opened later may depend on resources opened earlier.
-- Closing in reverse order ensures dependent resources are closed first.
-- Similar to stack unwinding.
-
-### Complete Example with Custom Resources
-```java
-class Resource implements AutoCloseable {
-    private String name;
-    
-    public Resource(String name) {
-        this.name = name;
-        System.out.println("Opening: " + name);
-    }
-    
-    @Override
-    public void close() {
-        System.out.println("Closing: " + name);
-    }
-}
-
-// Usage
-try (Resource r1 = new Resource("First");
-     Resource r2 = new Resource("Second");
-     Resource r3 = new Resource("Third")) {
-    System.out.println("Using resources");
-}
-
-// Output:
-// Opening: First
-// Opening: Second
-// Opening: Third
-// Using resources
-// Closing: Third
-// Closing: Second
-// Closing: First
-```
+- In HashMap, only ONE null key and multiple null values are allowed.
+- In HashSet, only ONE null value is allowed.
+- The null key is always stored at bucket index 0, and No hashCode() is called for null key
+- Note: Hashset uses Hashmap internally and Hashmap user Arrays of LinkedList/Balanced Tree internally.
 
 ---
 
-## 21. Null Keys and Values in HashMap and HashSet
+## 22. Is "null" key/values allowed in ConcurrentHashMap
 
-### HashMap - Null Keys and Values
-
-| Feature | Allowed? |
-|---------|----------|
-| **Null Key** | Yes, only ONE null key |
-| **Null Values** | Yes, multiple null values |
-
-### Mechanism for Storing Null Key in HashMap
-```java
-// HashMap handles null key specially
-// In put() method:
-if (key == null)
-    return putForNullKey(value); // Stored at index 0 (bucket 0)
-
-// The null key is always stored at bucket index 0
-// No hashCode() is called for null key
-```
-
-### HashMap Example
-```java
-HashMap<String, String> map = new HashMap<>();
-map.put(null, "value1");      // Allowed - null key
-map.put("key1", null);        // Allowed - null value
-map.put("key2", null);        // Allowed - another null value
-map.put(null, "value2");      // Overwrites previous null key entry
-
-System.out.println(map.get(null)); // Output: value2
-System.out.println(map.size());    // Output: 3
-```
-
-### HashSet - Null Elements
-
-| Feature | Allowed? |
-|---------|----------|
-| **Null Element** | Yes, only ONE null element |
-
-### Mechanism for Storing Null in HashSet
-- HashSet is backed by HashMap internally.
-- Elements are stored as keys in the HashMap with a dummy value (`PRESENT`).
-- Since HashMap allows one null key, HashSet allows one null element.
-
-```java
-// HashSet internally:
-private transient HashMap<E, Object> map;
-private static final Object PRESENT = new Object();
-
-public boolean add(E e) {
-    return map.put(e, PRESENT) == null; // Element becomes the key
-}
-```
-
-### HashSet Example
-```java
-HashSet<String> set = new HashSet<>();
-set.add("one");
-set.add(null);     // Allowed - null element
-set.add(null);     // No effect - duplicate null
-set.add("two");
-
-System.out.println(set.contains(null)); // Output: true
-System.out.println(set.size());         // Output: 3 (one, null, two)
-```
-
-### ConcurrentHashMap - No Null Allowed
-```java
-ConcurrentHashMap<String, String> concurrentMap = new ConcurrentHashMap<>();
-concurrentMap.put(null, "value"); // NullPointerException
-concurrentMap.put("key", null);   // NullPointerException
-```
-
-### Why ConcurrentHashMap Doesn't Allow Null?
+- In ConcurrentHashMap - No Null Key Allowed.
 - Ambiguity: `map.get(key)` returning null could mean key doesn't exist OR value is null.
 - In concurrent environment, `containsKey()` check followed by `get()` is not atomic.
 - Null was intentionally prohibited to avoid these issues in concurrent scenarios.
+
+---
 
