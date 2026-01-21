@@ -8,9 +8,6 @@
 |----------|-----|
 | **Reflection** | `Method method = MyClass.class.getDeclaredMethod("privateMethod"); method.setAccessible(true); method.invoke(obj);` |
 | **Test via public method** | Call public method that internally uses private method (preferred) |
-| **PowerMock** | `Whitebox.invokeMethod(obj, "privateMethod", args);` |
-
-**Best Practice:** If you need to test private methods, consider refactoring - it may indicate design issue.
 
 ---
 
@@ -56,7 +53,6 @@ doReturn(user).when(spyService).getUser(1L);    // Override specific method
 | **Context** | Plain Mockito | Spring ApplicationContext |
 | **Replaces bean** | No | Yes (replaces in context) |
 | **Use with** | `@ExtendWith(MockitoExtension.class)` | `@SpringBootTest`, `@WebMvcTest` |
-| **Speed** | Fast (no Spring) | Slower (loads context) |
 
 ```java
 // @Mock - Unit test (no Spring)

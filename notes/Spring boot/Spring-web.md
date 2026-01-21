@@ -404,3 +404,125 @@ public void hourlyTask() {
 }
 ```
 ---
+
+## 22. Tightly coupled vs Loosely coupled Spring Beans?
+### Tightly Coupled Beans
+- Direct instantiation using `new` keyword
+- Hard to test and maintain
+- Example:
+```java
+@Service
+public class MessageService {
+    private EmailService emailService = new EmailService(); // Tightly coupled
+}
+``` 
+### Loosely Coupled Beans
+- Use dependency injection (`@Autowired`, constructor injection)
+- Easier to test and maintain
+- Example:
+```java
+@Service
+public class MessageService {
+    private final NotificationService notificationService;
+    @Autowired
+    public MessageService(NotificationService notificationService) {
+        this.notificationService = notificationService; // Loosely coupled
+    }
+}
+
+@Service
+public interface NotificationService {
+    void sendNotification(String message);
+}
+
+@Service
+public class EmailService implements NotificationService {
+    @Override
+    public void sendNotification(String message) {
+        // Send email logic
+    }
+}
+
+```
+- Benefits of Loosely Coupled Beans:
+  - Easier to swap implementations
+  - Improved maintainability and flexibility
+
+---
+
+## 23. What is the need for Charset conversions while calling backend?
+- Ensures correct encoding/decoding of characters
+- Prevents data corruption during transmission
+- Common charsets: UTF-8, ISO-8859-1
+- Example: Converting request/response body to UTF-8
+```java
+@RequestMapping(value = "/example", produces = "application/json; charset=UTF-8")
+public ResponseEntity<String> example() {
+    String response = "{\"message\":\"Hello, World!\"}";
+    return ResponseEntity.ok(response);
+}
+```
+
+---
+
+## 24. How will you Create custom HTTPStatus classes with new codes?
+- Extend `HttpStatus` enum is not possible as it's final
+- Use `ResponseEntity` to return custom status codes
+- Only 3 digit status codes are valid
+- Example:
+```java
+@GetMapping("/custom-status")
+public ResponseEntity<String> customStatus() {
+    return new ResponseEntity<>("Custom Status Response", HttpStatus.valueOf(701)); // Custom HTTP status code 701
+}
+```
+- Note: Custom status codes should be used judiciously and documented well, as they may not be recognized by all clients.
+
+---
+
+## 25. What are the best practices to write Rest API?
+- Use proper HTTP methods (GET, POST, PUT, DELETE)
+- Use meaningful resource names (nouns)
+- Implement versioning (e.g., /api/v1/resource)
+- Use appropriate HTTP status codes
+- Provide clear and consistent error messages
+- Use pagination for large datasets
+- Secure APIs with authentication and authorization
+- Document APIs using tools like Swagger/OpenAPI
+- Use HATEOAS for hypermedia-driven APIs
+- Validate input data and sanitize outputs
+- Implement caching for performance optimization
+- Monitor and log API usage and errors
+- Design for scalability and maintainability
+- Use JSON as the standard data format
+- Ensure idempotency for PUT and DELETE methods
+- Example of a well-designed REST endpoint:
+
+---
+
+## 26. Ways to implement versioning in Rest API?
+- **URI Versioning**: Include version in the URL path
+  - Example: `/api/v1/resource`
+- **Request Parameter Versioning**: Use query parameters to specify version
+  - Example: `/api/resource?version=1`
+- **Header Versioning**: Use custom headers to specify version
+  - Example: `X-API-Version: 1`
+- **Content Negotiation Versioning**: Use `Accept` header to specify version
+  - Example: `Accept: application/vnd.example.v1+json`
+- Choose versioning strategy based on use case and client requirements
+- Frequently used: URI Versioning and Header Versioning
+- We can implement Content Negotiation Versioning using `@RequestMapping` with `produces` attribute:
+```java
+@GetMapping(value = "/resource", produces = "application/vnd.example.v1+json")
+public ResponseEntity<String> getResourceV1() {
+    return ResponseEntity.ok("Resource Version 1");
+}
+@GetMapping(value = "/resource", produces = "application/vnd.example.v2+json")
+public ResponseEntity<String> getResourceV2() {
+    return ResponseEntity.ok("Resource Version 2");
+}
+```
+- client should set the `Accept` header accordingly to get the desired version.
+- Example: `Accept: application/vnd.example.v1+json` for version 1 and `Accept: application/vnd.example.v2+json` for version 2.
+
+---

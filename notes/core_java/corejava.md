@@ -239,3 +239,35 @@ System.out.println(identityMap.size()); // Output: 2
 
 ---
 
+## 23. Static block vs Static method, which is loaded first?
+- Static blocks are executed when the class is loaded, before any static methods or variables are accessed.
+- Static methods are loaded when they are called, after the static blocks have been executed.
+- Therefore, static blocks are loaded first.
+
+### Purpose of Static Block:
+- Used for static initialization of a class.
+- Can initialize static variables or perform setup tasks that need to be done once when the class is loaded.
+
+---
+
+## 24. Array vs ArrayList?
+
+| Feature         | Array                             | ArrayList                                                   |
+|-----------------|-----------------------------------|-------------------------------------------------------------|
+| **Size**        | Fixed size                        | Dynamic size (resizable)                                    |
+| **Type**        | Can hold primitives and objects   | Can only hold objects (uses wrapper classes for primitives) |
+| **Performance** | Faster for fixed-size collections | Slightly slower due to dynamic resizing and boxing/unboxing |
+| **Memory**      | Less memory overhead              | More memory overhead due to dynamic nature                  |
+| **Methods**     | Limited built-in methods          | Rich set of methods for manipulation                        |
+
+---
+
+## 25. How ArrayList internally manages to increase its size?
+- When an ArrayList is created, it has an initial capacity (default is 10).
+- When elements are added and the current capacity is exceeded, ArrayList increases its size.
+- The resizing process involves:
+  1. Creating a new array with a larger capacity (usually 1.5 times the current size).
+  2. Copying the existing elements to the new array.
+  3. Updating the reference of the ArrayList to point to the new array.
+
+---
