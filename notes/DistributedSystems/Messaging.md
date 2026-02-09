@@ -242,3 +242,40 @@ send(record);
 - This helps prevent message loss and allows for better error handling in messaging systems.
 
 ---
+
+## 19. Message Structure of Kafka
+
+### Kafka Message Components
+
+| Component | Purpose |
+|-----------|---------|
+| **Key** | Optional identifier for partitioning |
+| **Value** | Actual message payload (JSON, Avro, Protobuf) |
+| **Headers** | Custom metadata (added in Kafka 0.11) |
+| **Timestamp** | Message creation time (ms since epoch) |
+| **Partition** | Which partition message belongs to |
+| **Offset** | Sequential number in partition |
+| **Compression** | Optional (gzip, snappy, lz4, zstd) |
+
+### Example Code
+```java
+ProducerRecord<String, String> record = new ProducerRecord<>(
+    "order-topic",
+    "order-123",  // Key
+    "{\"orderId\":\"123\",\"amount\":100.00}"  // Value
+);
+record.headers().add("userId", "user-456".getBytes());
+
+producer.send(record, (metadata, exception) -> {
+    System.out.println("Topic: " + metadata.topic());
+    System.out.println("Partition: " + metadata.partition());
+    System.out.println("Offset: " + metadata.offset());
+});
+```
+
+### Common Formats
+- **JSON** - Flexible, human-readable
+- **Avro** - Schema registry, version control
+- **Protobuf** - Compact, language-neutral
+
+---

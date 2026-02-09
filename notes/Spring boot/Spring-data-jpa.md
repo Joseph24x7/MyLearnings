@@ -389,3 +389,221 @@ public Product saveProduct(Product product) { }
 - **Spring Integration** - Works with @Transactional, Spring Data JPA
 
 ---
+
+## 14. Annotations used in Hibernate
+
+### Entity & Mapping Annotations
+
+| Annotation | Purpose |
+|-----------|---------|
+| `@Entity` | Mark class as JPA entity (database table) |
+| `@Table(name="...")` | Specify custom table name |
+| `@Id` | Mark primary key field |
+| `@GeneratedValue(strategy=...)` | Auto-generate ID (IDENTITY, SEQUENCE, TABLE) |
+| `@Column(name="...", nullable=...)` | Map field to table column |
+| `@Transient` | Exclude field from persistence |
+| `@Temporal(TemporalType.DATE)` | Map java.util.Date/Calendar to DATE/TIME |
+| `@Enumerated(EnumType.STRING)` | Store enum as STRING or ORDINAL |
+| `@Lob` | Store large binary/text data (BLOB/CLOB) |
+| `@Version` | Optimistic locking versioning |
+
+### Relationship Annotations
+
+| Annotation | Purpose |
+|-----------|---------|
+| `@OneToOne` | One-to-one relationship |
+| `@OneToMany` | One entity has many related entities |
+| `@ManyToOne` | Many entities map to one entity |
+| `@ManyToMany` | Both sides have many relationships |
+| `@JoinColumn(name="...")` | Specify foreign key column |
+| `@JoinTable(...)` | Junction table for many-to-many |
+| `@FetchType.LAZY` | Load data on demand |
+| `@FetchType.EAGER` | Load data immediately (N+1 problem risk) |
+| `@Cascade(...)` | Cascade operations (PERSIST, MERGE, DELETE) |
+
+### Example - Relationships:
+
+**One-to-Many:**
+```java
+@Entity
+public class Department {
+    @Id
+    private Long id;
+    
+    private String name;
+    
+    @OneToMany(mappedBy = "department", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Employee> employees;
+}
+
+@Entity
+public class Employee {
+    @Id
+    private Long id;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
+}
+```
+
+**Many-to-Many:**
+```java
+@Entity
+public class Student {
+    @Id
+    private Long id;
+    
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "student_course",
+        joinColumns = @JoinColumn(name = "student_id"),
+        inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
+    private Set<Course> courses;
+}
+
+@Entity
+public class Course {
+    @Id
+    private Long id;
+    
+    @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
+    private Set<Student> students;
+}
+```
+
+### Constraint Annotations
+
+| Annotation | Purpose |
+|-----------|---------|
+| `@NotNull` | Field cannot be null |
+| `@NotBlank` | String cannot be empty |
+| `@NotEmpty` | Collection cannot be empty |
+| `@Size(min=..., max=...)` | String/Collection size validation |
+| `@Min(value=...)` | Numeric minimum value |
+| `@Max(value=...)` | Numeric maximum value |
+| `@Email` | Valid email format |
+| `@Pattern(regexp=...)` | Regex pattern validation |
+| `@Unique` | Column values must be unique (custom or DB constraint) |
+
+### Inheritance Annotations
+
+| Annotation | Strategy | Table Structure |
+|-----------|----------|------------------|
+| `@Inheritance(strategy=InheritanceType.SINGLE_TABLE)` | Single table for all | One table with discriminator |
+| `@Inheritance(strategy=InheritanceType.JOINED)` | Joined table | One table per class + join |
+| `@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)` | Table per class | One table per concrete class |
+
+**Single Table Strategy Example:**
+```java
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "vehicle_type", discriminatorType = DiscriminatorType.STRING)
+public abstract class Vehicle {
+    @Id
+    private Long id;
+    
+    private String brand;
+}
+
+@Entity
+@DiscriminatorValue("CAR")
+public class Car extends Vehicle {
+    private int numDoors;
+}
+
+@Entity
+@DiscriminatorValue("MOTORCYCLE")
+public class Motorcycle extends Vehicle {
+    private boolean hasSidecar;
+}
+```
+
+### Caching Annotations
+
+| Annotation | Purpose |
+|-----------|---------|
+| `@Cacheable` | Enable L1 caching for entity |
+| `@Cache(usage=CacheConcurrencyStrategy....)` | L2 cache strategy |
+| `@QueryHint(name="org.hibernate.cacheable")` | Enable query caching |
+
+### Other Important Annotations
+
+| Annotation | Purpose |
+|-----------|---------|
+| `@PrePersist` | Run before entity is inserted |
+| `@PostPersist` | Run after entity is inserted |
+| `@PreUpdate` | Run before entity is updated |
+| `@PostUpdate` | Run after entity is updated |
+| `@PreRemove` | Run before entity is deleted |
+| `@PostRemove` | Run after entity is deleted |
+| `@PostLoad` | Run after entity is loaded |
+
+**Lifecycle Example:**
+```java
+@Entity
+public class AuditedEntity {
+    
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.createdBy = getCurrentUser();
+    }
+    
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+        this.updatedBy = getCurrentUser();
+    }
+}
+```
+
+### Query Annotations
+
+| Annotation | Purpose |
+|-----------|---------|
+| `@Query("JPQL query")` | Custom JPQL query |
+| `@Query(nativeQuery=true)` | Native SQL query |
+| `@Modifying` | Mark query as UPDATE/DELETE |
+| `@Transactional` | Make method transactional |
+| `@Param(...)` | Named query parameter |
+
+**Query Example:**
+```java
+@Repository
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+    
+    @Query("SELECT e FROM Employee e WHERE e.department.id = :deptId")
+    List<Employee> findByDepartmentId(@Param("deptId") Long deptId);
+    
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "UPDATE employees SET salary = salary * 1.1 WHERE department_id = :deptId")
+    void increaseSalary(@Param("deptId") Long deptId);
+}
+```
+
+### Best Practices with Annotations
+
+1. **Use proper FetchType:**
+   - `LAZY` for collections (default for `@OneToMany`, `@ManyToMany`)
+   - `EAGER` only when necessary to avoid N+1 queries
+
+2. **Cascade operations carefully:**
+   ```java
+   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+   private List<Child> children;  // Deletes child if removed from list
+   ```
+
+3. **Avoid circular references:**
+   ```java
+   // In one side use @JsonBackReference, other use @JsonManagedReference
+   @JsonManagedReference
+   @OneToMany(mappedBy = "department")
+   private List<Employee> employees;
+   
+   @JsonBackReference
+   @ManyToOne
+   private Department department;
+   ```

@@ -531,3 +531,6 @@ public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
 }
 ```
 
+| **Cache Misses** | Poor cache key design | Use hierarchical, descriptive keys |
+
+---

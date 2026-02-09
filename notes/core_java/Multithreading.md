@@ -60,7 +60,6 @@ example for asynchronous and thread safe: CopyOnWriteArrayList, ConcurrentHashMa
 ## 5. Atomic Integer:
 
 - An AtomicInteger is a part of Java's java.util.concurrent.atomic package
-
 - Thread-Safe Counters: Maintain a counter that multiple threads can increment and decrement concurrently without causing data corruption or race conditions.
 
 ```java
@@ -160,34 +159,16 @@ public class DeadlockExample {
 
 ### Synchronized Method:
 - When a method is declared as synchronized, it means that the entire method is synchronized. 
-- Only one thread can execute the synchronized method at a time, even if there are multiple methods within the same class that are synchronized.
+- Only one thread can execute the synchronized method at a time.
 
 ### Synchronized Block:
 - With synchronized blocks, you can specify a specific block of code to be synchronized. 
 - Multiple threads can execute other non-synchronized code within the same class concurrently, as long as they don't enter the synchronized block simultaneously.
 
+### Singleton class is one good example of going to synchronized block instead of synchronized method to improve performance.
 ---
 
-## 11. What is the purpose of the "join" method in Java threads?
-
-If we create a new thread t1, and if we want the main thread to wait for t1 thread to complete its execution then we can go for t1.join.
-In some scenarios the result of t1 thread may be required for main thread to proceed, in such cases we can go for join() method.
-
----
-
-## 12. Explain the terms "synchronized" and "volatile" in the context of Java multithreading:
-
-### Volatile:
-- Purpose: Its primary purpose is to ensure visibility of changes across threads.
-- Visibility: volatile guarantees that changes made to the volatile variable by one thread are immediately visible to other threads.
-
-### Synchronous:
-- sequential order. Each task must wait for the previous one to complete before it starts.
-- In a single-threaded program, operations are inherently synchronous because there is only one thread of execution, and tasks are performed sequentially.
-
----
-
-## 13. Parallel Stream and ForkJoinPool: 
+## 11. Parallel Stream and ForkJoinPool: 
 
 - Parallel Stream:
 - Parallel streams in Java allow you to process collections of data in parallel, utilizing multiple threads to improve performance for large datasets.
@@ -237,12 +218,30 @@ Advised Replacement for I/O intensive tasks:
 ```
 - This configuration allows for a flexible thread pool that can grow and shrink based on the workload, making it suitable for I/O-intensive tasks.
 
+Advisable Replacement for CPU intensive tasks:
+- For CPU-intensive tasks, it is advisable to use a fixed thread pool with a size equal to the number of available CPU cores.
+```java
+    int poolSize = Runtime.getRuntime().availableProcessors();
+    ExecutorService executor = Executors.newFixedThreadPool(poolSize);
+```
+
+Advisable Replacement for I/O intensive tasks after Java 21:
+- Java 21 introduced a new virtual thread feature that allows for lightweight threads that can be created in large numbers without the overhead of traditional threads.
+```java
+    ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+```
+
 ---
 
 ## 15. if a method is synchronized and static, how will java behave?
 
-- If a method is synchronized and static, it means that the lock associated with the method is at the class level. Only one thread can execute any synchronized static method of the class at a time.
-- If a method is synchronized and not static, it means that the lock associated with the method is at the instance level. Only one thread can execute any synchronized non-static method on a particular instance of the class at a time.
+### If a method is synchronized and static:
+    - Java acquires a lock on the Class object (ClassName.class).
+    - Only one thread across all instances of that class can execute any static synchronized method at a time.
+
+### If a method is synchronized and not static:
+    - Java acquires a lock on the object instance (this).
+    - Only one thread per instance can execute synchronized instance methods at a time.
 
 ---
 
@@ -289,3 +288,311 @@ Advised Replacement for I/O intensive tasks:
 
 ---
 
+## 18. How to handle counters in multithreaded application?
+- Use AtomicInteger for thread-safe counters.
+```java
+    AtomicInteger counter = new AtomicInteger(0);
+    counter.incrementAndGet();
+    counter.decrementAndGet();
+```
+- Use LongAdder for high contention scenarios.
+```java
+    LongAdder counter = new LongAdder();
+    counter.increment();
+    counter.decrement();
+```
+- Use ReentrantLock for custom locking mechanisms.
+```java
+    ReentrantLock lock = new ReentrantLock();
+    lock.lock();
+    try {
+        // update counter
+    } finally {
+        lock.unlock();
+    }
+```
+### When to use these different counters:
+- Use AtomicInteger for simple counters with low contention.
+- Use LongAdder for high contention scenarios where multiple threads frequently update the counter.
+- Use ReentrantLock for complex scenarios where you need more control over locking and unlocking.
+
+---
+
+## 25. Parallel Programming using CompletableFuture
+
+### What is CompletableFuture?
+```
+- Introduced in Java 8
+- Non-blocking, async programming
+- Promises a result will be available in future
+- Chain multiple async operations
+- Better for I/O-bound tasks
+```
+
+### Simple Example
+```java
+// Without CompletableFuture (blocking)
+String result = getUserData();  // Waits for response
+System.out.println(result);
+
+// With CompletableFuture (non-blocking)
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> getUserData());
+future.thenAccept(result -> System.out.println(result));
+// Code continues immediately, doesn't wait
+```
+
+### Common Methods
+```java
+// Create future
+CompletableFuture<String> cf = new CompletableFuture<>();
+cf.complete("done");  // Manually complete
+
+// Supply value asynchronously
+CompletableFuture<String> cf2 = CompletableFuture.supplyAsync(() -> "hello");
+
+// Chain operations
+cf2.thenApply(s -> s.toUpperCase())
+   .thenAccept(System.out::println);
+
+// Wait for completion
+String result = cf2.get();  // Blocks until done
+String result2 = cf2.join();  // Similar to get(), but throws unchecked exception
+
+// Handle exceptions
+cf2.exceptionally(e -> "error: " + e.getMessage());
+```
+
+### Real-World Example
+```java
+CompletableFuture<User> getUserAsync(Long id) {
+    return CompletableFuture.supplyAsync(() -> {
+        return userRepository.findById(id);  // Blocking call in thread pool
+    });
+}
+
+// Usage
+getUserAsync(1L)
+    .thenCompose(user -> getOrdersAsync(user.getId()))  // Chain async calls
+    .thenApply(orders -> orders.stream()
+        .map(Order::getTotal)
+        .reduce(0.0, Double::sum))
+    .thenAccept(total -> System.out.println("Total: " + total))
+    .exceptionally(e -> {
+        e.printStackTrace();
+        return null;
+    });
+```
+
+---
+
+## 26. supplyAsync vs applyAsync in CompletableFuture
+
+### supplyAsync
+```java
+// supplyAsync(Supplier<U> supplier)
+// Returns CompletableFuture<U>
+// Takes a Supplier (produces value, no input)
+
+CompletableFuture<String> cf = CompletableFuture.supplyAsync(() -> "hello");
+// Result type: CompletableFuture<String>
+
+// Common use: Initial async operation
+CompletableFuture.supplyAsync(() -> fetchFromDatabase())
+```
+
+### thenApply (not applyAsync, but related)
+```java
+// thenApply(Function<T, U> fn)
+// Maps result of previous stage
+// Executes in same thread as previous stage (blocking)
+
+CompletableFuture<String> cf = CompletableFuture.supplyAsync(() -> "hello")
+    .thenApply(s -> s.toUpperCase());  // HELLO
+// This thenApply runs in thread pool
+```
+
+### thenApplyAsync
+```java
+// thenApplyAsync(Function<T, U> fn)
+// Maps result of previous stage
+// Executes in different thread (non-blocking)
+
+CompletableFuture<String> cf = CompletableFuture.supplyAsync(() -> "hello")
+    .thenApplyAsync(s -> {
+        Thread.sleep(1000);  // Takes time
+        return s.toUpperCase();
+    });  // Runs in separate thread
+
+// Can specify executor
+.thenApplyAsync(s -> s.toUpperCase(), Executors.newFixedThreadPool(4))
+```
+
+### Comparison Table
+
+| Method | Input | Output | Execution | Use Case |
+|--------|-------|--------|-----------|----------|
+| **supplyAsync** | None (Supplier) | U | New thread | Start async flow |
+| **thenApply** | T (from previous) | U | Same thread | Quick transformation |
+| **thenApplyAsync** | T (from previous) | U | New thread | Long-running operation |
+
+### Example Showing Difference
+```java
+// Using thenApply (blocking in same thread)
+CompletableFuture.supplyAsync(() -> {
+    System.out.println("Step 1: " + Thread.currentThread().getName());
+    return "data1";
+})
+.thenApply(s -> {
+    System.out.println("Step 2 (thenApply): " + Thread.currentThread().getName());
+    return s + "-processed";  // Same thread as previous
+});
+
+// Output:
+// Step 1: ForkJoinPool.commonPool-worker-1
+// Step 2: ForkJoinPool.commonPool-worker-1
+
+// Using thenApplyAsync (non-blocking, different thread)
+CompletableFuture.supplyAsync(() -> {
+    System.out.println("Step 1: " + Thread.currentThread().getName());
+    return "data1";
+})
+.thenApplyAsync(s -> {
+    System.out.println("Step 2 (thenApplyAsync): " + Thread.currentThread().getName());
+    return s + "-processed";  // Different thread
+});
+
+// Output:
+// Step 1: ForkJoinPool.commonPool-worker-1
+// Step 2: ForkJoinPool.commonPool-worker-2
+```
+
+---
+
+## 27. Rate Limiting Infrastructure - Separate App vs In-App
+
+### Option 1: In-Application Rate Limiting
+```java
+@RestController
+public class OrderController {
+    
+    @PostMapping("/orders")
+    @RateLimiter(name = "order")  // Using Resilience4J
+    public ResponseEntity<?> createOrder(@RequestBody Order order) {
+        return ResponseEntity.ok(orderService.create(order));
+    }
+}
+```
+
+**Pros:**
+- ✅ Simple, no extra infrastructure
+- ✅ Faster (local decision)
+- ✅ Per-service configuration
+
+**Cons:**
+- ❌ Different limits per instance (inconsistent)
+- ❌ No global view of traffic
+- ❌ Doesn't protect backend from DDoS
+
+### Option 2: API Gateway Rate Limiting
+```xml
+<!-- Apigee/Kong rate limiting -->
+<RateLimit>
+  <Allow count="1000"/>
+  <Interval>1</Interval>
+  <TimeUnit>minute</TimeUnit>
+</RateLimit>
+```
+
+**Pros:**
+- ✅ Centralized control
+- ✅ Consistent across services
+- ✅ Protects entire backend
+- ✅ Global traffic view
+
+**Cons:**
+- ⚠️ Additional infrastructure (Apigee, Kong)
+- ⚠️ Single point of failure (unless HA setup)
+- ⚠️ Higher latency (extra hop)
+
+### Option 3: Separate Rate Limiting Service
+```
+┌────────────┐
+│  Client    │
+└─────┬──────┘
+      │
+┌─────▼──────────────────┐
+│  Rate Limiting Service  │  (Redis-backed, distributed)
+│  (Separate deployment)  │
+└─────┬──────────────────┘
+      │
+┌─────▼─────────┐
+│ API Gateway   │
+└─────┬─────────┘
+      │
+┌─────▼─────────────┐
+│ Microservices     │
+└───────────────────┘
+```
+
+**Pros:**
+- ✅ True distributed rate limiting
+- ✅ Can be scaled independently
+- ✅ Consistent across all services
+- ✅ Redis backend for persistence
+
+**Cons:**
+- ❌ Extra infrastructure to manage
+- ❌ Network latency (extra call)
+- ❌ Operational complexity
+
+### Recommendation
+| Scenario | Best Choice |
+|----------|------------|
+| Small system, few services | In-Application |
+| Medium system with API Gateway | API Gateway |
+| Large system, strict consistency | Separate service |
+| Very high traffic, DDoS risk | API Gateway + Separate service |
+
+### Example: Separate Rate Limiting Service
+```java
+@RestController
+@RequestMapping("/rate-limit")
+public class RateLimitController {
+    
+    @Autowired
+    private RateLimitService rateLimitService;
+    
+    @GetMapping("/check")
+    public ResponseEntity<Boolean> checkRateLimit(
+            @RequestParam String apiKey,
+            @RequestParam(defaultValue = "10") int limit) {
+        
+        boolean allowed = rateLimitService.allowRequest(apiKey, limit);
+        return ResponseEntity.ok(allowed);
+    }
+}
+
+// In API Gateway
+@Component
+public class RateLimitingFilter implements Filter {
+    
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        
+        String apiKey = ((HttpServletRequest) request).getHeader("X-API-Key");
+        
+        // Call separate rate limiting service
+        boolean allowed = rateLimitService.checkLimit(apiKey);
+        
+        if (!allowed) {
+            ((HttpServletResponse) response).setStatus(429);  // Too Many Requests
+            return;
+        }
+        
+        chain.doFilter(request, response);
+    }
+}
+```
+
+---

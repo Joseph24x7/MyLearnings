@@ -271,3 +271,204 @@ System.out.println(identityMap.size()); // Output: 2
   3. Updating the reference of the ArrayList to point to the new array.
 
 ---
+
+## 26. What happens if equals() is overridden but hashCode() isn't?
+
+### The Problem
+If two objects are equal according to `equals()`, they **must have the same hashCode()**. Violating this contract causes issues in hash-based collections.
+
+### Real-World Issue
+```java
+@Data
+class Employee {
+    private Long id;
+    private String name;
+    
+    @Override
+    public boolean equals(Object o) {
+        // Overridden but hashCode() NOT overridden
+        return id.equals(((Employee) o).id);
+    }
+}
+
+// Using in HashMap
+HashMap<Employee, String> map = new HashMap<>();
+Employee emp1 = new Employee(1L, "John");
+Employee emp2 = new Employee(1L, "John");
+
+map.put(emp1, "Developer");
+System.out.println(map.get(emp2));  // Returns null! ❌
+
+// emp1.equals(emp2) = true but emp1.hashCode() != emp2.hashCode()
+```
+
+### The Solution
+Always override both together:
+
+```java
+@Override
+public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Employee employee = (Employee) o;
+    return Objects.equals(id, employee.id);
+}
+
+@Override
+public int hashCode() {
+    return Objects.hash(id);  // Same as equals()
+}
+```
+
+### Key Takeaway
+- **Contract:** `a.equals(b)` → `a.hashCode() == b.hashCode()`
+- **Impact:** HashMap, HashSet fail without this
+- **IntelliJ Tip:** Use "Generate equals() and hashCode()" to auto-generate both
+
+---
+
+## 27. When to use Schedulers vs Batches?
+
+### Schedulers (For Time-Based Tasks)
+```java
+@Scheduled(fixedRate = 5000)  // Every 5 seconds
+public void sendReminderEmails() {
+    List<User> users = userService.getUsersWithDueReminders();
+    users.forEach(user -> emailService.send(user));
+}
+```
+
+**Use When:**
+- Task runs at **specific times** (daily, hourly, etc.)
+- Examples: Send newsletters, generate reports, cleanup temp files
+- **Time:** fixedRate, fixedDelay, cron
+
+**Pros:**
+- Simple scheduled execution
+- No infrastructure needed
+
+**Cons:**
+- Single instance only (in clustered environment, runs on each instance)
+- Limited scalability for large datasets
+
+### Batches (For Data Processing)
+```java
+@Component
+public class OrderProcessingBatchJob {
+    
+    @Scheduled(cron = "0 2 * * * ?")  // 2 AM daily
+    public void processOrders() {
+        int batchSize = 1000;
+        int page = 0;
+        
+        while (true) {
+            List<Order> orders = orderRepository.findPending(PageRequest.of(page, batchSize));
+            if (orders.isEmpty()) break;
+            
+            orders.stream().parallel().forEach(order -> {
+                paymentService.process(order);
+                order.setStatus("COMPLETED");
+            });
+            orderRepository.saveAll(orders);
+            page++;
+        }
+    }
+}
+```
+
+**Use When:**
+- Processing **large datasets** in chunks
+- Examples: ETL jobs, bulk data migration, inventory sync
+- Need **transaction control** and **error handling**
+
+**Pros:**
+- Can process huge data in chunks
+- Better error handling and restart capability
+- Supports parallelization
+
+**Cons:**
+- More complex setup
+- Needs batch job framework (Spring Batch)
+
+### Comparison Table
+
+| Aspect | Scheduler | Batch |
+|--------|-----------|-------|
+| **Data Volume** | Small | Large |
+| **Frequency** | Fixed intervals | Bulk processing |
+| **Example** | Send email, Cleanup | ETL, Bulk import |
+| **Scalability** | Limited | High |
+| **Failure Handling** | Basic | Advanced |
+
+---
+
+## 28. Advantages of Using Records
+
+Records are lightweight immutable data carriers introduced in Java 16+.
+
+### Before Records
+```java
+public final class Point {
+    private final int x;
+    private final int y;
+    
+    public Point(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+    
+    public int x() { return x; }
+    public int y() { return y; }
+    
+    @Override
+    public boolean equals(Object o) { /* ... */ }
+    
+    @Override
+    public int hashCode() { /* ... */ }
+    
+    @Override
+    public String toString() { /* ... */ }
+}
+```
+
+### With Records (Java 16+)
+```java
+public record Point(int x, int y) { }
+```
+
+### Advantages
+
+| Advantage | Benefit |
+|-----------|---------|
+| **Concise** | 1 line vs 20+ lines of boilerplate |
+| **Immutable by Default** | All fields are final, thread-safe |
+| **Auto-generated Methods** | equals(), hashCode(), toString() auto-created |
+| **Compact Constructor** | Optional constructor for validation |
+| **Pattern Matching** | Works with `instanceof` (Java 17+) |
+
+### Example with Validation
+```java
+public record Order(long id, String productName, double price) {
+    // Compact constructor for validation
+    public Order {
+        if (price < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
+        }
+    }
+}
+
+// Usage
+Order order = new Order(1, "Laptop", 1000);
+System.out.println(order);  // Order[id=1, productName=Laptop, price=1000.0]
+```
+
+### When to Use Records
+✅ DTOs (Data Transfer Objects)
+✅ Value objects
+✅ API responses
+✅ Configuration holders
+
+❌ NOT suitable for entities with complex behavior
+❌ When you need mutable fields
+
+---

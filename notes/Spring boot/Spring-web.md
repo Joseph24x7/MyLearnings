@@ -526,3 +526,23 @@ public ResponseEntity<String> getResourceV2() {
 - Example: `Accept: application/vnd.example.v1+json` for version 1 and `Accept: application/vnd.example.v2+json` for version 2.
 
 ---
+
+## 27. Difference between REST API and GraphQL
+
+| Feature | REST | GraphQL |
+|---------|------|---------|
+| **Endpoints** | Multiple (`/users`, `/orders`) | Single (`/graphql`) |
+| **Over-fetching** | ✅ Problem (get extra data) | ❌ No problem |
+| **Under-fetching** | ✅ Problem (multiple requests) | ❌ No problem |
+| **Caching** | ✅ Easy (HTTP cache) | ❌ Hard (POST-based) |
+| **Versioning** | Required (`/v1`, `/v2`) | Not needed |
+| **Best For** | Simple APIs | Complex, interconnected data |
+
+**Example:**
+```
+REST: GET /api/users/1 → Returns all user fields (over-fetching)
+GraphQL: query { user(id: 1) { name email } } → Exact fields needed
+```
+
+---
+

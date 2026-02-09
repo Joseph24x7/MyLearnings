@@ -249,117 +249,458 @@
 
 ---
 
-## 20. Explain SAGA Design Pattern in Detail
 
-### What is SAGA?
-SAGA is a pattern to maintain **data consistency across multiple microservices** without using distributed transactions (2PC). It breaks a transaction into a sequence of local transactions.
+## 21. How to Monitor and Secure Microservices Applications?
 
-### Why SAGA?
-- Distributed transactions (2PC) don't scale well in microservices
-- Each microservice has its own database
-- Need eventual consistency across services
+### Monitoring Microservices
 
-### Two Implementation Approaches
+#### 1. **Metrics Collection**
+- Use Prometheus for collecting metrics
+- Metrics to track:
+  - Request latency (response time)
+  - Error rates
+  - Throughput (requests/second)
+  - Resource usage (CPU, memory, disk)
+  - Cache hit/miss rates
+  - Database connection pool status
 
-#### 1. Choreography (Event-Based)
-Each service publishes events and listens to events from other services.
-
-```
-Order Service → [OrderCreated] → Payment Service
-Payment Service → [PaymentCompleted] → Inventory Service  
-Inventory Service → [InventoryReserved] → Shipping Service
-```
-
-**Pros:** Simple, loosely coupled, no single point of failure
-**Cons:** Hard to track, cyclic dependencies possible
-
-#### 2. Orchestration (Central Coordinator)
-A central orchestrator service controls the flow.
-
-```
-Orchestrator → Order Service → "Create Order"
-Orchestrator → Payment Service → "Process Payment"
-Orchestrator → Inventory Service → "Reserve Stock"
-Orchestrator → Shipping Service → "Ship Order"
-```
-
-**Pros:** Easy to track, centralized logic, clear flow
-**Cons:** Single point of failure, orchestrator complexity
-
-### Compensating Transactions (Rollback)
-If any step fails, SAGA executes **compensating transactions** to undo previous steps.
-
-```
-SUCCESS: Order → Payment → Inventory → Shipping ✓
-
-FAILURE at Inventory:
-  Inventory fails → Compensate Payment (Refund) → Compensate Order (Cancel)
-```
-
-### Example: E-Commerce Order Flow
-
-| Step | Service | Action | Compensating Action |
-|------|---------|--------|---------------------|
-| 1 | Order | Create Order | Cancel Order |
-| 2 | Payment | Charge Customer | Refund Customer |
-| 3 | Inventory | Reserve Stock | Release Stock |
-| 4 | Shipping | Ship Order | Cancel Shipment |
-
-### Implementation with Spring + Kafka
+**Implementation:**
 ```java
-// Orchestrator
 @Service
-public class OrderSagaOrchestrator {
+public class OrderService {
     
-    public void createOrder(OrderRequest request) {
-        // Step 1: Create Order
-        kafkaTemplate.send("order-topic", new CreateOrderEvent(request));
+    private final MeterRegistry meterRegistry;
+    
+    public OrderService(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
+        
+        // Register custom metrics
+        Gauge.builder("orders.pending", this::getPendingOrderCount)
+            .description("Number of pending orders")
+            .register(meterRegistry);
     }
     
-    @KafkaListener(topics = "order-created")
-    public void onOrderCreated(OrderCreatedEvent event) {
-        // Step 2: Process Payment
-        kafkaTemplate.send("payment-topic", new ProcessPaymentEvent(event));
-    }
-    
-    @KafkaListener(topics = "payment-failed")
-    public void onPaymentFailed(PaymentFailedEvent event) {
-        // Compensate: Cancel Order
-        kafkaTemplate.send("order-topic", new CancelOrderEvent(event));
+    public void createOrder(Order order) {
+        Timer.Sample sample = Timer.start(meterRegistry);
+        
+        try {
+            // Business logic
+            orderRepository.save(order);
+            meterRegistry.counter("orders.created").increment();
+        } catch (Exception e) {
+            meterRegistry.counter("orders.failed").increment();
+            throw e;
+        } finally {
+            sample.stop(Timer.builder("orders.creation.time")
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .register(meterRegistry));
+        }
     }
 }
 ```
 
-### Key Points
-- **Eventual Consistency** - Not immediate, but guaranteed eventually
-- **Idempotency** - Each step must be idempotent (safe to retry)
-- **Timeout Handling** - Handle cases where services don't respond
-- **State Tracking** - Track saga state for recovery
+#### 2. **Distributed Tracing**
+- Use ELK Stack (Elasticsearch, Logstash, Kibana) or Jaeger
+- Trace requests across multiple services
+- Identify bottlenecks and failures
+
+```java
+// application.properties
+spring.application.name=order-service
+management.endpoints.web.exposure.include=metrics,prometheus
+spring.sleuth.sampler.probability=1.0  // 100% sampling for demo
+spring.zipkin.base-url=http://localhost:9411  // Zipkin server
+```
+
+#### 3. **Health Checks**
+```java
+@Component
+public class CustomHealthIndicator extends AbstractHealthIndicator {
+    
+    @Override
+    protected void doHealthCheck(Health.Builder builder) {
+        try {
+            // Check if critical dependencies are available
+            boolean paymentServiceUp = checkPaymentService();
+            
+            if (paymentServiceUp) {
+                builder.up().withDetail("payment-service", "UP");
+            } else {
+                builder.down().withDetail("payment-service", "DOWN");
+            }
+        } catch (Exception e) {
+            builder.down().withException(e);
+        }
+    }
+    
+    private boolean checkPaymentService() {
+        // Check payment service availability
+        return true;
+    }
+}
+```
+
+#### 4. **Logging**
+- Centralized logging with correlation IDs
+- Use structured logging (JSON format)
+
+```java
+@Service
+public class OrderService {
+    
+    @Autowired
+    private Logger logger;
+    
+    public void createOrder(Order order) {
+        String correlationId = MDC.get("correlationId");
+        
+        logger.info(
+            "Creating order",
+            "correlationId", correlationId,
+            "orderId", order.getId(),
+            "customerId", order.getCustomerId()
+        );
+    }
+}
+```
+
+#### 5. **Alerting**
+- Configure alerts for:
+  - High error rates (> 5%)
+  - High latency (> 2s)
+  - Service unavailability
+  - High resource usage (CPU > 80%, Memory > 90%)
+  - Circuit breaker opened
+
+### Securing Microservices
+
+#### 1. **Authentication & Authorization**
+```yaml
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://auth-server.com
+          jwk-set-uri: https://auth-server.com/.well-known/jwks.json
+```
+
+```java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeRequests()
+                .antMatchers("/api/public/**").permitAll()
+                .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .antMatchers("/api/user/**").hasRole("USER")
+                .anyRequest().authenticated()
+            .and()
+            .oauth2ResourceServer()
+                .jwt();
+        
+        return http.build();
+    }
+}
+```
+
+#### 2. **Service-to-Service Communication (mTLS)**
+- Use mutual TLS (mTLS) for encrypted communication between services
+- Use service mesh (Istio, Linkerd) for automatic mTLS
+
+#### 3. **API Gateway Security**
+- Authentication at gateway level
+- Rate limiting
+- Request/response validation
+- IP whitelisting
+
+```java
+@Configuration
+public class ApiGatewayConfig {
+    
+    @Bean
+    public RouteLocator routes(RouteLocatorBuilder builder) {
+        return builder.routes()
+            .route("order-service",
+                r -> r.path("/api/orders/**")
+                    .filters(f -> f
+                        .rewritePath("/api/orders/?(?<segment>.*)", "/${segment}")
+                        .requestRateLimiter(config -> config
+                            .setKeyResolver(exchange -> 
+                                Mono.just(exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()))
+                            .setRateLimiter(redisRateLimiter())))
+                    .uri("http://order-service"))
+            .build();
+    }
+}
+```
+
+#### 4. **Data Encryption**
+- Encrypt sensitive data at rest
+- Use TLS for data in transit
+- Hash passwords using BCrypt
+
+```java
+@Configuration
+public class EncryptionConfig {
+    
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+```
+
+#### 5. **Secrets Management**
+- Use HashiCorp Vault or AWS Secrets Manager
+- Store database passwords, API keys in vault, not in code
+
+```yaml
+spring:
+  cloud:
+    vault:
+      host: localhost
+      port: 8200
+      scheme: http
+      authentication: TOKEN
+      token: mytoken
+```
+
+#### 6. **Dependency Scanning**
+- Use OWASP DependencyCheck
+- Regular vulnerability scanning
+- Keep dependencies updated
+
+```xml
+<plugin>
+    <groupId>org.owasp</groupId>
+    <artifactId>dependency-check-maven</artifactId>
+    <version>8.4.0</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>check</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+```
+
+#### 7. **Web Security Headers**
+```java
+@Configuration
+public class SecurityHeadersConfig {
+    
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.headers()
+            .contentSecurityPolicy("default-src 'self'")
+            .and()
+            .xssProtection()
+            .and()
+            .frameOptions().sameOrigin();
+        
+        return http.build();
+    }
+}
+```
+
+### Monitoring Tools Stack
+
+```
+┌─────────────────────────────────────────┐
+│      Microservices Monitoring Stack      │
+├─────────────────────────────────────────┤
+│ Prometheus      → Metrics collection     │
+│ Grafana         → Metrics visualization  │
+│ ELK Stack       → Logs aggregation       │
+│ Jaeger/Zipkin   → Distributed tracing    │
+│ AlertManager    → Alerting               │
+│ Vault           → Secrets management     │
+│ Istio/Linkerd   → Service mesh           │
+└─────────────────────────────────────────┘
+```
 
 ---
 
-- ### Containerization and Orchestration: 
-    - Use containerization (e.g., Docker) and container orchestration (e.g., Kubernetes) for managing and deploying microservices.
+## 22. How will you decide between Monolithic vs Microservices architecture?
 
-- ### Blue-Green Deployments: 
-    - Use blue-green deployments to minimize downtime during updates by switching traffic from the old version (blue) to the new version (green).
+### Decision Matrix
 
-- ### Command Query Responsibility Segregation (CQRS): 
-	- Commands are instructions that indicate a desired change in the state of an entity. these commands execute operations such as Insert, Update, and Delete.
-	- Queries are used to retrieve information from a database. Queries objects just return data and make no modifications to it.
-	- We can achiveve Improved performance out of Segregating Commands and Queries.
-	- Can be achieved by database replicas, master-slave mechanism.
+| Factor | Monolithic | Microservices |
+|--------|-----------|--------------|
+| **Team Size** | Small (< 10 devs) | Large (10+ teams) |
+| **Project Complexity** | Low to medium | Complex, domain-driven |
+| **Scalability Need** | Single service enough | Individual service scaling |
+| **Deployment Frequency** | Weekly/monthly | Daily/hourly |
+| **Data Consistency** | Important (ACID) | Eventual consistency OK |
+| **Team Communication** | Tightly coupled | Autonomous teams |
 
-## 19. Horizontal Scaling vs Vertical Scaling:
+### Decision Process
+```
+1. Start with MONOLITH if:
+   - Small team
+   - Simple application
+   - Single domain
+   - ACID transactions critical
+   - Example: Blog, Todo app
 
-- ### Horizontal Scaling (Scaling Out):
-	- Horizontal scaling means adding more instances of the same microservice to your application.
-	- It's like adding more identical workers to handle a specific job. Each worker can process requests independently.
-	- It is cost-effective and often used to handle increased demand by distributing the workload.
+2. Go MICROSERVICES when:
+   - Multiple teams working independently
+   - Different scaling needs per service
+   - Independent deployment needed
+   - Domains are bounded (DDD)
+   - Example: Netflix, Amazon, Uber
 
-- ### Vertical Scaling (Scaling Up):
-	- Vertical scaling means increasing the capacity of a single microservice instance by adding more resources (like CPU, RAM, or storage) to it.
-	- It's like giving a single worker more powerful tools to handle a job. This can make that worker more capable.
-	- It can be more expensive and may have limitations based on the hardware.
+3. Hybrid approach:
+   - Start monolithic, evolve to microservices
+   - Modular monolith: Clean code, easy to extract later
+```
+
+### Real-World Example
+```
+E-commerce Platform:
+- Start: Monolith (faster to market)
+- Grow: Extract Payment, Inventory, Shipping services
+- Scale: Independent teams, different tech stacks
+- Monitor: Circuit breakers, async messaging
+```
 
 ---
+
+## 23. How will you do rate limiting to avoid throttling?
+
+### Rate Limiting Strategies
+
+**1. Token Bucket Algorithm**
+```
+- Bucket capacity: 100 tokens
+- Refill rate: 10 tokens/second
+- Each request costs 1 token
+- When empty: Request rejected (429 Too Many Requests)
+```
+
+**2. Sliding Window**
+```
+- Count requests in last 60 seconds
+- Max: 1000 requests/minute
+- Oldest requests dropped as window slides
+```
+
+**3. Fixed Window**
+```
+- Requests per minute: 1000
+- Reset every 60 seconds
+- Simple but can spike at boundaries
+```
+
+### Implementation in Spring Boot
+```java
+@RestController
+public class OrderController {
+    
+    @PostMapping("/orders")
+    @RateLimiter(name = "orderLimit")  // 100 req/minute
+    public ResponseEntity<?> createOrder(@RequestBody Order order) {
+        return ResponseEntity.ok(orderService.create(order));
+    }
+}
+
+// application.yml
+resilience4j:
+  ratelimiter:
+    instances:
+      orderLimit:
+        registerHealthIndicator: true
+        limitForPeriod: 100           # Max requests
+        limitRefreshPeriod: 1m        # Time period
+        timeoutDuration: 5s           # Timeout for waiting
+```
+
+### Using API Gateway (Apigee/Kong)
+```yaml
+# Apigee policy
+<RateLimit>
+  <Identifier ref="request.header.api_key"/>
+  <Allow count="100"/>
+  <Interval>1</Interval>
+  <TimeUnit>minute</TimeUnit>
+</RateLimit>
+```
+
+### Rate Limiting Headers
+```
+Request:
+GET /api/orders HTTP/1.1
+X-API-Key: your-api-key
+
+Response:
+HTTP/1.1 200 OK
+X-RateLimit-Limit: 100         # Max requests
+X-RateLimit-Remaining: 87      # Requests left
+X-RateLimit-Reset: 1644326800  # Unix timestamp
+```
+
+---
+
+## 24. Do your API gateway do rate limiting? (Apigee/Kong)
+
+### Yes, API gateways have built-in rate limiting:
+
+**Apigee:**
+```
+✅ RateLimit policy
+✅ Traffic management at API level
+✅ Per API key, per user, per IP
+✅ Distributed rate limiting (multi-region)
+✅ Reset counter policies
+```
+
+**Kong:**
+```
+✅ Rate-Limiting plugin
+✅ Redis for distributed state
+✅ Per consumer, per service
+✅ Multiple rate limiting strategies
+```
+
+**NGINX:**
+```
+✅ limit_req_zone
+✅ Simple rate limiting
+✅ Per IP address
+```
+
+### Example: Apigee Rate Limit
+```xml
+<RateLimit async="true">
+  <Identifier ref="request.header.api_key"/>
+  <Allow count="1000"/>
+  <Interval>1</Interval>
+  <TimeUnit>minute</TimeUnit>
+  <Counters>
+    <Counter ref="api_key"/>
+  </Counters>
+</RateLimit>
+
+<!-- Fallback policy when rate limit exceeded -->
+<AssignMessage async="true">
+  <Set>
+    <StatusCode>429</StatusCode>
+    <ReasonPhrase>Too Many Requests</ReasonPhrase>
+  </Set>
+</AssignMessage>
+```
+
+### Pros of Gateway Rate Limiting
+- ✅ Protects backend services
+- ✅ Centralized configuration
+- ✅ Distributed state (Redis backend)
+- ✅ Multiple strategies available
+- ✅ No code changes needed
+
+---
+

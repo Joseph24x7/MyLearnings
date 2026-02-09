@@ -3,31 +3,19 @@ Below is a **clean grouping of all questions by topic**, as requested.
 
 ---
 
-## **Java Core**
+## **Concurrency & Asynchronous Programming**
 
-* Java 8 features
-* Runnable vs Callable
-* Ways to create thread
-* Which is better thread creation logic
 * Notify vs NotifyAll
-
----
-
-## **Spring / Spring Boot**
-
-* Scheduler and cron jobs
-* Diff between addUrlPatterns and setUrlPatterns
-* How to create custom filters in Spring Boot
-* Uses of @ConfigurationProperties
-* How to specify two beans by same type without using @Qualifier
-* Conditional annotations
-* Describe different ways of exception handling in Spring MVC
-* ViewResolver
-* How to handle transaction
-* Transaction isolation & propagation
-* @Valid vs @Validated
-* @Spy
-* Spring Boot scheduler
+* Reactive programming
+* Spring WebFlux advantages
+* Platform threads vs Virtual Threads
+* Executor Service role in threads
+* ThreadPoolExecutor role in threads
+* How to set thread pool configurations
+* HashMap vs ConcurrentHashMap - why HashMap is faster
+* Hashmap vs Concurrent HashMap - why HashMap is faster in single thread environment?
+* Parallel Stream vs CompletableFuture - which to prefer when
+* 100,000+ records + 1000 records - is parallel stream good here
 
 ---
 
@@ -58,45 +46,38 @@ Below is a **clean grouping of all questions by topic**, as requested.
 
 ---
 
-## **Caching**
-
-* Types of caching mechanism
-* First-level vs second-level cache in Hibernate
-* Caching (general)
-
----
-
 ## **Database / SQL**
 
 * What is PostgreSQL and how it differs from other SQL databases
-* Normalization in SQL
-* 1NF
-* 2NF
-* 3NF
-* 4NF
-* 5NF
 * Cluster in SQL
 * Database management for millions of data
+
+---
+
+## **Database Optimization**
+
+* **How will you delete duplicate rows in a table except primary key?**
+  - Using CTE with ROW_NUMBER():
+  ```sql
+  WITH CTE AS (
+    SELECT *, ROW_NUMBER() OVER (PARTITION BY column1, column2 ORDER BY id) as rn
+    FROM table_name
+  )
+  DELETE FROM CTE WHERE rn > 1;
+  ```
+  - Keep first occurrence (rn = 1), delete rest
+  - Also use DISTINCT for SELECT, or add UNIQUE constraint
 
 ---
 
 ## **Hibernate / ORM**
 
 * First-level vs second-level cache in Hibernate
-
----
-
-## **Messaging / Eventing**
-
-* Kafka (covered in Intellect 2nd round discussion)
-
----
-
-## **Concurrency & Asynchronous Programming**
-
-* CompletableFuture
-* Reactive programming
-* Spring WebFlux advantages
+* Pessimistic locking vs Optimistic locking in Hibernate
+* Cascading types in Hibernate
+* N+1 problem in Hibernate - how to overcome it
+* Transaction isolation & propagation
+* * How to handle transaction
 
 ---
 
@@ -109,15 +90,7 @@ Below is a **clean grouping of all questions by topic**, as requested.
 * Factory and Abstract Factory
 * Builder design pattern
 * SOLID principles with examples
-
----
-
-## **Web / API Concepts**
-
-* Difference between API and web service
-* Charset conversions while calling backend
-* Create custom HTTP classes
-* Create custom HTTP response code (701)
+* Creational design patterns - explain in detail
 
 ---
 
@@ -131,20 +104,15 @@ Below is a **clean grouping of all questions by topic**, as requested.
 * Does Kubernetes have containers in it
 * AWS scaling
 * OpenShift
+* NGINX - what is the purpose of this
+* Explain the steps run behind CI/CD
 
 ---
 
 ## **Logging & Monitoring**
 
 * Reducing increasing log file size in production
-
----
-
-## **React / Frontend**
-
-* React virtual DOM
-* React state
-* React lifecycle
+* How will monitor and secure your microservices application
 
 ---
 
@@ -153,37 +121,13 @@ Below is a **clean grouping of all questions by topic**, as requested.
 * CAP theorem
 * Kubernetes load handling
 * Scaling and maintainability
+* A frontend application needs to trigger processing for a very large number of orders (around 100,000). How would you design the API so that the system is scalable, secure, and avoids sending large payloads from the frontend?
 
 ---
 
-## **Vault / Secrets Management**
+## **Networking / Infrastructure**
 
-* HashiCorp Vault explanation
-
----
-
-## **Behavioral / Managerial**
-
-* How do you manage team conflicts
-* Getting requirements from product owner
+* Any idea on TCP/IP and Security Layer
+* NGINX - what is the purpose of this
 
 ---
-
-## **Interview-Specific / Scenario Based**
-
-* Cron job application to update savings interest
-* Method & class design (written in notepad)
-* Verizon first-level interview topics
-* Siemens second-round topics
-* Intellect interview rounds overview
-* AT&T first-round focus areas
-
----
-
-If you want next:
-
-* Convert this into a **study checklist**
-* Tag **must-know vs good-to-know**
-* Create **interview-wise prep buckets**
-
-Just tell 👍

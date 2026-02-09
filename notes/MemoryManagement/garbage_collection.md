@@ -93,3 +93,42 @@ t.start();
 ```
 
 ---
+
+## 6. Z Garbage Collector (ZGC)
+
+- A scalable, low-latency garbage collector designed for applications requiring large heaps (multi-terabyte).
+- Aims to keep pause times below 10 milliseconds, regardless of heap size.
+- Uses concurrent and parallel techniques to minimize the impact of garbage collection on application performance.
+- Features:
+    - Concurrent marking and relocation of objects.
+    - Region-based memory management.
+    - Support for large heaps (up to several terabytes).
+- Ideal for applications with high throughput and low latency requirements, such as real-time systems and large data
+  processing applications.
+- Configurable via JVM options, e.g., `-XX:+UseZGC` to enable ZGC.
+- Continuously evolving with improvements in performance and capabilities in subsequent Java versions.
+
+## 7. Epsilon (No-Op) Garbage Collector
+
+- Introduced in Java 11, Epsilon GC is a no-op garbage collector that does not reclaim memory.
+- Primarily used for performance testing and memory pressure testing.
+- Example Usage:
+  ```bash
+  java -XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC -Xmx512m -jar yourapp.jar
+  ```
+- Note: Since Epsilon GC does not reclaim memory, it is not suitable for production environments
+
+## 8. Generational ZGC and Performance Improvements
+- Java 21 enhances the Z Garbage Collector (ZGC) with generational capabilities.
+- Generational ZGC divides the heap into generations (young and old), optimizing garbage collection for different object lifetimes.
+- Improves performance by reducing pause times and increasing throughput for applications with varying object lifetimes.
+- Key Features:
+  - Concurrent marking and relocation of objects.
+  - Region-based memory management.
+  - Support for large heaps (up to several terabytes).
+- Example JVM options to enable ZGC:
+    ```bash
+    -XX:+UseZGC
+    -XX:ZCollectionInterval=1000
+    ```
+- Ideal for applications with high throughput and low latency requirements, such as real-time systems and large data processing applications.
