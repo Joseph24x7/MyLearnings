@@ -295,3 +295,135 @@ List<Integer> finalList = streamSupplier.get().collect(Collectors.toList());
 - Basically Supplier does NOT create a stream yet,it stores a recipe to create a stream. Every call to get() creates a brand-new Stream. 
 
 ---
+
+## 12. Stream API Interview Coding Exercises
+
+Here are real-world interview coding exercises with simple explanations and clear examples.
+
+### Example Entity: Movie
+```java
+public class Movie {
+    private String title;
+    private String director;
+    private String genre;
+    private double rating;
+    private int year;
+    // Constructor, Getters, Setters
+}
+```
+
+#### Q1. Group movies by director
+- **Goal:** Group all movies by their director.
+- **Solution:** Use `Collectors.groupingBy()`.
+- **Code:**
+```java
+Map<String, List<Movie>> moviesByDirector = movies.stream()
+        .collect(Collectors.groupingBy(Movie::getDirector));
+```
+
+#### Q2. Find the highest-rated movie per genre
+- **Goal:** For each genre, find the movie with the highest rating.
+- **Solution:** Group by genre, then reduce each group using `Collectors.maxBy()` with a rating comparator.
+- **Code:**
+```java
+Map<String, Movie> highestRatedByGenre = movies.stream()
+        .collect(Collectors.groupingBy(
+                Movie::getGenre,
+                Collectors.collectingAndThen(
+                        Collectors.maxBy(Comparator.comparingDouble(Movie::getRating)),
+                        Optional::get
+                )
+        ));
+```
+
+#### Q3. List all movies released in the last 5 years with a rating >= 8.0
+- **Goal:** Filter movies based on a year range and a minimum rating.
+- **Solution:** Use `filter()` with current year calculation.
+- **Code:**
+```java
+int currentYear = LocalDate.now().getYear();
+List<Movie> recentTopMovies = movies.stream()
+        .filter(m -> m.getYear() >= (currentYear - 5) && m.getYear() <= currentYear)
+        .filter(m -> m.getRating() >= 8.0)
+        .toList(); // Or .collect(Collectors.toList())
+```
+
+#### Q4. Count how many movies each genre has
+- **Goal:** Get a count of movies per genre.
+- **Solution:** Group by genre and count elements in each group using `Collectors.counting()`.
+- **Code:**
+```java
+Map<String, Long> genreCount = movies.stream()
+        .collect(Collectors.groupingBy(Movie::getGenre, Collectors.counting()));
+```
+
+---
+
+### Example Entity: Employee
+```java
+class Employee {
+    private Integer id;
+    private String name;
+    private int salary;
+    private String dept;
+    // Constructor, Getters, Setters
+}
+```
+
+#### Q5. Find the highest salary in each department
+- **Goal:** Find the highest salaried employee for each department.
+- **Solution:** Group by department and find the maximum by salary.
+- **Code:**
+```java
+Map<String, Employee> topSalariedByDept = employees.stream()
+        .collect(Collectors.groupingBy(
+                Employee::getDept,
+                Collectors.collectingAndThen(
+                        Collectors.maxBy(Comparator.comparingLong(Employee::getSalary)),
+                        Optional::get
+                )
+        ));
+```
+
+#### Q6. Find the Nth highest salary in a list of employees
+- **Goal:** Retrieve the employee with the N-th highest salary.
+- **Solution:** Sort the list descending by salary, skip the first `N-1` elements, and get the first element.
+- **Code:**
+```java
+int n = 4; // To find 4th highest
+Employee nthHighestEmployee = employees.stream()
+        .sorted(Comparator.comparingInt(Employee::getSalary).reversed())
+        .skip(n - 1)
+        .findFirst()
+        .orElse(null); // .orElse(null) handles edge case where list size < n
+```
+
+---
+
+## 13. Parallel Stream vs CompletableFuture: Which to Prefer When?
+
+| Aspect | Parallel Stream | CompletableFuture |
+|--------|-----------------|-------------------|
+| **Thread Pool** | Uses shared `ForkJoinPool.commonPool()` | Can use custom `Executor` thread pool |
+| **Task Type** | Best for **CPU-bound** tasks | Best for **I/O-bound** tasks (DB, REST calls) |
+| **Error Handling** | Hard to handle (propagates to caller) | Rich API (`exceptionally()`, `handle()`) |
+| **Control** | No control over thread allocation | High control (non-blocking chaining) |
+
+- **Rule of Thumb:** 
+  - Use **Parallel Stream** for heavy math, sorting, or processing large in-memory collections.
+  - Use **CompletableFuture** for network calls, database queries, and async pipeline orchestration to avoid blocking the common CPU thread pool.
+
+---
+
+## 14. Performance: Parallel Stream for 100,000+ vs 1,000 Records?
+
+- **For 1,000 Records:** 
+  - ❌ **Do NOT use parallel stream.**
+  - The overhead of splitting the stream, context switching between threads, and merging results is significantly higher than processing 1,000 records sequentially in a single thread.
+
+- **For 100,000+ Records:**
+  - **CPU-Bound Tasks (e.g. math operations):**
+    - ✅ **Yes, parallel stream is highly beneficial.** It distributes processing across all CPU cores.
+  - **I/O-Bound Tasks (e.g. DB queries or API calls):**
+    - ❌ **No, parallel stream is NOT recommended.** 
+    - Blocking threads in `ForkJoinPool.commonPool()` starves other parts of the application (like Tomcat web requests) that rely on the same pool. Use a custom thread pool with `CompletableFuture` instead.

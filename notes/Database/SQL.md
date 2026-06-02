@@ -288,3 +288,88 @@ SELECT name FROM Contractors;
 ### Best Practice
 - Use `UNION ALL` when you know there are no duplicates or when duplicates are acceptable.
 - Use `UNION` only when duplicate elimination is required.
+
+---
+
+## 11. What is PostgreSQL and How it Differs from Other SQL Databases?
+
+PostgreSQL is a powerful, open-source **object-relational database system (ORDBMS)**. 
+
+### Key Differences:
+1. **Object-Relational Model:** Supports object-oriented features like table inheritance, custom types, and function overloading.
+2. **Advanced Data Types:** Native support for semi-structured data types like **JSONB** (binary JSON) which supports indexing, allowing it to compete with NoSQL databases for document storage.
+3. **Concurrency (MVCC):** PostgreSQL uses Multi-Version Concurrency Control. Readers don't block writers, and writers don't block readers, resulting in high write/read concurrency.
+4. **Extensibility:** Allows custom functions written in PL/pgSQL, Python, Perl, etc.
+
+---
+
+## 12. Clustering in SQL: Database Clustering vs Table Index Clustering
+
+"Clustering" can mean two entirely different concepts in SQL database systems:
+
+### 1. Database Clustering (High Availability / Scale)
+- **Concept:** Setting up multiple database servers (nodes) working together.
+- **Types:**
+  - **Active-Passive:** One primary node handles reads/writes; data is replicated to standby secondary nodes. If primary fails, secondary takes over.
+  - **Active-Active:** Multiple nodes handle reads/writes simultaneously, with data synchronized across all nodes.
+
+### 2. Table Index Clustering (Clustered Index)
+- **Concept:** Reordering the physical rows on disk of a single table to match the order of an index.
+- **Details:** Since physical data can only be sorted in one way, a table can only have **one clustered index** (usually the Primary Key).
+
+---
+
+## 13. High Volume Database Management (Handling Millions of Records)
+
+To scale a database handling millions of records:
+
+1. **Indexing:** Use indexes (B-Tree, Hash) to avoid full table scans. Use *covering indexes* to serve queries purely from index pages.
+2. **Database Partitioning (Horizontal Splitting):**
+   - Split a huge table into smaller physical tables (partitions) based on a key (e.g. by `order_date` range: partition per month).
+   - Queries targeting specific dates only scan that specific partition (Partition Pruning).
+3. **Database Sharding:**
+   - Distribute partition data across **entirely different database servers** (nodes).
+   - *Example:* Customers with IDs 1-1M go to Server A, 1M-2M go to Server B.
+4. **Read-Write Splitting (Replication):**
+   - Direct all write operations (INSERT, UPDATE, DELETE) to a Primary node.
+   - Replicate data asynchronously to multiple Replica nodes to handle all read queries (SELECT).
+5. **Caching:** Place a fast in-memory key-value store like Redis in front of the database to store frequently requested, slow-changing records.
+
+---
+
+## 14. How to Delete Duplicate Rows in a Table (Except the Primary Key)
+
+- **Goal:** Keep the first occurrence of a record (lowest primary key ID) and delete all duplicate rows.
+- **Solution:** Use a Common Table Expression (CTE) with the `ROW_NUMBER()` window function partitioned by the duplicate-defining columns.
+
+### Example Database Table (`employees`):
+| id (PK) | email | name |
+|---------|-------|------|
+| 1 | john@test.com | John |
+| 2 | john@test.com | John (Duplicate) |
+| 3 | bob@test.com | Bob |
+| 4 | bob@test.com | Bob (Duplicate) |
+
+### SQL Query:
+```sql
+WITH DuplicateCTE AS (
+    SELECT id, email,
+           ROW_NUMBER() OVER (
+               PARTITION BY email 
+               ORDER BY id ASC
+           ) AS row_num
+    FROM employees
+)
+DELETE FROM employees
+WHERE id IN (
+    SELECT id 
+    FROM DuplicateCTE 
+    WHERE row_num > 1
+);
+```
+
+### How it works:
+1. `PARTITION BY email` groups records with the same email.
+2. `ORDER BY id ASC` numbers them from oldest to newest.
+3. The first record gets `row_num = 1`, and duplicate records get `row_num > 1`.
+4. The outer query deletes any record ID where the row number is greater than 1.

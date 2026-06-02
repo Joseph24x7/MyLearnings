@@ -162,3 +162,75 @@ stages:
 
 ---
 
+## 8. Kubernetes Core Objects (Pods, ConfigMaps, Helm)
+
+### 1. Pods
+- **Definition:** The smallest deployable unit in Kubernetes. 
+- **Content:** Represents a single instance of a running process. A Pod contains one or more containers (usually one) that share storage, network IP, and configuration settings.
+- **Does Kubernetes have containers in it?** Yes, containers (like Docker or containerd) run inside Pods.
+
+### 2. ConfigMaps
+- **Definition:** An API object used to store non-confidential configuration data in key-value pairs.
+- **Purpose:** Decouples environment-specific configuration from container images, allowing you to run the same image in Dev, QA, and Prod.
+
+### 3. Helm Charts
+- **Definition:** A package manager for Kubernetes.
+- **Purpose:** Packages all Kubernetes resource YAML manifests (Deployments, Services, ConfigMaps, Ingress) into a single, versioned package called a "Chart", allowing easy deployment, upgrade, and rollback with templated values.
+
+---
+
+## 9. Cloud Platforms & Infrastructure: OpenShift, S2I, AWS, NGINX
+
+### 1. OpenShift vs Kubernetes
+- **Kubernetes:** Open-source orchestration engine.
+- **OpenShift:** Red Hat's enterprise Kubernetes platform. It includes built-in security, logging, monitoring, CI/CD pipelines, and developer-friendly dashboards out of the box.
+
+### 2. S2I (Source-to-Image)
+- **Concept:** An OpenShift feature that automates container image creation directly from raw source code.
+- **How it works:** You point OpenShift to a Git repo. S2I downloads the code, automatically detects the language (e.g., Java Maven), compiles it, inserts the compiled binary into a builder container image, and outputs a ready-to-run container image—all without you writing a `Dockerfile`.
+
+### 3. AWS Auto Scaling
+- **Concept:** Dynamically adjusts computing capacity based on real-time traffic demand.
+- **Scaling Groups:** Scales EC2 instances or ECS/EKS tasks up or down automatically using metrics like CPU utilization or request count from AWS CloudWatch.
+
+### 4. NGINX Purpose & Load Balancing
+NGINX is a lightweight, high-performance web server that serves three primary roles:
+1. **Reverse Proxy:** Intercepts client requests and routes them to internal application servers.
+2. **Load Balancer:** Distributes incoming HTTP/TCP traffic across multiple backend servers using algorithms like Round Robin or Least Connections.
+3. **SSL Termination:** Decrypts incoming HTTPS requests at the NGINX level so backend servers only process plaintext HTTP, reducing backend CPU load.
+
+---
+
+## 10. Standard CI/CD Pipeline Steps
+
+A classic DevOps pipeline runs behind every code commit:
+
+```
+[ Git Commit ] 
+      │
+      ▼
+[ 1. Trigger ] ──────── Jenkins / GitHub Actions webhook detects change
+      │
+      ▼
+[ 2. Build ] ────────── Compile code and build package (e.g., mvn clean package)
+      │
+      ▼
+[ 3. Unit Test ] ────── Run unit tests (JUnit, Mockito) and verify code coverage
+      │
+      ▼
+[ 4. SAST Scan ] ────── Scan code quality & security bugs (SonarQube / Veracode)
+      │
+      ▼
+[ 5. Package ] ──────── Build Docker image (docker build) and scan dependencies
+      │
+      ▼
+[ 6. Publish ] ──────── Push image to Registry (e.g., Docker Hub, AWS ECR)
+      │
+      ▼
+[ 7. Deploy ] ───────── Update Kubernetes manifests & execute rolling deployment
+      │
+      ▼
+[ 8. Verify ] ───────── Perform health checks (Liveness/Readiness probes)
+```
+
+

@@ -546,3 +546,26 @@ GraphQL: query { user(id: 1) { name email } } → Exact fields needed
 
 ---
 
+## 28. Spring MVC vs Spring WebFlux: Under-the-Hood & Advantages
+
+### 1. Architectural Difference (Under the Hood):
+- **Spring MVC (Imperative):** 
+  - Uses the **Thread-per-Request** model (usually on Tomcat).
+  - Every incoming HTTP request blocks a thread. If the thread queries a database or calls an external API, it blocks until a response is received. 
+  - Limits scalability under high concurrent I/O.
+- **Spring WebFlux (Reactive):**
+  - Uses a **Non-blocking Event Loop** model (usually on Netty).
+  - A small, fixed number of threads (matching CPU cores) handles all requests. 
+  - Instead of blocking while waiting for I/O, threads register callbacks and move on to process other events. When the I/O completes, the event loop triggers the callback to resume the response.
+
+### 2. Key WebFlux Concepts:
+- **Mono<T>:** A reactive publisher that emits 0 or 1 element.
+- **Flux<T>:** A reactive publisher that emits 0 to N elements (e.g. data streams).
+- **Backpressure:** A mechanism allowing a slow consumer to signal a fast producer to slow down, preventing the system from running out of memory.
+
+### 3. Advantages of Spring WebFlux:
+1. **High Concurrency & Scalability:** Can handle hundreds of thousands of concurrent connections with very low memory footprint (since it doesn't spin up a thread per connection).
+2. **Efficient Resource Utilization:** Best suited for **I/O-heavy applications** (e.g. gateways, streaming services, calling multiple downstream REST microservices).
+3. **Resilient Streaming:** Supports streaming data natively (Server-Sent Events, WebSockets) with backpressure controls.
+
+

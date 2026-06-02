@@ -596,3 +596,82 @@ public class RateLimitingFilter implements Filter {
 ```
 
 ---
+
+## 28. Notify vs NotifyAll: When to Use Which?
+
+Both `notify()` and `notifyAll()` are used to wake up threads that are waiting on an object's monitor (via `wait()`).
+
+### `notify()`
+- **Behavior:** Wakes up only **one random thread** currently waiting on the object's monitor.
+- **Lock Acquisition:** The woken thread does not immediately run; it moves to the entry set and waits to acquire the lock when the current thread releases it.
+- **Use Case:** Use when all waiting threads are performing the **exact same task** (e.g. worker threads in a thread pool), and it doesn't matter which thread is woken up.
+- **Risk:** Can lead to **deadlocks/signal loss** if the "wrong" thread is woken up (e.g., waking up another producer instead of a waiting consumer when the queue is full).
+
+### `notifyAll()`
+- **Behavior:** Wakes up **all threads** currently waiting on the object's monitor.
+- **Lock Acquisition:** All woken threads move to the entry set and compete to acquire the lock. Only one gets it, while others block again when they try to enter the synchronized block.
+- **Use Case:** Use when waiting threads are waiting on **different conditions** (e.g., some waiting to read, some waiting to write) or doing different tasks.
+- **Example:**
+```java
+public class SharedQueue {
+    private List<Integer> queue = new ArrayList<>();
+    private int LIMIT = 5;
+
+    public synchronized void produce(int item) throws InterruptedException {
+        while (queue.size() == LIMIT) {
+            wait();
+        }
+        queue.add(item);
+        // Wake up everyone so consumers can consume, or producers can check limits
+        notifyAll(); 
+    }
+
+    public synchronized int consume() throws InterruptedException {
+        while (queue.isEmpty()) {
+            wait();
+        }
+        int val = queue.remove(0);
+        notifyAll(); // Wake up producers/consumers
+        return val;
+    }
+}
+```
+
+---
+
+## 29. Deep Dive: ThreadPoolExecutor Configuration Parameters
+
+`ThreadPoolExecutor` is the engine behind Java's `ExecutorService`. It has five critical parameters:
+
+```java
+ThreadPoolExecutor executor = new ThreadPoolExecutor(
+    corePoolSize,        // 1. Core threads kept alive
+    maximumPoolSize,     // 2. Max threads allowed
+    keepAliveTime,       // 3. Time idle threads wait
+    unit,                // 4. Time unit
+    workQueue,           // 5. Task queue
+    threadFactory,       // 6. Thread creation logic (Optional)
+    handler              // 7. Rejection handler (Optional)
+);
+```
+
+### 1. How Core/Max/Queue Work Together (Task Submission Flow):
+1. **Under Core Size:** When a task is submitted, if running threads < `corePoolSize`, a new thread is created immediately, even if other threads are idle.
+2. **Queueing:** If running threads >= `corePoolSize`, the task is placed in the `workQueue`.
+3. **Exceeding Queue:** If the `workQueue` is full, and running threads < `maximumPoolSize`, a new thread is created.
+4. **Rejection:** If the `workQueue` is full and running threads >= `maximumPoolSize`, the task is rejected using the configured `RejectedExecutionHandler`.
+
+### 2. Work Queue Options:
+- **`LinkedBlockingQueue` (Bounded/Unbounded):** 
+  - Standard queue. If unbounded, the pool never grows beyond `corePoolSize` (since the queue is never full).
+- **`SynchronousQueue` (Direct Handoff):** 
+  - Does not store tasks. Instantly hands task to a thread. If no thread is available, creates a new one (up to `maximumPoolSize`). Used in `CachedThreadPool`.
+- **`ArrayBlockingQueue` (Bounded):**
+  - Array-based bounded queue. Prevents memory exhaustion.
+
+### 3. Rejection Policies:
+- **`AbortPolicy` (Default):** Throws `RejectedExecutionException`.
+- **`CallerRunsPolicy`:** The thread submitting the task runs it itself (slows down submission rate, natural backpressure).
+- **`DiscardPolicy`:** Silently discards the task.
+- **`DiscardOldestPolicy`:** Discards the oldest unhandled task in the queue and retries.
+```

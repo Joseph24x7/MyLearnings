@@ -607,3 +607,22 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
    @ManyToOne
    private Department department;
    ```
+
+## 15. Hibernate Cascading Types
+
+Cascading defines how operations performed on a parent entity propagate to its associated child entities. In Spring Data JPA, we specify this using the `cascade` attribute of relationship annotations (e.g. `@OneToMany(cascade = CascadeType.ALL)`).
+
+### Cascading Types:
+1. **`CascadeType.PERSIST`:** When the parent entity is saved (`persist()`), all associated child entities are automatically saved.
+2. **`CascadeType.MERGE`:** When the parent state is merged (`merge()`), child entity states are also merged.
+3. **`CascadeType.REMOVE`:** When the parent entity is deleted (`remove()`), all its associated child entities are deleted from the database.
+4. **`CascadeType.REFRESH`:** When the parent is reloaded/refreshed (`refresh()`), the child entities are also reloaded from the database.
+5. **`CascadeType.DETACH`:** When the parent is detached from the Hibernate Session/Persistence Context (`detach()`), the children are also detached.
+6. **`CascadeType.ALL`:** Applies all the above cascading operations together.
+
+### JPA Cascade vs Hibernate Cascade:
+- `jakarta.persistence.CascadeType` is the JPA standard.
+- `org.hibernate.annotations.CascadeType` is Hibernate-specific, offering extra options. Always prefer the JPA standard.
+- **`orphanRemoval = true` vs `CascadeType.REMOVE`:**
+  - `CascadeType.REMOVE` deletes children only if the parent is deleted.
+  - `orphanRemoval = true` deletes children if the parent is deleted **OR** if a child is removed from the parent's collection (e.g., `parent.getChildren().remove(child)`).

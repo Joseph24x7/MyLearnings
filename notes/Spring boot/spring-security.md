@@ -195,3 +195,62 @@ disable(); // Disable CSRF for stateless APIs
 - Conduct regular security audits and code reviews
 
 ---
+
+## 10. OAuth2 vs JWT: What is the Difference?
+
+- **OAuth2:** An **authorization framework/protocol**. It defines a set of rules (flows) for delegating access to third-party applications (like "Login with Google") without sharing password credentials.
+- **JWT (JSON Web Token):** A **token format**. It is a compact, self-contained way of securely transmitting JSON data between parties, signed using a secret/key.
+- **Analogy:** OAuth2 is the **hotel check-in process** (verifying booking, checking ID). JWT is the **keycard** you get (self-contained token representing your access to specific rooms).
+
+---
+
+## 11. Purpose of Secret Key in JWT
+
+The secret key (symmetric, e.g. HS256) or private key (asymmetric, e.g. RS256) is used to **generate the Signature** when a token is created, and to **verify it** when received.
+
+### Why is it needed?
+1. **Prevents Tampering:** If a hacker changes the user ID in the JWT payload to gain admin privileges, the signature will no longer match the payload when verified with the secret key on the server.
+2. **Authenticity:** Only the authentication server knows the secret key, guaranteeing that the token was issued by a trusted source.
+- *Note:* JWT is **encoded** (readable by anyone at jwt.io), NOT encrypted. Sensitive data should not be stored in the payload.
+
+---
+
+## 12. Password Hashing (BCrypt) vs JWT Signing (HMAC/SHA256)
+
+For security, different cryptographic algorithms are used for different purposes:
+
+- **JWT Signing (HS256 / RS256):**
+  - Uses SHA-256 hashing inside HMAC.
+  - **Goal:** Signature verification. It must be **extremely fast** because every API request validates the token.
+- **Password Hashing (BCrypt / Argon2):**
+  - **Goal:** Hiding passwords. It is **intentionally slow** and resource-intensive.
+  - BCrypt uses a configurable "work factor" (rounds of hashing) and a unique "salt" for each password. This prevents brute-force and rainbow table attacks.
+  - *Recommendation:* Always use BCrypt/Argon2 for passwords, never raw SHA-256.
+
+---
+
+## 13. OWASP Top 10 & Veracode Fixing
+
+Veracode is a SAST (Static Application Security Testing) tool used in enterprise pipelines to scan for security vulnerabilities (OWASP Top 10).
+
+### Key Vulnerabilities & How to Fix Them:
+1. **SQL Injection:**
+   - *Fix:* Use Prepared Statements, parameterized queries, or Spring Data JPA repositories (avoid custom string concatenation in native SQL queries).
+2. **Cross-Site Scripting (XSS):**
+   - *Fix:* Sanitize inputs and HTML-escape output strings using libraries like OWASP Java HTML Sanitizer.
+3. **Using Components with Known Vulnerabilities:**
+   - *Fix:* Use the `dependency-check-maven` plugin in the CI/CD pipeline to flag and fail builds if library versions have active CVEs. Update libraries regularly.
+4. **Broken Object Level Authorization (BOLA):**
+   - *Fix:* Ensure that before retrieving or modifying a resource (e.g. `/api/orders/{id}`), the backend validates that the resource owner matches the authenticated user ID from the JWT.
+
+---
+
+## 14. HSM (Hardware Security Module) & Token Management
+
+### What is an HSM?
+- A **Hardware Security Module (HSM)** is a dedicated physical device (or cloud service like AWS CloudHSM) that securely stores cryptographic keys (private keys, certificates) and performs cryptographic operations inside a tamper-proof hardware boundary.
+
+### Role in Token Management:
+1. **Key Protection:** Private keys used to sign JWTs are stored inside the HSM and can *never* be exported in plaintext.
+2. **On-Device Signing:** The authentication server sends the hash of the JWT to the HSM, which signs it internally and returns the signature. Even if the server is compromised, the private key remains secure.
+
