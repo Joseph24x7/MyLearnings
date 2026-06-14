@@ -675,3 +675,134 @@ ThreadPoolExecutor executor = new ThreadPoolExecutor(
 - **`DiscardPolicy`:** Silently discards the task.
 - **`DiscardOldestPolicy`:** Discards the oldest unhandled task in the queue and retries.
 ```
+
+---
+
+## 30. How `synchronized` Works Internally in Java
+
+At the JVM level, `synchronized` is implemented using **Monitor entry** and **Monitor exit** instructions (`monitorenter` and `monitorexit` in bytecode).
+
+### Internal Mechanics:
+1. **Object Monitor:** Every object in Java is associated with a Monitor (an internal lock object).
+2. **Object Header (Mark Word):** The header of every Java object contains a "Mark Word" (32 or 64 bits) which stores the lock state (unlocked, biased, lightweight lock, heavyweight lock, or GC metadata).
+3. **Lock Inflation (JVM Optimization):**
+   - **Biased Lock:** The JVM biases the lock towards the first thread that acquires it. If no other thread tries to acquire the lock, the thread can enter/exit the synchronized block with zero synchronization overhead.
+   - **Lightweight Lock:** If another thread tries to acquire a biased lock, the lock inflates to a lightweight lock. The thread uses **CAS (Compare-And-Swap)** spin-locking to acquire the lock. No OS-level thread blocking happens.
+   - **Heavyweight Lock:** If contention is high (spinning fails multiple times), the lock inflates to a heavyweight lock. The JVM calls OS-level synchronization primitives, blocking/suspending competing threads and placing them in an entry queue until the lock is released.
+
+---
+
+## 31. Double-Checked Locking (Singleton Pattern)
+
+Double-Checked Locking is an optimization used in lazy initialization of a Singleton class to avoid the overhead of acquiring a lock every time the instance is requested.
+
+### Implementation:
+```java
+public class DoubleCheckedSingleton {
+    // ⚠️ CRITICAL: volatile prevents instruction reordering
+    private static volatile DoubleCheckedSingleton instance;
+
+    private DoubleCheckedSingleton() {}
+
+    public static DoubleCheckedSingleton getInstance() {
+        if (instance == null) { // First Check (No Lock)
+            synchronized (DoubleCheckedSingleton.class) { // Lock
+                if (instance == null) { // Second Check (With Lock)
+                    instance = new DoubleCheckedSingleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+```
+
+### Why `volatile` is mandatory here:
+The creation of a new object `instance = new DoubleCheckedSingleton();` is not atomic. It involves three bytecode instructions under the hood:
+1. Allocate memory.
+2. Invoke the constructor to initialize the fields.
+3. Assign the memory address to the `instance` variable.
+Without `volatile`, the JVM/compiler can reorder these steps: executing step 3 *before* step 2. If this happens, a second thread checking `instance == null` (First Check) might see a non-null but **partially initialized** object reference and attempt to use it, causing a crash. `volatile` guarantees a write happens-before subsequent reads, preventing this reordering.
+
+---
+
+## 32. ReentrantLock vs Synchronized
+
+A `ReentrantLock` (from `java.util.concurrent.locks`) is a more advanced, flexible locking mechanism compared to the `synchronized` keyword.
+
+### Key Differences & Features:
+1. **Explicit Lock/Unlock:** You must explicitly call `lock()` and call `unlock()` inside a `finally` block to prevent resource leaks.
+2. **Fairness Policy:** You can configure a fairness policy: `new ReentrantLock(true)`. A fair lock guarantees that the longest-waiting thread gets the lock first (prevents starvation), whereas `synchronized` is always unfair.
+3. **Non-blocking tryLock():** `lock.tryLock()` attempts to acquire the lock. If unavailable, it returns `false` immediately instead of blocking the thread, allowing the thread to do other work.
+4. **Interrupted Locking:** `lockInterruptibly()` allows a thread to acquire a lock but remain interruptible, so it can wake up if another thread calls `thread.interrupt()`.
+5. **Reentrancy:** Both `synchronized` and `ReentrantLock` are reentrant. A thread holding the lock can re-acquire it recursively without deadlocking itself (increments a hold counter).
+
+---
+
+## 33. Volatile Keyword: Visibility & Reordering
+
+The `volatile` keyword in Java is used to mark a variable as stored in main memory, rather than in thread-specific CPU caches.
+
+### Main Uses:
+1. **Thread Visibility:** Ensures that writes to the variable by one thread are immediately visible to all other threads. Without `volatile`, changes made by Thread A might only exist in its local CPU cache, and Thread B might read a stale value from its own cache.
+2. **Prevents Instruction Reordering:** Creates a memory barrier preventing the JVM/compiler from reordering instructions around the volatile read/write (crucial for Double-Checked Locking).
+
+*Note:* `volatile` does NOT provide **atomicity** (it doesn't lock). For compound operations like `i++` (which is read-modify-write), you still need synchronization or `AtomicInteger`.
+
+---
+
+## 34. Multi-Threading Challenge: Stop Rest of the Threads When One Task Completes
+
+### Problem Statement:
+You have 3 tasks running on 3 threads. As soon as **any one** of the tasks completes successfully, the other two tasks should be stopped immediately.
+
+### Solution Using `ExecutorService` and `invokeAny()`:
+The most standard and clean way in Java is to submit the tasks as `Callable` to an `ExecutorService` and call `invokeAny()`.
+- `invokeAny()` executes the tasks concurrently.
+- As soon as one task returns a result successfully, `invokeAny()` returns that result and automatically calls `future.cancel(true)` on all other active threads in the executor, sending them an **interruption signal**.
+
+### Code Example:
+```java
+import java.util.List;
+import java.util.concurrent.*;
+
+public class TaskCancellationDemo {
+    public static void main(String[] args) {
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        Callable<String> task1 = () -> {
+            Thread.sleep(1000); // Finishes first
+            return "Task 1 completed!";
+        };
+
+        Callable<String> task2 = () -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                System.out.println("Task 2 was cancelled!");
+            }
+            return "Task 2 completed!";
+        };
+
+        Callable<String> task3 = () -> {
+            try {
+                Thread.sleep(8000);
+            } catch (InterruptedException e) {
+                System.out.println("Task 3 was cancelled!");
+            }
+            return "Task 3 completed!";
+        };
+
+        try {
+            // Run tasks; invokeAny returns as soon as the first one succeeds
+            String result = executor.invokeAny(List.of(task1, task2, task3));
+            System.out.println("Winner result: " + result);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        } finally {
+            executor.shutdownNow(); // Instantly interrupts any remaining threads
+        }
+    }
+}
+```
+

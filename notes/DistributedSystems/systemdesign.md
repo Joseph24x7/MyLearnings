@@ -71,4 +71,53 @@ In a network partition (P) where Node A cannot talk to Node B:
 - If a write occurs on Node A, we must choose:
   - **CP System (Consistency):** Block/reject reads on Node B until partition heals. (Sacrifice Availability).
   - **AP System (Availability):** Allow reads on Node B, which returns old/stale data. (Sacrifice Consistency).
-- *Note:* Partition tolerance (P) is mandatory in distributed systems because network cables can always fail. Thus, the real choice is always between **CP** and **AP**.
+- *Note:* Partition tolerance (P) is mandatory in distributed systems because network cables can always fail. Thus, the real choice is always between **CP** and **AP**.
+
+---
+
+## 6. System Design: WhatsApp-Like Chat System
+
+Designing a highly scalable, real-time messaging system like WhatsApp requires supporting low-latency message delivery, online/offline status tracking, and massive scale.
+
+### 1. Functional Requirements:
+- One-on-one chat (text, images, media).
+- Message status indicators: Sent (single tick), Delivered (double tick), Read (blue ticks).
+- Last seen / Online status.
+- Group chat (up to 500 members).
+- Media storage (photos, videos).
+
+### 2. High-Level Architecture & Components:
+```
+[ Sender Client ] 
+       │ (WebSocket Connection)
+       ▼
+[ WebSocket Gateway Service ] ─── (Manages active connections & routes messages)
+       │
+       ├────────► [ Chat/Message Service ] ───► [ Message Store: Cassandra / HBase ]
+       │                                            │ (Stores messages for offline delivery)
+       │                                            ▼
+       ├────────► [ Presence Service ] ────────► [ Cache: Redis ] (Stores online status)
+       │
+       └────────► [ Push Notification Service ] ──► [ APNS / FCM ] (For offline users)
+```
+
+### 3. Key Technology Choices:
+- **Protocol: WebSockets (or XMPP):**
+  - Standard HTTP is pull-based. We need bidirectional, persistent connection for real-time delivery. WebSockets maintain a TCP connection allowing instant push from server to client.
+- **Database for Messages: Wide-column Store (Cassandra or HBase):**
+  - **Reason:** Very high write throughput, horizontal scalability, and efficient query pattern for chronological data (`WHERE user_id = X ORDER BY timestamp DESC`).
+- **Database for Metadata/Users: Relational DB (PostgreSQL):**
+  - For user profiles, contacts, and group configuration where relational consistency is required.
+- **Caching & Presence: Redis:**
+  - For tracking user online/offline status ("Presence Service") and mapping active connections (`user_id -> websocket_server_ip`).
+- **Media Storage: Object Storage (Amazon S3) + CDN:**
+  - Files are uploaded to S3. Only the metadata and S3 link are sent via the chat system.
+
+### 4. Message Delivery Workflow (Sender -> Receiver):
+1. **Sender is Online:** Sender sends a message via WebSocket. Gateway validates authentication.
+2. **Database Write:** Chat Service writes the message to the database (marked as `SENT` -> single tick sent back to Sender).
+3. **Receiver Online Check:** 
+   - Gateway checks Redis to see if the Receiver is online and which WebSocket Gateway server they are connected to.
+   - If **Online:** The gateway server forwards the message via their active WebSocket connection. Once the Receiver's client acknowledges receipt, the server updates status to `DELIVERED` (double ticks) and notifies the Sender.
+   - If **Offline:** Chat service saves the message. The gateway triggers the **Push Notification Service** (using Firebase FCM or Apple APNS) to wake up the Receiver's phone. When they come online, their client pulls unread messages.
+

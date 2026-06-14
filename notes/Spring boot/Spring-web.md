@@ -568,4 +568,91 @@ GraphQL: query { user(id: 1) { name email } } → Exact fields needed
 2. **Efficient Resource Utilization:** Best suited for **I/O-heavy applications** (e.g. gateways, streaming services, calling multiple downstream REST microservices).
 3. **Resilient Streaming:** Supports streaming data natively (Server-Sent Events, WebSockets) with backpressure controls.
 
+---
+
+## 29. What happens when a Spring Boot application starts? (Startup Steps)
+
+When you run `SpringApplication.run(YourApp.class, args)`, the following sequential steps take place:
+
+1. **Bootstrap & Initializer Setup:** 
+   - The JVM starts, and `SpringApplication` creates the initial context.
+   - Detects the type of web application (e.g., Servlet-based or Reactive/WebFlux).
+   - Loads initializers (`ApplicationContextInitializer`) and listeners from `META-INF/spring.factories`.
+2. **Start the SpringApplicationRunListeners:**
+   - Listeners are started to broadcast application lifecycle events (e.g., application starting, environment prepared).
+3. **Environment Preparation:**
+   - Configures the runtime `Environment` (loads system properties, environment variables, and config files like `application.properties`/`application.yml`).
+4. **Print Banner:**
+   - Prints the default Spring Boot ASCII banner to the console.
+5. **Create Application Context:**
+   - Instantiates the context: `AnnotationConfigServletWebServerApplicationContext` (for standard REST APIs) or `AnnotationConfigReactiveWebServerApplicationContext` (for WebFlux).
+6. **Prepare Context (Bean Definitions & Configurations):**
+   - Injects the Environment, applies Initializers, and loads configuration classes.
+   - Scans the classpath (starting from the package of your `@SpringBootApplication` class) to locate `@Component`, `@Service`, `@Repository`, and `@Configuration` classes, registering them as bean definitions.
+7. **Refresh Context (Bean Instantiation & DI):**
+   - This is the most crucial step. It initializes the beans, resolves dependencies (Dependency Injection), and sets up the IoC container.
+   - Triggers post-processors, instantiates all singleton beans, and runs auto-configurations.
+8. **Start Embedded Web Server:**
+   - Under servlet web context, Spring Boot automatically boots up the embedded server (e.g., Tomcat or Netty) and binds to the configured port (default `8080`).
+9. **Execution of Runners:**
+   - Locates and executes any beans implementing `CommandLineRunner` or `ApplicationRunner` to run startup setup code.
+
+---
+
+## 30. Auto-Configuration in Spring Boot: Scenario & Explanation
+
+### What is Auto-Configuration?
+- Auto-configuration attempts to automatically configure Spring beans based on the jar dependencies present on the classpath.
+- It is enabled by `@EnableAutoConfiguration` (which is part of the `@SpringBootApplication` wrapper).
+- It runs *after* user-defined beans are registered, using conditional annotations like `@ConditionalOnClass`, `@ConditionalOnMissingBean`, and `@ConditionalOnProperty` to avoid overriding user configurations.
+
+### Real-world Scenario:
+- **Scenario:** Database access configuration.
+- **How it works:** When you add the `spring-boot-starter-data-jpa` and `postgresql` driver dependencies, Spring Boot's auto-configuration detects them on the classpath. It automatically instantiates and configures a `DataSource`, an `EntityManagerFactory`, and a `TransactionManager` using defaults (or the credentials defined in `application.properties`). If you manually define a `DataSource` bean in a `@Configuration` class, Spring Boot detects it and backs off (thanks to `@ConditionalOnMissingBean`), utilizing your custom datasource instead.
+
+---
+
+## 31. Resolving Multiple Beans for a Single `@Autowired` & Annotation Preference
+
+When multiple beans of the same type exist in the context, Spring throws a `NoUniqueBeanDefinitionException` during `@Autowired` injection.
+
+### How to Resolve it:
+1. **Using `@Qualifier("beanName")`:** Explicitly names which bean to inject at the injection point.
+2. **Using `@Primary`:** Placed on one of the bean definition classes/methods to declare it as the default choice.
+3. **By Variable Name:** Spring will try to resolve the bean by matching the field/argument variable name with the bean ID (secondary fallback).
+
+### Preference between `@Primary` and `@Qualifier`:
+- **`@Qualifier` takes preference.**
+- **Reason:** `@Primary` defines a general default fallback bean, whereas `@Qualifier` is an explicit, localized instruction at the point of injection. Local and specific instructions always override global defaults.
+
+---
+
+## 32. Handling High CPU Usage in Production
+
+If a Spring Boot application exhibits high CPU usage after a deployment, follow this systematic resolution plan:
+
+### 1. Identify the Culprit (Thread & Process Dump):
+- Get the application process ID: `jcmd` or `ps -ef | grep java`.
+- Identify which thread is consuming CPU:
+  - Linux: Run `top -H -p <pid>` to list threads ordered by CPU usage. Convert the high CPU thread ID (decimal) to hexadecimal.
+- Capture thread dumps: `jcmd <pid> Thread.dump_to_file thread_dump.txt` or `jstack <pid> > thread_dump.txt`.
+- Open the thread dump file and search for the hexadecimal thread ID to locate the exact class name and line of code causing the high CPU.
+
+### 2. Common Causes & Fixes:
+- **Infinite Loops:** An unchecked `while(true)` or circular references causing recursion. *Fix:* Correct the logical check.
+- **High Garbage Collection Overhead:** If JVM memory is full (Out of Memory or close to it), the garbage collector runs continuously, eating CPU. *Fix:* Capture a heap dump (`jmap -dump:live,format=b,file=heap.bin <pid>`) and analyze it with Eclipse MAT or VisualVM to find memory leaks. Increase heap size (`-Xmx`).
+- **Thread Contention:** Multiple threads competing for locks (synchronized blocks). *Fix:* Transition to lock-free operations, `ConcurrentHashMap`, or reduce lock scopes.
+
+---
+
+## 33. PUT vs POST in REST APIs
+
+| Feature | PUT | POST |
+|---------|-----|------|
+| **Primary Intent** | **Replace or Create** a resource at a specific URI. | **Create** a new subordinate resource. |
+| **URI Design** | Specifies the exact URI: `/api/users/12` (Client decides ID). | Target collection URI: `/api/users` (Server decides ID). |
+| **Idempotency** | **Idempotent.** Sending the same PUT request multiple times has the same effect as sending it once. | **Non-Idempotent.** Sending the same POST request multiple times will create duplicate resources. |
+| **Caching** | Responses are not cacheable. | Responses can be cached if specific headers are set. |
+
+
 

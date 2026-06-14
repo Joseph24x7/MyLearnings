@@ -132,3 +132,18 @@ t.start();
     -XX:ZCollectionInterval=1000
     ```
 - Ideal for applications with high throughput and low latency requirements, such as real-time systems and large data processing applications.
+
+---
+
+## 9. Difference Between Java 8 and Java 17 Garbage Collection
+
+Upgrading from Java 8 to Java 17 brings massive performance improvements to Garbage Collection out of the box:
+
+| Feature | Java 8 Garbage Collection | Java 17 Garbage Collection |
+|---------|---------------------------|----------------------------|
+| **Default GC** | **Parallel GC** (focused on throughput, blocks application threads during compaction). | **G1 GC** (Garbage-First GC, focused on low latency / balanced pause times). |
+| **Full GC Execution** | G1 GC had a **single-threaded** Full GC process, causing huge latency spikes if G1 ran out of memory. | G1 GC features a **fully parallelized** Full GC, minimizing stop-the-world pauses dramatically. |
+| **Unused Memory Return** | Did not return unused heap memory to the OS dynamically. | G1 GC dynamically returns unused heap memory to the OS (JEP 346) when the application is idle. |
+| **STW Pause Mechanism** | Used global safepoints to stop all threads (heavy and high latency). | Uses **Thread-Local Handshakes** (JEP 312), stopping individual threads rather than all of them at once. |
+| **Stable Modern GCs** | No stable **ZGC** (Z Garbage Collector) or Epsilon GC. | **ZGC** is production-ready (sub-millisecond pause times) and **Epsilon GC** (no-op GC for benchmarking) is fully supported. |
+| **String Deduplication** | String deduplication (reusing character arrays) was slow. | String deduplication is highly optimized and enabled in G1 GC by default to reduce memory consumption. |

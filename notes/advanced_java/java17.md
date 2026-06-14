@@ -123,3 +123,37 @@
 - Text blocks automatically handle line terminators based on the platform.
 
 ---
+
+## 6. Java 17 Features In Practice: When & What Have We Used?
+
+When discussing Java 17 in interviews, highlight these real-world uses:
+
+1. **Records:** Used extensively for **DTOs (Data Transfer Objects)**, Controller API Request/Response models, and database projection payloads. They eliminate boilerplate like `equals()`, `hashCode()`, `toString()`, getters, and constructors.
+2. **Text Blocks (`"""`):** Used to write readable, multi-line native SQL queries, JSON payloads for integration tests, or HTML email templates directly inside the code without ugly string concatenation.
+3. **Switch Expressions:** Simplifies complex conditional routing by returning values directly from switch branches.
+4. **Pattern Matching for `instanceof`:** Cleans up boilerplate code in custom converters or exception handlers by automatically casting the matched variable.
+5. **Sealed Classes:** Used to model strict domain hierarchies (e.g. `PaymentStatus` permits `Success`, `Failed`, `Pending`) ensuring no arbitrary subclassing can bypass safety boundaries.
+
+---
+
+## 7. Deep Dive: What are Records & When to Use Them?
+
+A **Record** is a special type of class in Java (introduced as standard in Java 16/17) designed to be a transparent, immutable data carrier.
+
+### Key Characteristics:
+- Instantiated like a class: `public record UserDto(String username, int age) {}`
+- Automatically generates:
+  - Private, final fields.
+  - Getter methods (using field names, e.g., `user.username()` instead of `getUsername()`).
+  - Canonical constructor initializing all fields.
+  - `equals()`, `hashCode()`, and `toString()` based on the state fields.
+- Cannot extend other classes (they implicitly extend `java.lang.Record`), and are automatically `final`.
+
+### When to Use Records:
+- ✅ **DTOs & API Payloads:** Perfect for transferring read-only data between controller, service, and external services.
+- ✅ **Map Keys:** Since they are immutable and have a built-in `hashCode()` and `equals()`, they make safe keys in a `HashMap`.
+- ✅ **Local Tuples:** Excellent for returning multiple values from a method locally without declaring a heavy boilerplate class.
+
+### When NOT to Use Records:
+- ❌ **JPA Entities:** Hibernate/JPA requires entities to have non-final fields, a no-args constructor, and proxying capabilities (which `final` classes do not allow).
+- ❌ **Mutable state:** If the fields need to be changed after initialization, use a standard mutable class.

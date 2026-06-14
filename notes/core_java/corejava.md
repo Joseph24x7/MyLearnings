@@ -618,3 +618,123 @@ Creational patterns deal with object creation mechanisms, trying to create objec
 4. **Builder:** Constructs complex objects step-by-step.
 5. **Prototype:** Creates new objects by copying an existing instance (using `clone()`).
 
+---
+
+## 33. Synchronized Map vs ConcurrentHashMap
+
+| Feature | Synchronized Map (e.g. `Collections.synchronizedMap()`) | ConcurrentHashMap |
+|---------|---------------------------------------------------------|-------------------|
+| **Locking Mechanism** | Locks the **entire map** object for every read/write operation. | Uses **fine-grained locking** (locks only the head node of a specific bucket chain/segment or uses CAS for updates). |
+| **Concurrency Level** | Low. Only one thread can access the map (read or write) at any time. Others wait. | High. Multiple threads can read/write concurrently in different buckets without blocking. |
+| **Iterator Behavior** | Iterator is **Fail-Fast** (throws `ConcurrentModificationException` if modified during iteration). Requires manual synchronization. | Iterator is **Fail-Safe** (reflects changes, does not throw exception). |
+| **Null Support** | Allows null keys and values (depending on the backing map). | Does **not** allow null keys or values. |
+
+---
+
+## 34. HashMap Rehashing Mechanics (Capacity 16 & Resizing)
+
+When a `HashMap` is initialized with a default capacity of **16** and a load factor of **0.75**:
+
+1. **Resizing Threshold:** The threshold is calculated as `capacity * loadFactor` (`16 * 0.75 = 12`).
+2. **Rehash Trigger:** 
+   - When you insert the **13th key-value pair**, the map exceeds its threshold.
+   - It automatically doubles its capacity to **32**.
+   - A new bucket array of size 32 is created.
+3. **Rehashing Process:** All existing entries are traversed, their hash is re-evaluated with the new capacity (`hash & (32 - 1)`), and they are relocated to the new buckets.
+
+### Time Complexity:
+- **Normal Insertion:** `O(1)` average case.
+- **Resizing Insertion:** `O(N)` worst case (where N is the number of elements in the map) because all existing elements must be copied to the new bucket array.
+
+---
+
+## 35. Common Data Structures & Their Time Complexities
+
+| Data Structure | Search (Avg / Worst) | Insertion (Avg / Worst) | Deletion (Avg / Worst) | Under the Hood / Usage |
+|----------------|-----------------------|-------------------------|------------------------|------------------------|
+| **ArrayList** | `O(1)` (by index)<br>`O(N)` (by value) | `O(1)` (amortized)<br>`O(N)` (if resizing / insert at index) | `O(N)` (requires shifting elements) | Resizable array. Good for random access. |
+| **LinkedList** | `O(N)` | `O(1)` (at head/tail)<br>`O(N)` (if inserting in middle) | `O(1)` (at head/tail)<br>`O(N)` (if deleting in middle) | Doubly Linked List. Good for frequent insertion/deletion. |
+| **HashMap / HashSet** | `O(1)` / `O(N)` (worst case if hash collision / treeify) | `O(1)` / `O(N)` | `O(1)` / `O(N)` | Hashing with buckets (Linked List/Red-Black Tree). |
+| **TreeMap / TreeSet** | `O(log N)` | `O(log N)` | `O(log N)` | Red-Black Tree. Maintains sorted order. |
+| **PriorityQueue** | `O(N)` (find arbitrary value)<br>`O(1)` (peek minimum) | `O(log N)` (offer) | `O(log N)` (poll) | Binary Heap. Used for scheduling / Dijkstra. |
+
+---
+
+## 36. How to Make a Class Immutable in Java
+
+To make a class immutable, follow these concrete design steps:
+1. **Declare the class as `final`** so it cannot be extended (prevents subclasses from overriding methods and introducing mutability).
+2. **Make all fields `private` and `final`** to restrict direct access and enforce single-initialization.
+3. **Do not provide setter methods** for any fields.
+4. **Initialize all fields via constructor** performing deep copies for mutable objects.
+5. **Perform Defensive Copying** in getter methods for mutable fields (e.g. return a copy of a `List` or `Date` object rather than the original reference).
+
+### Simple Code Example:
+```java
+public final class ImmutableUser {
+    private final String name;
+    private final List<String> roles; // Mutable object
+
+    public ImmutableUser(String name, List<String> roles) {
+        this.name = name;
+        // Defensive copy during initialization
+        this.roles = new ArrayList<>(roles);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<String> getRoles() {
+        // Defensive copy during retrieval
+        return new ArrayList<>(roles);
+    }
+}
+```
+
+---
+
+## 37. Java 9: Escaping References & The Cleaner API
+
+An **escaping reference** occurs when an object's internal reference is exposed to the outside world, allowing external modification or premature access. 
+
+In **Java 9**, the `Cleaner` API was introduced to replace the terminally deprecated `finalize()` method. However, implementing `Cleaner` introduces a major escaping reference trap:
+
+### The Cleaner API Trap:
+- The cleaning runnable registered with `Cleaner` must **never** hold a reference to the object being cleaned.
+- If it holds a reference (e.g. capturing `this` in a lambda or using a non-static inner class), the object is kept alive forever, preventing it from becoming phantom reachable. As a result, the garbage collector can never reclaim the object, and the cleaning action is never executed—causing a resource leak.
+
+### Bad Code (Reference Escapes):
+```java
+cleaner.register(this, () -> {
+    // ❌ Reference escape! 'this' is captured inside the lambda
+    System.out.println("Cleaning resource: " + this.resourceId); 
+});
+```
+
+### Good Code (No Reference Escape):
+```java
+public class SafeResource implements AutoCloseable {
+    private static final Cleaner cleaner = Cleaner.create();
+    private final Cleaner.Cleanable cleanable;
+
+    public SafeResource(State state) {
+        // Pass a static inner class holding only the required State, NOT the parent object
+        this.cleanable = cleaner.register(this, new CleaningAction(state));
+    }
+
+    // Static nested class does NOT hold a reference to the outer class
+    private static class CleaningAction implements Runnable {
+        private final State state;
+        CleaningAction(State state) { this.state = state; }
+
+        @Override
+        public void run() {
+            System.out.println("Cleaning up resource with state: " + state.id);
+        }
+    }
+    
+    @Override
+    public void close() { cleanable.clean(); }
+}
+```

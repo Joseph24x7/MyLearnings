@@ -618,6 +618,201 @@ Cascading defines how operations performed on a parent entity propagate to its a
 3. **`CascadeType.REMOVE`:** When the parent entity is deleted (`remove()`), all its associated child entities are deleted from the database.
 4. **`CascadeType.REFRESH`:** When the parent is reloaded/refreshed (`refresh()`), the child entities are also reloaded from the database.
 5. **`CascadeType.DETACH`:** When the parent is detached from the Hibernate Session/Persistence Context (`detach()`), the children are also detached.
+**One-to-Many:**
+```java
+@Entity
+public class Department {
+    @Id
+    private Long id;
+    
+    private String name;
+    
+    @OneToMany(mappedBy = "department", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Employee> employees;
+}
+
+@Entity
+public class Employee {
+    @Id
+    private Long id;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
+}
+```
+
+**Many-to-Many:**
+```java
+@Entity
+public class Student {
+    @Id
+    private Long id;
+    
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "student_course",
+        joinColumns = @JoinColumn(name = "student_id"),
+        inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
+    private Set<Course> courses;
+}
+
+@Entity
+public class Course {
+    @Id
+    private Long id;
+    
+    @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
+    private Set<Student> students;
+}
+```
+
+### Constraint Annotations
+
+| Annotation | Purpose |
+|-----------|---------|
+| `@NotNull` | Field cannot be null |
+| `@NotBlank` | String cannot be empty |
+| `@NotEmpty` | Collection cannot be empty |
+| `@Size(min=..., max=...)` | String/Collection size validation |
+| `@Min(value=...)` | Numeric minimum value |
+| `@Max(value=...)` | Numeric maximum value |
+| `@Email` | Valid email format |
+| `@Pattern(regexp=...)` | Regex pattern validation |
+| `@Unique` | Column values must be unique (custom or DB constraint) |
+
+### Inheritance Annotations
+
+| Annotation | Strategy | Table Structure |
+|-----------|----------|------------------|
+| `@Inheritance(strategy=InheritanceType.SINGLE_TABLE)` | Single table for all | One table with discriminator |
+| `@Inheritance(strategy=InheritanceType.JOINED)` | Joined table | One table per class + join |
+| `@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)` | Table per class | One table per concrete class |
+
+**Single Table Strategy Example:**
+```java
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "vehicle_type", discriminatorType = DiscriminatorType.STRING)
+public abstract class Vehicle {
+    @Id
+    private Long id;
+    
+    private String brand;
+}
+
+@Entity
+@DiscriminatorValue("CAR")
+public class Car extends Vehicle {
+    private int numDoors;
+}
+
+@Entity
+@DiscriminatorValue("MOTORCYCLE")
+public class Motorcycle extends Vehicle {
+    private boolean hasSidecar;
+}
+```
+
+### Caching Annotations
+
+| Annotation | Purpose |
+|-----------|---------|
+| `@Cacheable` | Enable L1 caching for entity |
+| `@Cache(usage=CacheConcurrencyStrategy....)` | L2 cache strategy |
+| `@QueryHint(name="org.hibernate.cacheable")` | Enable query caching |
+
+### Other Important Annotations
+
+| Annotation | Purpose |
+|-----------|---------|
+| `@PrePersist` | Run before entity is inserted |
+| `@PostPersist` | Run after entity is inserted |
+| `@PreUpdate` | Run before entity is updated |
+| `@PostUpdate` | Run after entity is updated |
+| `@PreRemove` | Run before entity is deleted |
+| `@PostRemove` | Run after entity is deleted |
+| `@PostLoad` | Run after entity is loaded |
+
+**Lifecycle Example:**
+```java
+@Entity
+public class AuditedEntity {
+    
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.createdBy = getCurrentUser();
+    }
+    
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+        this.updatedBy = getCurrentUser();
+    }
+}
+```
+
+### Query Annotations
+
+| Annotation | Purpose |
+|-----------|---------|
+| `@Query("JPQL query")` | Custom JPQL query |
+| `@Query(nativeQuery=true)` | Native SQL query |
+| `@Modifying` | Mark query as UPDATE/DELETE |
+| `@Transactional` | Make method transactional |
+| `@Param(...)` | Named query parameter |
+
+**Query Example:**
+```java
+@Repository
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+    
+    @Query("SELECT e FROM Employee e WHERE e.department.id = :deptId")
+    List<Employee> findByDepartmentId(@Param("deptId") Long deptId);
+    
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "UPDATE employees SET salary = salary * 1.1 WHERE department_id = :deptId")
+    void increaseSalary(@Param("deptId") Long deptId);
+}
+```
+
+### Best Practices with Annotations
+
+1. **Use proper FetchType:**
+   - `LAZY` for collections (default for `@OneToMany`, `@ManyToMany`)
+   - `EAGER` only when necessary to avoid N+1 queries
+
+2. **Cascade operations carefully:**
+   ```java
+   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+   private List<Child> children;  // Deletes child if removed from list
+   ```
+
+3. **Avoid circular references:**
+   ```java
+   // In one side use @JsonBackReference, other use @JsonManagedReference
+   @JsonManagedReference
+   @OneToMany(mappedBy = "department")
+   private List<Employee> employees;
+   
+   @JsonBackReference
+   @ManyToOne
+   private Department department;
+   ```
+
+## 15. Hibernate Cascading Types
+
+Cascading defines how operations performed on a parent entity propagate to its associated child entities. In Spring Data JPA, we specify this using the `cascade` attribute of relationship annotations (e.g. `@OneToMany(cascade = CascadeType.ALL)`).
+
+### Cascading Types:
+1. **`CascadeType.PERSIST`:** When the parent entity is saved (`persist()`), all associated child entities are automatically saved.
+2. **`CascadeType.MERGE`:** When the parent state is merged (`merge()`), child entity states are also merged.
+3. **`CascadeType.REMOVE`:** When the parent entity is deleted (`remove()`), all its associated child entities are deleted from the database.
+4. **`CascadeType.REFRESH`:** When the parent is reloaded/refreshed (`refresh()`), the child entities are also reloaded from the database.
+5. **`CascadeType.DETACH`:** When the parent is detached from the Hibernate Session/Persistence Context (`detach()`), the children are also detached.
 6. **`CascadeType.ALL`:** Applies all the above cascading operations together.
 
 ### JPA Cascade vs Hibernate Cascade:
@@ -626,3 +821,99 @@ Cascading defines how operations performed on a parent entity propagate to its a
 - **`orphanRemoval = true` vs `CascadeType.REMOVE`:**
   - `CascadeType.REMOVE` deletes children only if the parent is deleted.
   - `orphanRemoval = true` deletes children if the parent is deleted **OR** if a child is removed from the parent's collection (e.g., `parent.getChildren().remove(child)`).
+
+---
+
+## 16. Comprehensive List of Cases When `@Transactional` Does Not Work
+
+Spring manages transactions using AOP (Aspect-Oriented Programming) proxies. Here are all the scenarios where `@Transactional` fails to create or rollback transactions:
+
+1. **Non-Public Methods:** 
+   - Placing `@Transactional` on `private`, `protected`, or package-private (default) methods will not work. Spring's proxy mechanism only intercepts `public` method invocations.
+2. **Self-Invocation (Internal Call):**
+   - Calling a `@Transactional` method from another method within the same class (e.g., `this.innerMethod()`) will bypass the Spring proxy. The transaction code is never executed.
+3. **Catching Exceptions Inside the Method:**
+   - If a `RuntimeException` occurs but is caught within a `try-catch` block inside the method and not rethrown, Spring AOP does not detect the failure and commits the transaction anyway.
+4. **Checked Exceptions (Default Behavior):**
+   - By default, transactions are only rolled back for **unchecked exceptions** (`RuntimeException` and `Error`). **Checked exceptions** (extending `Exception`) do not trigger a rollback unless explicitly configured: `@Transactional(rollbackFor = Exception.class)`.
+5. **Wrong Transaction Manager:**
+   - If the application configures multiple databases or transaction managers, and `@Transactional` is not specified with the correct qualifier (e.g., `@Transactional("transactionManagerA")`), the wrong context may be used, resulting in no transaction on the target database.
+6. **Invoking Class Not Managed by Spring:**
+   - If the class containing the `@Transactional` method is instantiated manually via `new MyService()` instead of being injected as a Spring bean (`@Autowired` or constructor injection), Spring AOP proxies are not active.
+
+---
+
+## 17. Code Review Case Study: Common Transaction & DB Anti-Patterns
+
+### Problem File 1: Transactional Misuse
+```java
+@Service
+public class OrderService {
+
+    public void createOrder() {
+        // Calling private transactional method (Anti-Pattern #1)
+        saveOrderData(); 
+    }
+
+    @Transactional
+    private void saveOrderData() { // Fails because method is private (Anti-Pattern #2)
+        try {
+            orderRepository.save(new Order());
+            paymentService.processPayment(); 
+        } catch (Exception e) {
+            // Catching exception prevents transaction rollback (Anti-Pattern #3)
+            logger.error("Payment failed", e); 
+        }
+    }
+}
+```
+#### Fixes:
+1. Make `saveOrderData()` `public` and place it in a separate bean or call it directly via public invocation from outside this class.
+2. Remove the try-catch block or rethrow the exception (e.g., `throw new RuntimeException(e)`) to let the transaction interceptor catch the failure and trigger the rollback.
+
+### Problem File 2: DB Calls in Controller & SQL Injection
+```java
+@RestController
+public class UserController {
+    
+    @Autowired
+    private DataSource dataSource; // Anti-Pattern #1: Injecting DataSource in Controller
+
+    @GetMapping("/users")
+    public List<User> getUsers(@RequestParam String name) throws SQLException {
+        // Anti-Pattern #2: Making direct database calls in the Controller level
+        // Anti-Pattern #3: Vulnerable to SQL Injection via string concatenation (+)
+        String sql = "SELECT * FROM users WHERE name = '" + name + "'";
+        Connection conn = dataSource.getConnection();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+        // ... parse list and return ...
+    }
+}
+```
+#### Fixes:
+1. Move database access code out of the Controller and delegate to a `@Service` class and `@Repository` class (following proper MVC layered architecture).
+2. Stop string concatenation. Use **Prepared Statements** or Spring Data JPA repositories with query parameters to eliminate SQL injection:
+   `userRepository.findByName(name)` or using parameterized `PreparedStatement` with `?` placeholders.
+
+---
+
+## 18. Scenario: Rollback with Mixed Database and Non-DB Calls (Kafka/Redis)
+
+Consider the following snippet:
+```java
+@Transactional
+public void save(){
+  saveToDB();     // DB Write
+  pushToKafka();  // Kafka Message Push
+  storeInRedis(); // Redis Write
+}
+```
+### Will rollback happen if any method call fails?
+1. **If `saveToDB()` fails:** Yes. It throws a RuntimeException. The transaction rolls back, and database changes are not committed. Kafka and Redis calls are never reached, so no side-effects occur.
+2. **If `pushToKafka()` or `storeInRedis()` fails:** Yes, the database transaction **will rollback** (because the exception propagates out of the `@Transactional` method, preventing commit). 
+3. **The Distributed Consistency Issue (Critical Interview Point):**
+   - **Database** changes are transactional and **will rollback**.
+   - **Kafka / Redis** do not participate in the database transaction manager. Once a message is pushed to Kafka, it is sent instantly and **cannot be rolled back** by the DB transaction manager.
+   - If `storeInRedis()` throws an exception, the database write is rolled back, but the Kafka message has already been published to the broker!
+   - **How to resolve this:** Use the **Transactional Outbox Pattern**. Save the Kafka event to an `outbox` database table within the same DB transaction. A separate scheduler / Debezium engine polls the table and publishes messages to Kafka *only* after the DB transaction has successfully committed.
