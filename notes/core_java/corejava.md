@@ -484,7 +484,7 @@ If `equals()` is overridden but `hashCode()` is not, two logically "equal" objec
 4. Result: The `HashSet` now contains **duplicate** objects, and its size will be **2** instead of 1, violating the fundamental set property.
 
 ### Simple Example:
-Using the custom `EmployeeClass` from `EmployeeMgmt.java`:
+Using the custom `EmployeeClass` from [EmployeeMgmt.java](file:///c:/Users/Joseph/IdeaProjects/MyLearnings/src/main/java/com/mylearnings/java/java_code/advanced_java/EmployeeMgmt.java):
 ```java
 class EmployeeClass {
     private Integer id;

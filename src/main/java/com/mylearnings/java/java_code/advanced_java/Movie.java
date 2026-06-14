@@ -1,4 +1,4 @@
-package com.mylearnings.java.ltim;
+package com.mylearnings.java.java_code.advanced_java;
 
 import lombok.Data;
 
