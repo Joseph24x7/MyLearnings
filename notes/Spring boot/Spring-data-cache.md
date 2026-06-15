@@ -534,3 +534,13 @@ public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
 | **Cache Misses** | Poor cache key design | Use hierarchical, descriptive keys |
 
 ---
+## 9. What is the difference between an In-Memory Cache and a Distributed Cache?
+
+- **In-Memory Cache (e.g. Caffeine, Ehcache):**
+  - **Location:** Resides inside the JVM heap memory of the specific application instance.
+  - **Pros:** Extremely fast read/write operations (no network overhead).
+  - **Cons:** Isolated. If you scale to 3 instances, each has a different cache state, leading to consistency issues. It is cleared when the instance restarts.
+- **Distributed Cache (e.g. Redis, Hazelcast):**
+  - **Location:** Resides on a separate, dedicated cluster accessible by all instances.
+  - **Pros:** Shared cache state across all application instances (consistent data). Highly scalable, partitionable, and persists even if application instances restart.
+  - **Cons:** Slightly slower than in-memory due to network communication hops.

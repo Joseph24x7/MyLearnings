@@ -88,3 +88,20 @@
     ```
 
 ---
+## 5. What are the new features you are aware of in Java 17 and Java 21?
+
+Here is an overview of the key features introduced in both LTS releases:
+
+### Java 17 Key Features:
+1. **Records:** Immutable data carriers eliminating boilerplate classes.
+2. **Sealed Classes:** Restricts class/interface inheritance hierarchies.
+3. **Switch Expressions:** Standardized yields, arrow syntax, and case labels.
+4. **Pattern Matching for `instanceof`:** Binds variables automatically inside conditional scopes.
+5. **Text Blocks:** Easy multi-line string literals (`"""`).
+
+### Java 21 Key Features:
+1. **Virtual Threads (JEP 444):** Lightweight, concurrent threads mapped to OS threads, allowing millions of concurrent tasks.
+2. **Pattern Matching for Switch (JEP 441):** Allows checking object types directly in switch blocks.
+3. **Record Patterns (JEP 440):** Destructuring of Record values directly in pattern matching.
+4. **Sequenced Collections (JEP 431):** New interfaces introducing `getFirst()`, `getLast()`, and `reversed()` methods.
+5. **Generational ZGC (JEP 439):** Separates memory into young and old generations to increase throughput.

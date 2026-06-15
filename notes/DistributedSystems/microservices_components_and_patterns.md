@@ -562,3 +562,33 @@ X-RateLimit-Reset: 1644326800  # Unix timestamp
 ---
 
 
+## 15. What are the common annotations used in Spring Cloud?
+
+Here are the key annotations used for configuring Spring Cloud microservices:
+
+- `@EnableDiscoveryClient` / `@EnableEurekaClient`: Registers the application with a service registry (e.g. Eureka) so other microservices can discover it.
+- `@EnableFeignClients`: Scans for Feign clients to enable declarative REST communication between microservices.
+- `@RefreshScope`: Reloads configuration properties annotated with `@Value` dynamically at runtime without needing to restart the application (triggered via `/actuator/refresh`).
+- `@EnableConfigServer`: Declares the service as a central Spring Cloud Config Server hosting properties for all microservices.
+
+---
+
+## 16. How will you design an e-commerce application using the Saga pattern?
+
+The **Saga Pattern** manages distributed transactions across multiple microservices via a sequence of local transactions:
+
+### 1. Happy Path Flow:
+- **Order Service** creates an order in `PENDING` state.
+- **Payment Service** processes payment.
+- **Inventory Service** reserves stock.
+- If all succeed, Order Service changes status to `CONFIRMED`.
+
+### 2. Failure Handling (Compensating Transactions):
+- If **Inventory Service** fails (out of stock):
+  - It triggers a compensating transaction backwards.
+  - **Payment Service** runs a refund.
+  - **Order Service** cancels the order (status changed to `CANCELLED`).
+
+### 3. Implementation Approaches:
+- **Choreography-based (Event-Driven):** Services communicate asynchronously by listening to events on message brokers (e.g. Kafka/RabbitMQ) without a central coordinator.
+- **Orchestration-based:** A central coordinator service (Saga Orchestrator) directs the flow, calling each service explicitly and coordinating rollbacks if a step fails.

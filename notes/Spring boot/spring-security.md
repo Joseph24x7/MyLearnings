@@ -254,3 +254,35 @@ Veracode is a SAST (Static Application Security Testing) tool used in enterprise
 1. **Key Protection:** Private keys used to sign JWTs are stored inside the HSM and can *never* be exported in plaintext.
 2. **On-Device Signing:** The authentication server sends the hash of the JWT to the HSM, which signs it internally and returns the signature. Even if the server is compromised, the private key remains secure.
 
+
+---
+
+## 15. What are the common annotations used in Spring Security?
+
+Here are the key annotations used to configure and secure Spring applications:
+
+- `@EnableWebSecurity`: Enables web security configuration in a Spring Boot application.
+- `@EnableMethodSecurity`: Enables method-level authorization (replaces `@EnableGlobalMethodSecurity` in Spring Security 6+).
+- `@PreAuthorize("hasRole('ADMIN')")`: Checks authority/role before entering the method.
+- `@PostAuthorize("returnObject.owner == authentication.name")`: Inspects the returned object after execution to verify authorization.
+- `@Secured("ROLE_USER")`: Basic Java-standard method protection annotation.
+- `@CrossOrigin`: Configures CORS policy at the controller class or handler method level.
+
+---
+
+## 16. What is the difference between Hashing, Encoding, and Encryption?
+
+| Feature | Encoding | Hashing | Encryption |
+|---------|----------|---------|------------|
+| **Purpose** | Converts data formats for compatibility/safe transfer. | Verifies data integrity and stores sensitive data (passwords). | Guarantees confidentiality by hiding data content. |
+| **Reversibility** | **Reversible.** Easily decoded back (no key needed). | **Irreversible.** One-way function (cannot retrieve original value). | **Reversible.** Can be decrypted using a secret key. |
+| **Output Type** | Fixed/Variable (Base64, URL Encoding). | Fixed length (BCrypt, SHA-256, MD5). | Ciphertext (AES, RSA). |
+| **Key Required** | No. | No (though algorithms use salt). | Yes (Symmetric or Asymmetric keys). |
+
+---
+
+## 17. What is the difference between a Bearer Token and a JWT Token?
+
+- **Bearer Token:** A conceptual scheme in OAuth2 authentication meaning "give access to the bearer of this token". It can be **any** string format (e.g. a random UUID or alphanumeric database session ID). The server usually validates it by querying a database or an identity provider.
+- **JWT (JSON Web Token):** A specific, self-contained token format structured into Header, Payload, and Signature. Since it is digitally signed, the resource server can validate it **statelessly** (locally using a public key/secret) without querying a database.
+- **Relationship:** A JWT is commonly passed in the HTTP `Authorization` header *as* a Bearer token: `Authorization: Bearer <JWT_token_here>`.

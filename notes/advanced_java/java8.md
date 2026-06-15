@@ -426,4 +426,45 @@ Employee nthHighestEmployee = employees.stream()
     - ✅ **Yes, parallel stream is highly beneficial.** It distributes processing across all CPU cores.
   - **I/O-Bound Tasks (e.g. DB queries or API calls):**
     - ❌ **No, parallel stream is NOT recommended.** 
-    - Blocking threads in `ForkJoinPool.commonPool()` starves other parts of the application (like Tomcat web requests) that rely on the same pool. Use a custom thread pool with `CompletableFuture` instead.
+    - Blocking threads in `ForkJoinPool.commonPool()` starves other parts of the application (like Tomcat web requests) that rely on the same pool. Use a custom thread pool with `CompletableFuture` instead.
+
+---
+
+## 15. What is the difference between reduce() and collect() in Java 8 Streams?
+
+Both methods are terminal operations used for reduction, but they differ in how they manage memory and data structures:
+
+- **`reduce()` (Immutable Reduction):**
+  - Combines elements to produce a single value (e.g., sum, min, max, concat) by repeatedly applying an accumulator function.
+  - It works with immutable values. In each step, it creates a new value/object (e.g., `s1 + s2` creates a new String).
+  - *Example:* `int sum = stream.reduce(0, (a, b) -> a + b);`
+- **`collect()` (Mutable Reduction):**
+  - Accumulates elements into a mutable container (like `List`, `Set`, `Map`, or `StringBuilder`).
+  - It modifies the same container object at each step (e.g., calling `list.add()`), which is far more efficient than creating new collections.
+  - *Example:* `List<String> list = stream.collect(Collectors.toList());`
+
+---
+
+## 16. Coding Question: Print all duplicate elements from a list using Streams
+
+Given the list: `[2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10]`.
+
+### Stream Solution:
+```java
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class DuplicateFinder {
+    public static void main(String[] args) {
+        List<Integer> list = List.of(2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10);
+        
+        Set<Integer> uniques = new HashSet<>();
+        Set<Integer> duplicates = list.stream()
+            .filter(n -> !uniques.add(n)) // If add() returns false, it is a duplicate
+            .collect(Collectors.toSet());
+            
+        System.out.println("Duplicates: " + duplicates); 
+        // Output: [2, 3, 5, 6, 7, 8, 9]
+    }
+}
+```

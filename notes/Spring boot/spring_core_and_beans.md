@@ -331,3 +331,14 @@ When multiple beans of the same type exist in the context, Spring throws a `NoUn
 ---
 
 
+## 16. What is the purpose of the `proxyBeanMethods` attribute in `@Configuration`?
+
+The `proxyBeanMethods` attribute (introduced in Spring 5.2/Spring Boot 2.2) controls how `@Bean` methods are intercepted:
+
+- **`@Configuration(proxyBeanMethods = true)` (Default):**
+  - Spring creates a CGLIB proxy of the configuration class.
+  - When you call a `@Bean` method internally from another `@Bean` method, the proxy intercepts the call and returns the existing singleton bean instance instead of instantiating it again.
+- **`@Configuration(proxyBeanMethods = false)` (Lite Mode):**
+  - Spring does not proxy the configuration class.
+  - Direct internal calls to `@Bean` methods act like standard Java calls, instantiating and returning a **new object** each time.
+  - **Benefits:** Improves application startup time and reduces memory usage (as CGLIB proxies are not generated). Use this if your configuration classes do not contain inter-dependent bean calls.

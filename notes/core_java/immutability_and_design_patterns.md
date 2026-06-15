@@ -162,3 +162,85 @@ public final class ImmutableUser {
 ---
 
 
+## 6. Explain the SOLID principles with code examples
+
+The **SOLID** principles are design guidelines for writing maintainable, scalable, and readable software:
+
+### 1. **S**ingle Responsibility Principle (SRP)
+- **Concept:** A class should have only one reason to change.
+- **Example:**
+  ```java
+  // ❌ Bad: Invoice handles both calculation and database saving
+  class Invoice {
+      void calculateTotal() {}
+      void saveToDatabase() {} 
+  }
+  
+  // ✅ Good: Split into calculation and persistence classes
+  class Invoice {
+      void calculateTotal() {}
+  }
+  class InvoiceRepository {
+      void save(Invoice invoice) {}
+  }
+  ```
+
+### 2. **O**pen/Closed Principle (OCP)
+- **Concept:** Classes should be open for extension but closed for modification.
+- **Example:**
+  ```java
+  // ✅ Good: Use interfaces to add new payment methods without modifying existing code
+  interface PaymentMethod { void pay(double amount); }
+  
+  class CreditCardPayment implements PaymentMethod {
+      public void pay(double amount) { /* ... */ }
+  }
+  class UpiPayment implements PaymentMethod {
+      public void pay(double amount) { /* ... */ }
+  }
+  ```
+
+### 3. **L**iskov Substitution Principle (LSP)
+- **Concept:** Subclasses should be substitutable for their base classes without breaking correctness.
+- **Example:**
+  ```java
+  // ❌ Bad: Ostrich extends Bird but cannot fly
+  class Bird { void fly() {} }
+  class Ostrich extends Bird { 
+      void fly() { throw new UnsupportedOperationException(); } // Breaks LSP!
+  }
+  
+  // ✅ Good: Segregate interfaces
+  class Bird {}
+  class FlyingBird extends Bird { void fly() {} }
+  class Ostrich extends Bird {}
+  ```
+
+### 4. **I**nterface Segregation Principle (ISP)
+- **Concept:** Clients should not be forced to depend on interfaces they do not use.
+- **Example:**
+  ```java
+  // ❌ Bad: Single bloated interface
+  interface Worker { void code(); void manage(); }
+  
+  // ✅ Good: Split into specific interfaces
+  interface Developer { void code(); }
+  interface Manager { void manage(); }
+  ```
+
+### 5. **D**ependency Inversion Principle (DIP)
+- **Concept:** Depend on abstractions (interfaces), not on concretions (classes).
+- **Example:**
+  ```java
+  // ❌ Bad: High-level class directly instantiates a low-level class
+  class PasswordMessenger {
+      private GmailService service = new GmailService(); 
+  }
+  
+  // ✅ Good: Dependency injection via interface
+  interface EmailService { void send(); }
+  class PasswordMessenger {
+      private final EmailService emailService;
+      public PasswordMessenger(EmailService service) { this.emailService = service; }
+  }
+  ```

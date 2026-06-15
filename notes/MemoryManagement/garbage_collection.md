@@ -146,4 +146,19 @@ Upgrading from Java 8 to Java 17 brings massive performance improvements to Garb
 | **Unused Memory Return** | Did not return unused heap memory to the OS dynamically. | G1 GC dynamically returns unused heap memory to the OS (JEP 346) when the application is idle. |
 | **STW Pause Mechanism** | Used global safepoints to stop all threads (heavy and high latency). | Uses **Thread-Local Handshakes** (JEP 312), stopping individual threads rather than all of them at once. |
 | **Stable Modern GCs** | No stable **ZGC** (Z Garbage Collector) or Epsilon GC. | **ZGC** is production-ready (sub-millisecond pause times) and **Epsilon GC** (no-op GC for benchmarking) is fully supported. |
-| **String Deduplication** | String deduplication (reusing character arrays) was slow. | String deduplication is highly optimized and enabled in G1 GC by default to reduce memory consumption. |
+| **String Deduplication** | String deduplication (reusing character arrays) was slow. | String deduplication is highly optimized and enabled in G1 GC by default to reduce memory consumption. |
+
+---
+
+## 11. What are the improvements in garbage collection in Java 21?
+
+Java 21 introduces **Generational ZGC (JEP 439)** as a major garbage collection improvement:
+
+### 1. The Generational Hypothesis
+- Based on the weak generational hypothesis (most objects die young), Generational ZGC separates the heap into young and old generations.
+- It scans the young generation frequently to reclaim short-lived objects and moves long-lived objects to the old generation.
+
+### 2. ZGC Enhancements & Benefits:
+- **Higher Throughput:** By avoiding full-heap scans and focusing on the young generation, Generational ZGC reduces CPU utilization.
+- **Lower Memory Overhead:** Reduces memory allocation stalls. It can work with smaller heap sizes compared to non-generational ZGC.
+- **Sub-Millisecond Pauses:** Retains the core promise of ZGC—concurrency with ultra-low pause times (usually under 1 millisecond), making it ideal for latency-sensitive applications.

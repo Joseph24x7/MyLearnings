@@ -186,3 +186,9 @@ E-commerce Platform:
 ---
 
 
+## 9. Are you okay with working in monolith application?
+
+Yes, absolutely. Both Monolithic and Microservices architectures have their place:
+- **Monolith Advantages:** Excellent for simpler systems, early-stage applications, or small development teams. It features a single codebase, easier debugging, simple testing, and straightforward transactional consistency (ACID transactions are localized).
+- **Practical Standpoint:** While microservices offer scaling and team autonomy, they introduce distributed systems complexity (network latency, service discovery, distributed transactions like Saga). 
+- **Approach:** Working on a monolith is great because we can focus on building features quickly. If scalability issues arise, we can apply the **Strangler Fig Pattern** to extract specific bounded contexts into microservices later.

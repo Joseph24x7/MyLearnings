@@ -304,3 +304,13 @@ When a `HashMap` is initialized with a default capacity of **16** and a load fac
 ---
 
 
+## 15. How does ConcurrentHashMap work internally in Java?
+
+In Java 8+, `ConcurrentHashMap` uses a combination of **volatile variables**, **CAS (Compare-And-Swap) operations**, and **synchronized blocks** at the bucket node level:
+
+1. **Bucket-Level Locking (Fine-Grained):** Rather than locking the entire map (like `Hashtable` or `Collections.synchronizedMap()`), it only locks the **head node** of the specific bucket being written to.
+2. **Lock-Free Reads:** Read operations (`get()`) are completely lock-free. The value and next pointers of a node are declared `volatile`, ensuring that any write to a node is immediately visible to other threads.
+3. **Optimized Write Operations:**
+   - **CAS (Compare-And-Swap):** If a bucket is empty, a write is performed using a lock-free CAS operation to place the new node.
+   - **Synchronized Head Node:** If the bucket is not empty (collision), the thread synchronizes *only* on the head node of that bucket (`synchronized(headNode)`).
+4. **Concurrent Resizing:** When the map resizes, multiple threads can help transfer bucket entries to the new table concurrently (helper threads), speeding up the rehashing process.

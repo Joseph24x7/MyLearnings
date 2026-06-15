@@ -156,4 +156,54 @@ A **Record** is a special type of class in Java (introduced as standard in Java 
 
 ### When NOT to Use Records:
 - ❌ **JPA Entities:** Hibernate/JPA requires entities to have non-final fields, a no-args constructor, and proxying capabilities (which `final` classes do not allow).
-- ❌ **Mutable state:** If the fields need to be changed after initialization, use a standard mutable class.
+- ❌ **Mutable state:** If the fields need to be changed after initialization, use a standard mutable class.
+
+---
+
+## 8. What are the disadvantages of Java Record types?
+
+While Records are great for DTOs, they have these constraints:
+- **No Class Inheritance:** A Record cannot extend any other class because it implicitly extends `java.lang.Record`. It also cannot be extended because it is implicitly `final`.
+- **Strict Immutability:** All fields are final. They cannot be modified after instantiation, making them unsuitable for mutable business entities.
+- **No Hibernate/JPA Entity Support:** JPA entities require a no-args constructor, non-final fields, and proxying capabilities, none of which records support.
+- **No Instance Fields:** You cannot declare instance variables inside the body; all state fields must be defined in the record header.
+
+---
+
+## 9. What are Switch Expressions?
+
+Switch Expressions (standardized in Java 14) allow the `switch` statement to be used as an expression returning a value:
+- **Arrow Syntax (`->`):** Removes the need for `break` statements, eliminating fall-through bugs.
+- **`yield` Keyword:** Used to return a value from a multi-line block within a case.
+- **Exhaustiveness:** The compiler forces you to handle all possible values (default block or all Enum cases).
+
+*Example:*
+```java
+int days = switch (month) {
+    case JAN, MAR, MAY, JUL, AUG, OCT, DEC -> 31;
+    case APR, JUN, SEP, NOV -> 30;
+    case FEB -> {
+        int leapYear = checkLeapYear();
+        yield leapYear == 1 ? 29 : 28;
+    }
+};
+```
+
+---
+
+## 10. What are Sealed Classes?
+
+Sealed classes (standardized in Java 17) allow you to restrict which other classes can extend or implement them.
+- **Setup:** Use the `sealed` keyword with the `permits` clause.
+- **Subclass Constraints:** Permitted subclasses must be declared as:
+  1. `final` (cannot be subclassed further).
+  2. `sealed` (extends base class but restricts its own children).
+  3. `non-sealed` (opens up class hierarchy).
+
+*Example:*
+```java
+public sealed class Payment permits CreditCardPayment, UpiPayment {}
+
+public final class CreditCardPayment extends Payment {}
+public non-sealed class UpiPayment extends Payment {} // Can be extended by any class
+```
