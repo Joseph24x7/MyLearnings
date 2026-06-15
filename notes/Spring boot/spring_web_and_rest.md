@@ -1,63 +1,16 @@
-# Spring Web Concepts
+# Spring Web & REST APIs
 
-## 1. What are the available bean scopes?
-### Available Scopes
-- **Singleton** (default)
-  - Single instance throughout application lifecycle
-  - Managed by Spring container
-- **Prototype**
-  - New instance created per request
-  - Fresh object every time
-- **Request**
-  - New instance per HTTP request
-  - Web application specific
-- **Session**
-  - New instance per HTTP session
-  - Web application specific
-- **Global/Application Session**
-  - Shared across all users and sessions
+## 1. What are the main features of Spring Boot?
 
-## 2. What happens if you inject a prototype bean into a singleton bean?
-- Possible but loses prototype behavior
-- Only one instance created overall
-
-## 3. What is the bean lifecycle in Spring?
-1. Container started
-2. Bean instantiated (`@Component`)
-3. Dependencies injected (`@Autowired`)
-4. `init()` method / `@PostConstruct`
-5. Actual process
-6. `destroy()` / `@PreDestroy`
-
-## 4. What are the dependency injection methods in Spring?
-1. Constructor Injection (`@RequiredArgsConstructor`)
-2. Setter Injection
-3. Field Injection (`@Autowired`)
-4. Method Injection (`@Bean`)
-5. XML injection
-
-## 5. Constructor vs Field Injection
-### Constructor Injection (`@RequiredArgsConstructor`)
-- Enforces immutability
-- Better for unit testing
-  - `OrderService orderService = new OrderService(paymentService); ✅`
-- Dependencies clearly defined
-
-### Field Injection (`@Autowired`)
-- Mutable dependencies
-- Requires reflection for testing
-  - `OrderService orderService = new OrderService(); // paymentService = null ❌`
-  - Yes, @Mock + @InjectMocks works with field injection, But it relies on reflection and hides design problems.
-- Less explicit dependencies
-
-## 6. What are the main features of Spring Boot?
 - Version management via parent POM
 - Auto configurations
 - Embedded server
 - Easy integration
 - Excellent microservices support
 
-## 7. How do you configure multiple databases in Spring Boot?
+
+## 2. How do you configure multiple databases in Spring Boot?
+
 ### Multiple Database Configuration
 - Create multiple:
   - Data sources
@@ -79,14 +32,18 @@
 - Use `@Conditional` for property-based switching
 - Example: 12am-12pm one database, 12pm-12am another
 
-## 8. How do you set the project context path?
+
+## 3. How do you set the project context path?
+
 ### Context Path Setting
 ```properties
 server.servlet.context-path=/your-context-path
 ```
 ---
 
-## 9. How do you handle backend failures gracefully?
+
+## 4. How do you handle backend failures gracefully?
+
 ### Exception Handling Strategies
 1. **Global Exception Handler** - Use `@ControllerAdvice` with `@ExceptionHandler`
 2. **Custom Exceptions** - Create domain-specific exceptions
@@ -96,80 +53,9 @@ server.servlet.context-path=/your-context-path
 
 ---
 
-## 10. How to Fix Circular Dependency in Spring?
 
-### Scenario - Circular Dependency
-```java
-@Service
-public class ServiceA {
-    @Autowired
-    private ServiceB serviceB; // A depends on B
-}
+## 5. How to create custom filters in Spring Boot?
 
-@Service
-public class ServiceB {
-    @Autowired
-    private ServiceA serviceA; // B depends on A - CIRCULAR!
-}
-```
-
-### Solutions
-
-**1. Use @Lazy (Quick Fix)**
-```java
-@Service
-public class ServiceA {
-    @Autowired
-    @Lazy
-    private ServiceB serviceB; // Delays injection until first use
-}
-```
-**2. Refactor - Extract Common Logic (Best Practice)**
-```java
-@Service
-public class CommonService { /* shared logic */ }
-
-@Service
-public class ServiceA {
-    @Autowired private CommonService commonService;
-}
-
-@Service
-public class ServiceB {
-    @Autowired private CommonService commonService;
-}
-```
----
-
-## 11. Does AOP Work on Private Methods?
-
-### Answer: NO, AOP Does NOT Work on Private Methods
-
-### Reason
-- Spring AOP uses **proxy-based mechanism**
-- Proxies can only intercept **public methods** called from outside the class
-- Private methods are not visible to proxy
-
-### What Doesn't Work
-```java
-@Service
-public class MyService {
-    @Transactional  // Won't work!
-    private void privateMethod() { }
-    
-    @Cacheable      // Won't work!
-    private void anotherPrivate() { }
-}
-```
-
-### Workarounds
-1. Make the method **public** and move to another class
-2. Use **AspectJ weaving** (compile-time or load-time) instead of Spring AOP
-3. For `@Transactional`, call via another bean (not self-invocation)
-
----
-
-## 12. How to create custom filters in Spring Boot?
 - by implementing Filter interface or OncePerRequestFilter class
 - FilterRegistrationBean or `@Order` for ordering
 - It will be applied to all requests by default, can be restricted using URL patterns
@@ -188,7 +74,9 @@ public class CustomFilter extends OncePerRequestFilter {
 
 ---
 
-## 13. When to use @Valid and when to use @Validated?
+
+## 6. When to use @Valid and when to use @Validated?
+
 - `@Valid` is a Jakarta annotation, used for single object validation. Does all the basic validation.
 - `@Validated` is a Spring-specific annotation, supports validation groups and can be applied at class level
   - Imagine this requirement: 
@@ -236,16 +124,9 @@ public class PaymentService {
 }
 ```
 ---
-## 14. How Auto-configuration works in Spring Boot?
-- Spring Boot uses `@EnableAutoConfiguration` to enable auto-configuration
-- It scans the classpath for dependencies and configures beans accordingly
-- Auto-configuration classes are located in `spring-boot-autoconfigure` module
-- You can exclude specific auto-configurations using `@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})`
-- You can also create custom auto-configuration by creating a class annotated with `@Configuration` and `@ConditionalOnClass` or other conditional annotations
 
----
+## 7. How you're managing configurable values for different environment?
 
-## 15. How you're managing configurable values for different environment?
 - Use `application.properties` or `application.yml` for default configuration
 - Create environment-specific files like `application-dev.properties`, `application-prod.properties`
 - Activate profiles using `spring.profiles.active` property
@@ -266,103 +147,9 @@ public DataSource devDataSource() {
 
 ---
 
-## 16. How to specify two beans by same type without using @Qualifier?
-- Use `@Primary` on one of the beans to mark it as the default
-```java
-@Bean
-@Primary
-public DataSource primaryDataSource() {
-    // Primary datasource configuration
-}
-@Bean
-public DataSource secondaryDataSource() {
-    // Secondary datasource configuration
-}
-```
----
 
-## 17. Difference between @Qualifier and @Resource
-### @Qualifier
-- Spring-specific annotation
-- Used with `@Autowired` to specify which bean to inject when multiple beans of the same type exist
-- Requires Spring context
-- Example:
-```java
-@Autowired
-@Qualifier("beanName")
-private MyService myService;
-```
-### @Resource
-- JSR-250 annotation (Java standard)
-- Injects bean by name by default, can also inject by type
-- Does not require Spring context
-- Example:
-```java
-@Resource(name = "beanName")
-private MyService myService;
-```
----
+## 8. How will you restrict Filters based on URLs patterns?
 
-## 18. Purpose of @Conditional?
-- Used to conditionally create beans based on certain conditions
-- Common conditions:
-  - `@ConditionalOnProperty` - based on property value
-  - `@ConditionalOnClass` - based on presence of class in classpath
-  - `@ConditionalOnMissingBean` - if a bean is missing
-  - `@ConditionalOnBean` - if a bean is present
-- It can be used at class or method level
-- Example for class level condition:
-```java
-@Configuration
-@ConditionalOnProperty(name = "feature.enabled", havingValue = "true")
-public class FeatureConfig {
-    @Bean
-    public FeatureService featureService() {
-        return new FeatureService();
-    }
-}
-```
-- Example for method level condition:
-```java
-@Bean
-@ConditionalOnMissingBean
-public MyService myService() {
-    return new MyServiceImpl();
-}
-```
-- It creates MyService bean only if no other MyService bean is present in the context.
-- Commonly used in auto-configuration classes to provide default beans that can be overridden by user-defined beans.
-
----
-
-## 19. Uses of @ConfigurationProperties?
-- Binds external configuration (properties/yaml) to Java objects
-- Supports nested properties and complex types
-- Enables type-safe configuration
-- Example:
-```java
-@Component
-@ConfigurationProperties(prefix = "app")
-public class AppProperties {
-    private String name;
-    private int timeout;
-    // getters and setters
-}
-```
-- In `application.properties`:
-```properties
-app.name=MyApp
-app.timeout=30
-```
-- Advantages:
-  - Centralized configuration management
-  - Type safety
-  - Supports validation with `@Validated`
-- If type is not matched while binding, application will fail to start with a descriptive error message.
-
----
-
-## 20. How will you restrict Filters based on URLs patterns?
 - Use `FilterRegistrationBean` to register filter with specific URL patterns
 - Example:
 ```java
@@ -378,7 +165,9 @@ public FilterRegistrationBean<CustomFilter> customFilterRegistration() {
 
 ---
 
-## 21. How to implement scheduling in Spring Boot?
+
+## 9. How to implement scheduling in Spring Boot?
+
 - Use `@EnableScheduling` on a configuration class to enable scheduling support
 - Use `@Scheduled` annotation on methods to define scheduled tasks
 - Example:
@@ -405,52 +194,9 @@ public void hourlyTask() {
 ```
 ---
 
-## 22. Tightly coupled vs Loosely coupled Spring Beans?
-### Tightly Coupled Beans
-- Direct instantiation using `new` keyword
-- Hard to test and maintain
-- Example:
-```java
-@Service
-public class MessageService {
-    private EmailService emailService = new EmailService(); // Tightly coupled
-}
-``` 
-### Loosely Coupled Beans
-- Use dependency injection (`@Autowired`, constructor injection)
-- Easier to test and maintain
-- Example:
-```java
-@Service
-public class MessageService {
-    private final NotificationService notificationService;
-    @Autowired
-    public MessageService(NotificationService notificationService) {
-        this.notificationService = notificationService; // Loosely coupled
-    }
-}
 
-@Service
-public interface NotificationService {
-    void sendNotification(String message);
-}
+## 10. What is the need for Charset conversions while calling backend?
 
-@Service
-public class EmailService implements NotificationService {
-    @Override
-    public void sendNotification(String message) {
-        // Send email logic
-    }
-}
-
-```
-- Benefits of Loosely Coupled Beans:
-  - Easier to swap implementations
-  - Improved maintainability and flexibility
-
----
-
-## 23. What is the need for Charset conversions while calling backend?
 - Ensures correct encoding/decoding of characters
 - Prevents data corruption during transmission
 - Common charsets: UTF-8, ISO-8859-1
@@ -465,7 +211,9 @@ public ResponseEntity<String> example() {
 
 ---
 
-## 24. How will you Create custom HTTPStatus classes with new codes?
+
+## 11. How will you Create custom HTTPStatus classes with new codes?
+
 - Extend `HttpStatus` enum is not possible as it's final
 - Use `ResponseEntity` to return custom status codes
 - Only 3 digit status codes are valid
@@ -480,7 +228,9 @@ public ResponseEntity<String> customStatus() {
 
 ---
 
-## 25. What are the best practices to write Rest API?
+
+## 12. What are the best practices to write Rest API?
+
 - Use proper HTTP methods (GET, POST, PUT, DELETE)
 - Use meaningful resource names (nouns)
 - Implement versioning (e.g., /api/v1/resource)
@@ -500,7 +250,9 @@ public ResponseEntity<String> customStatus() {
 
 ---
 
-## 26. Ways to implement versioning in Rest API?
+
+## 13. Ways to implement versioning in Rest API?
+
 - **URI Versioning**: Include version in the URL path
   - Example: `/api/v1/resource`
 - **Request Parameter Versioning**: Use query parameters to specify version
@@ -527,7 +279,9 @@ public ResponseEntity<String> getResourceV2() {
 
 ---
 
-## 27. Difference between REST API and GraphQL
+
+## 14. Difference between REST API and GraphQL
+
 
 | Feature | REST | GraphQL |
 |---------|------|---------|
@@ -546,7 +300,9 @@ GraphQL: query { user(id: 1) { name email } } → Exact fields needed
 
 ---
 
-## 28. Spring MVC vs Spring WebFlux: Under-the-Hood & Advantages
+
+## 15. Spring MVC vs Spring WebFlux: Under-the-Hood & Advantages
+
 
 ### 1. Architectural Difference (Under the Hood):
 - **Spring MVC (Imperative):** 
@@ -570,7 +326,9 @@ GraphQL: query { user(id: 1) { name email } } → Exact fields needed
 
 ---
 
-## 29. What happens when a Spring Boot application starts? (Startup Steps)
+
+## 16. What happens when a Spring Boot application starts? (Startup Steps)
+
 
 When you run `SpringApplication.run(YourApp.class, args)`, the following sequential steps take place:
 
@@ -599,35 +357,9 @@ When you run `SpringApplication.run(YourApp.class, args)`, the following sequent
 
 ---
 
-## 30. Auto-Configuration in Spring Boot: Scenario & Explanation
 
-### What is Auto-Configuration?
-- Auto-configuration attempts to automatically configure Spring beans based on the jar dependencies present on the classpath.
-- It is enabled by `@EnableAutoConfiguration` (which is part of the `@SpringBootApplication` wrapper).
-- It runs *after* user-defined beans are registered, using conditional annotations like `@ConditionalOnClass`, `@ConditionalOnMissingBean`, and `@ConditionalOnProperty` to avoid overriding user configurations.
+## 17. Handling High CPU Usage in Production
 
-### Real-world Scenario:
-- **Scenario:** Database access configuration.
-- **How it works:** When you add the `spring-boot-starter-data-jpa` and `postgresql` driver dependencies, Spring Boot's auto-configuration detects them on the classpath. It automatically instantiates and configures a `DataSource`, an `EntityManagerFactory`, and a `TransactionManager` using defaults (or the credentials defined in `application.properties`). If you manually define a `DataSource` bean in a `@Configuration` class, Spring Boot detects it and backs off (thanks to `@ConditionalOnMissingBean`), utilizing your custom datasource instead.
-
----
-
-## 31. Resolving Multiple Beans for a Single `@Autowired` & Annotation Preference
-
-When multiple beans of the same type exist in the context, Spring throws a `NoUniqueBeanDefinitionException` during `@Autowired` injection.
-
-### How to Resolve it:
-1. **Using `@Qualifier("beanName")`:** Explicitly names which bean to inject at the injection point.
-2. **Using `@Primary`:** Placed on one of the bean definition classes/methods to declare it as the default choice.
-3. **By Variable Name:** Spring will try to resolve the bean by matching the field/argument variable name with the bean ID (secondary fallback).
-
-### Preference between `@Primary` and `@Qualifier`:
-- **`@Qualifier` takes preference.**
-- **Reason:** `@Primary` defines a general default fallback bean, whereas `@Qualifier` is an explicit, localized instruction at the point of injection. Local and specific instructions always override global defaults.
-
----
-
-## 32. Handling High CPU Usage in Production
 
 If a Spring Boot application exhibits high CPU usage after a deployment, follow this systematic resolution plan:
 
@@ -645,7 +377,9 @@ If a Spring Boot application exhibits high CPU usage after a deployment, follow 
 
 ---
 
-## 33. PUT vs POST in REST APIs
+
+## 18. PUT vs POST in REST APIs
+
 
 | Feature | PUT | POST |
 |---------|-----|------|
@@ -653,6 +387,7 @@ If a Spring Boot application exhibits high CPU usage after a deployment, follow 
 | **URI Design** | Specifies the exact URI: `/api/users/12` (Client decides ID). | Target collection URI: `/api/users` (Server decides ID). |
 | **Idempotency** | **Idempotent.** Sending the same PUT request multiple times has the same effect as sending it once. | **Non-Idempotent.** Sending the same POST request multiple times will create duplicate resources. |
 | **Caching** | Responses are not cacheable. | Responses can be cached if specific headers are set. |
+
 
 
 
