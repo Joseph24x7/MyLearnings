@@ -1,5 +1,6 @@
 package com.mylearnings.java.java_code.advanced_java;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
@@ -8,39 +9,7 @@ import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-
 public class Java11Features {
-
-    void main() {
-
-        // parallel stream with ForkJoinPool for Custom Thread Management
-        parallelStreamWithCustomForkJoinPool();
-
-    }
-
-    private void parallelStreamWithCustomForkJoinPool() {
-
-        long startTime = Instant.now().toEpochMilli();
-
-        // parallel stream with ForkJoinPool for Custom Thread Management
-        List<String> largeList = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
-                "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
-                "U", "V", "W", "X", "Y", "Z");
-
-        // Uncaught exception handler
-        ForkJoinPool customPool = getForkJoinPool();
-
-        // Submit parallel stream work to this pool
-        customPool.submit(() -> largeList.parallelStream().forEach(n -> System.out.println("Processing " + n + " in " + Thread.currentThread().getName()))).join();
-
-        // Shutdown the pool
-        customPool.shutdown();
-
-        long endTime = Instant.now().toEpochMilli();
-        System.out.println("Total Time Taken: " + (endTime - startTime) + " milliseconds");
-
-    }
 
     private static ForkJoinPool getForkJoinPool() {
 
@@ -73,6 +42,36 @@ public class Java11Features {
                 60L,             // keepAliveTime
                 TimeUnit.SECONDS // unit
         );
+
+    }
+
+    void main() {
+
+        // parallel stream with ForkJoinPool for Custom Thread Management
+        parallelStreamWithCustomForkJoinPool();
+
+    }
+
+    private void parallelStreamWithCustomForkJoinPool() {
+
+        long startTime = Instant.now().toEpochMilli();
+
+        // parallel stream with ForkJoinPool for Custom Thread Management
+        List<String> largeList = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+                "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+                "U", "V", "W", "X", "Y", "Z");
+
+        // Uncaught exception handler
+        ForkJoinPool customPool = getForkJoinPool();
+
+        // Submit parallel stream work to this pool
+        customPool.submit(() -> largeList.parallelStream().forEach(n -> System.out.println("Processing " + n + " in " + Thread.currentThread().getName()))).join();
+
+        // Shutdown the pool
+        customPool.shutdown();
+
+        long endTime = Instant.now().toEpochMilli();
+        System.out.println("Total Time Taken: " + (endTime - startTime) + " milliseconds");
 
     }
 

@@ -1,12 +1,8 @@
 package com.mylearnings.java.leetcode150.stack;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-
 public class DailyTemperatures {
 
     static void main() {
-
 
 
     }

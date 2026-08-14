@@ -22,13 +22,13 @@ public class WordPattern {
             return false;
         }
         for (int i = 0; i < arr.length; i++) {
-            if(charToWord.containsKey(arr[i])) {
-                if(!charToWord.get(arr[i]).equals(strArr[i])) {
+            if (charToWord.containsKey(arr[i])) {
+                if (!charToWord.get(arr[i]).equals(strArr[i])) {
                     return false;
                 }
             } else {
 
-                if(wordToChar.containsKey(strArr[i])) {
+                if (wordToChar.containsKey(strArr[i])) {
                     return false;
                 }
 

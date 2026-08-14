@@ -3,7 +3,7 @@ package com.mylearnings.java.datastructures.arrays;
 public class MinSubArray {
 
     public static void main(String[] args) {
-        int[] arr = {1,2,3,4,5};
+        int[] arr = {1, 2, 3, 4, 5};
         System.out.println(minSubArrayLen(11, arr));
     }
 

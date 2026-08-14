@@ -18,8 +18,8 @@ public class MinMovesToSeat {
 
     void main() {
         MinMovesToSeat solution = new MinMovesToSeat();
-        int[] seats = {4,1,5,9};
-        int[] students = {1,3,2,6};
+        int[] seats = {4, 1, 5, 9};
+        int[] students = {1, 3, 2, 6};
         int result = solution.minMovesToSeat(seats, students);
         System.out.println("Minimum moves required: " + result);
     }

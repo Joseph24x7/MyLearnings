@@ -5,6 +5,11 @@ import java.util.List;
 
 public class Subsets {
 
+    public static void main(String[] args) {
+        Subsets s = new Subsets();
+        System.out.println(s.subsets(new int[]{1, 2, 3}));
+    }
+
     public List<List<Integer>> subsets(int[] nums) {
 
         int index = 0;
@@ -24,7 +29,7 @@ public class Subsets {
                 int tempIndex = innerIndex;
                 int endIndex = innerIndex + index + 1;
 
-                while(tempIndex < endIndex) {
+                while (tempIndex < endIndex) {
                     lists.add(nums[tempIndex]);
                     tempIndex++;
                 }
@@ -39,11 +44,6 @@ public class Subsets {
 
         return finalList;
 
-    }
-
-    public static void main(String[] args) {
-        Subsets s = new Subsets();
-        System.out.println(s.subsets(new int[]{1, 2, 3}));
     }
 
 }

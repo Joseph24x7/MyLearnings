@@ -2,6 +2,11 @@ package com.mylearnings.java.datastructures.math;
 
 public class PowerOfTwo {
 
+    public static void main(String[] args) {
+        PowerOfTwo powerOfTwo = new PowerOfTwo();
+        System.out.println(powerOfTwo.isPowerOfTwo(16));
+    }
+
     public boolean isPowerOfTwo(int n) {
         if (n == 0) return false;
         if (n == 1) return true;
@@ -14,10 +19,4 @@ public class PowerOfTwo {
         return isPower(n / 2);
     }
 
-
-    public static void main(String[] args) {
-        PowerOfTwo powerOfTwo = new PowerOfTwo();
-        System.out.println(powerOfTwo.isPowerOfTwo(16));
-    }
-    
 }

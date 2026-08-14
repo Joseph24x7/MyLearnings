@@ -6,7 +6,7 @@ public class FindTransitionPoint {
 
         int arr[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1};
 
-        int begin = 0, end = arr.length-1;
+        int begin = 0, end = arr.length - 1;
 
         while (begin < end) {
             int i = (begin + end) / 2;

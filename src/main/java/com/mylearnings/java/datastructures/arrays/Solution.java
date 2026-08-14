@@ -4,6 +4,11 @@ import java.util.TreeMap;
 
 public class Solution {
 
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        System.out.println(solution.sortString("aaaabbbbcccc")); // Output: abccbaabccba
+    }
+
     public String sortString(String s) {
 
         TreeMap<Character, Integer> characterMap = new TreeMap<>();
@@ -51,10 +56,5 @@ public class Solution {
         }
 
         return builder.toString();
-    }
-
-    public static void main(String[] args) {
-        Solution solution = new Solution();
-        System.out.println(solution.sortString("aaaabbbbcccc")); // Output: abccbaabccba
     }
 }

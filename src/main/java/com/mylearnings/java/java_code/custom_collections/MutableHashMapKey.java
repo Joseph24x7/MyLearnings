@@ -19,9 +19,9 @@ public class MutableHashMapKey {
         System.out.println(objectString); // {12334412333=String}
 
         // Using a mutable object as a key in a HashMap is dangerous because:
-            // -> If its internal state changes,
-            // -> Its hashCode() changes,
-            // -> But HashMap still thinks it belongs to the old bucket.
+        // -> If its internal state changes,
+        // -> Its hashCode() changes,
+        // -> But HashMap still thinks it belongs to the old bucket.
         // 🛑 Golden Rule: Never use a mutable object (like StringBuilder) as a HashMap key.
 
     }

@@ -5,7 +5,7 @@ public class HIndex {
     static void main() {
 
         HIndex obj = new HIndex();
-        System.out.println(obj.hIndex(new int[]{3,0,6,1,5}));
+        System.out.println(obj.hIndex(new int[]{3, 0, 6, 1, 5}));
 
     }
 

@@ -4,6 +4,14 @@ import java.util.Arrays;
 
 public class MatchPlayersAndTrainers {
 
+    public static void main(String[] args) {
+        MatchPlayersAndTrainers solution = new MatchPlayersAndTrainers();
+        int[] players = {4, 7, 9};
+        int[] trainers = {8, 2, 5, 8};
+        int result = solution.matchPlayersAndTrainers(players, trainers);
+        System.out.println("Maximum matches: " + result);
+    }
+
     public int matchPlayersAndTrainers(int[] players, int[] trainers) {
         Arrays.sort(players);
         Arrays.sort(trainers);
@@ -16,14 +24,6 @@ public class MatchPlayersAndTrainers {
             j++;
         }
         return count;
-    }
-
-    public static void main(String[] args) {
-        MatchPlayersAndTrainers solution = new MatchPlayersAndTrainers();
-        int[] players = {4, 7, 9};
-        int[] trainers = {8, 2, 5, 8};
-        int result = solution.matchPlayersAndTrainers(players, trainers);
-        System.out.println("Maximum matches: " + result);
     }
 
 }

@@ -11,7 +11,7 @@ public class CustomSingletonClassWithDoubleCheckLocking {
 
     public static CustomSingletonClassWithDoubleCheckLocking getInstance() {
         if (Objects.isNull(instance)) {
-            synchronized(CustomSingletonClassWithDoubleCheckLocking.class) {
+            synchronized (CustomSingletonClassWithDoubleCheckLocking.class) {
                 if (Objects.isNull(instance)) {
                     instance = new CustomSingletonClassWithDoubleCheckLocking();
                 }

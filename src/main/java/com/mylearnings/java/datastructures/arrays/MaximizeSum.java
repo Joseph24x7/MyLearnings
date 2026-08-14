@@ -2,6 +2,14 @@ package com.mylearnings.java.datastructures.arrays;
 
 public class MaximizeSum {
 
+    public static void main(String[] args) {
+        MaximizeSum solution = new MaximizeSum();
+        int[] nums = {1, 2, 3, 4, 5};
+        int k = 3;
+        int result = solution.maximizeSum(nums, k);
+        System.out.println("Maximized sum: " + result);
+    }
+
     public int maximizeSum(int[] nums, int k) {
 
         int max = Integer.MIN_VALUE;
@@ -12,7 +20,7 @@ public class MaximizeSum {
         }
 
         int sum = 0;
-        while(k > 0) {
+        while (k > 0) {
             sum += max;
             max++;
             k--;
@@ -20,13 +28,5 @@ public class MaximizeSum {
 
         return sum;
 
-    }
-
-    public static void main(String[] args) {
-        MaximizeSum solution = new MaximizeSum();
-        int[] nums = {1, 2, 3, 4, 5};
-        int k = 3;
-        int result = solution.maximizeSum(nums, k);
-        System.out.println("Maximized sum: " + result);
     }
 }

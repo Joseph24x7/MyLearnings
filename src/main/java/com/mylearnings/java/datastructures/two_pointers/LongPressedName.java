@@ -2,6 +2,14 @@ package com.mylearnings.java.datastructures.two_pointers;
 
 public class LongPressedName {
 
+    public static void main(String[] args) {
+        LongPressedName lpn = new LongPressedName();
+        String name = "alex";
+        String typed = "aaleexa";
+        boolean result = lpn.isLongPressedName(name, typed);
+        System.out.println("Is Long Pressed Name: " + result);
+    }
+
     public boolean isLongPressedName(String name, String typed) {
         char[] nameArr = name.toCharArray();
         char[] typedArr = typed.toCharArray();
@@ -30,15 +38,6 @@ public class LongPressedName {
             }
         }
         return true;
-    }
-
-
-    public static void main(String[] args) {
-        LongPressedName lpn = new LongPressedName();
-        String name = "alex";
-        String typed = "aaleexa";
-        boolean result = lpn.isLongPressedName(name, typed);
-        System.out.println("Is Long Pressed Name: " + result);
     }
 
 }

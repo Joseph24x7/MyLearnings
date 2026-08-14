@@ -4,11 +4,6 @@ import java.util.Stack;
 
 public class StackBrackets {
 
-    void main() {
-        String str = "()";
-        System.out.println(isBracketsValid(str));
-    }
-
     private static boolean isBracketsValid(String str) {
 
         Stack<Character> stack = new Stack<>();
@@ -48,6 +43,11 @@ public class StackBrackets {
 
         return stack.empty();
 
+    }
+
+    void main() {
+        String str = "()";
+        System.out.println(isBracketsValid(str));
     }
 
 }

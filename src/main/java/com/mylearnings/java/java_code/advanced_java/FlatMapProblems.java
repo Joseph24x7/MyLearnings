@@ -6,8 +6,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.Map.Entry.comparingByKey;
-
 public class FlatMapProblems {
 
     public static void main() {
@@ -64,6 +62,14 @@ public class FlatMapProblems {
 
     }
 
+    private static List<EmployeeNew> getListOfEmployees(FlatMapProblems flatMapProblems) {
+
+        List<Project> projects = flatMapProblems.getProjects();
+
+        return projects.stream().flatMap(e -> e.getEmployees().stream()).toList();
+
+    }
+
     private List<List<Tasks>> getListOfListOfTasks() {
         return Arrays.asList(
                 Arrays.asList(new Tasks("Design API"), new Tasks("Implement Service"), new Tasks("Code Review")),
@@ -73,14 +79,6 @@ public class FlatMapProblems {
                 Arrays.asList(new Tasks("Kafka Integration"), new Tasks("Event Processing"), new Tasks("Error Handling")),
                 Arrays.asList(new Tasks("Write Unit Tests"), new Tasks("CI/CD Pipeline Setup"))
         );
-    }
-
-    private static List<EmployeeNew> getListOfEmployees(FlatMapProblems flatMapProblems) {
-
-        List<Project> projects = flatMapProblems.getProjects();
-
-        return projects.stream().flatMap(e -> e.getEmployees().stream()).toList();
-
     }
 
     private List<Project> getProjects() {

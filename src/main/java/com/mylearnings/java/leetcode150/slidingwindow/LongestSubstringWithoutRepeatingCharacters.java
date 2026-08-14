@@ -5,10 +5,6 @@ import java.util.Set;
 
 public class LongestSubstringWithoutRepeatingCharacters {
 
-    void main() {
-        System.out.println(lengthOfLongestSubstring("abcabcbb"));
-    }
-
     public static int lengthOfLongestSubstring(String s) {
 
         if (s.isEmpty()) {
@@ -54,6 +50,10 @@ public class LongestSubstringWithoutRepeatingCharacters {
 
         return maxCount;
 
+    }
+
+    void main() {
+        System.out.println(lengthOfLongestSubstring("abcabcbb"));
     }
 
 }

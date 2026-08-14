@@ -4,7 +4,7 @@ public class ThirdMaxFromArray {
 
     public static void main(String[] args) {
 
-        Integer[] arr = {10,3,4,4,9,8};
+        Integer[] arr = {10, 3, 4, 4, 9, 8};
         int max = Integer.MIN_VALUE;
         int secondMax = Integer.MIN_VALUE;
         int thirdMax = Integer.MIN_VALUE;
@@ -16,7 +16,7 @@ public class ThirdMaxFromArray {
                 max = integer;
             } else if (integer > secondMax && integer < max) {
                 secondMax = integer;
-            } else if (integer > thirdMax  && integer < secondMax) {
+            } else if (integer > thirdMax && integer < secondMax) {
                 thirdMax = integer;
             }
         }
