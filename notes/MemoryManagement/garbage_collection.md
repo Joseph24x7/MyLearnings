@@ -150,7 +150,7 @@ Upgrading from Java 8 to Java 17 brings massive performance improvements to Garb
 
 ---
 
-## 11. What are the improvements in garbage collection in Java 21?
+## 10. What are the improvements in garbage collection in Java 21?
 
 Java 21 introduces **Generational ZGC (JEP 439)** as a major garbage collection improvement:
 

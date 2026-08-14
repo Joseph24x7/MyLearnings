@@ -224,3 +224,72 @@ public void save(){
    - If `storeInRedis()` throws an exception, the database write is rolled back, but the Kafka message has already been published to the broker!
    - **How to resolve this:** Use the **Transactional Outbox Pattern**. Save the Kafka event to an `outbox` database table within the same DB transaction. A separate scheduler / Debezium engine polls the table and publishes messages to Kafka *only* after the DB transaction has successfully committed.
 
+---
+
+
+## 8. Audit Logging: How to Record Audit Info When Inserting to DB?
+
+
+### Approach 1: Spring Data JPA Auditing (Simplest)
+```java
+// 1. Enable auditing in config
+@Configuration
+@EnableJpaAuditing
+public class JpaConfig {}
+
+// 2. Add audit fields to your entity
+@Entity
+public class Order {
+    @Id
+    private Long id;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    @CreatedBy
+    private String createdBy;
+
+    @LastModifiedBy
+    private String updatedBy;
+}
+
+// 3. Provide the current user via AuditorAware
+@Component
+public class AuditorAwareImpl implements AuditorAware<String> {
+    @Override
+    public Optional<String> getCurrentAuditor() {
+        return Optional.of(SecurityContextHolder.getContext()
+                .getAuthentication().getName());
+    }
+}
+```
+
+### Approach 2: Separate Audit Table + @EntityListeners
+```java
+@EntityListeners(AuditEntityListener.class)
+@Entity
+public class Order { ... }
+
+@Component
+public class AuditEntityListener {
+    @PostPersist
+    public void afterInsert(Object entity) {
+        // Save to audit_log table: who, what, when
+        auditLogRepository.save(new AuditLog(
+            entity.getClass().getSimpleName(),
+            "INSERT",
+            LocalDateTime.now(),
+            currentUser()
+        ));
+    }
+}
+```
+
+### Approach 3: Database Triggers (DB-level audit)
+- Create a trigger in PostgreSQL/MySQL that inserts into `audit_log` table on every INSERT/UPDATE.
+- **Pros:** Works outside the app. **Cons:** Hard to capture application-level context (who did it).
+
+**Best Practice for interviews:** Use Spring Data JPA Auditing (`@CreatedBy`, `@CreatedDate`) for simple auditing, and a separate `AuditLog` entity with `@EntityListeners` for full event-level auditing.

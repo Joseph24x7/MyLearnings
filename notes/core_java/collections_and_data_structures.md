@@ -260,57 +260,66 @@ In a single-threaded environment, `HashMap` is faster because:
 
 ## 12. Synchronized Map vs ConcurrentHashMap
 
+| Feature | Synchronized HashMap (`Collections.synchronizedMap()`) | ConcurrentHashMap |
+|---|---|---|
+| **Locking Mechanism** | Locks the **entire map** object for every read/write operation. | Locks only the **head node** of the specific bucket being modified (fine-grained). |
+| **Concurrency Level** | Low (only one thread can access the map at a time; others block). | High (multiple threads can read/write concurrently across different buckets). |
+| **Iterator Behavior** | **Fail-Fast** (throws `ConcurrentModificationException` if modified during iteration). | **Fail-Safe** (weakly consistent, does not throw `ConcurrentModificationException`). |
+| **Null Support** | Allows `null` key and `null` values. | **Disallows** `null` key and `null` values (prevents ambiguity in concurrent calls). |
+| **Performance** | Slow under high thread contention. | High throughput and scalable. |
 
-| Feature | Synchronized Map (e.g. `Collections.synchronizedMap()`) | ConcurrentHashMap |
-|---------|---------------------------------------------------------|-------------------|
-| **Locking Mechanism** | Locks the **entire map** object for every read/write operation. | Uses **fine-grained locking** (locks only the head node of a specific bucket chain/segment or uses CAS for updates). |
-| **Concurrency Level** | Low. Only one thread can access the map (read or write) at any time. Others wait. | High. Multiple threads can read/write concurrently in different buckets without blocking. |
-| **Iterator Behavior** | Iterator is **Fail-Fast** (throws `ConcurrentModificationException` if modified during iteration). Requires manual synchronization. | Iterator is **Fail-Safe** (reflects changes, does not throw exception). |
-| **Null Support** | Allows null keys and values (depending on the backing map). | Does **not** allow null keys or values. |
+```java
+// Synchronized HashMap - entire map locked on each operation
+Map<String, String> syncMap = Collections.synchronizedMap(new HashMap<>());
+syncMap.put("a", "1"); // locks whole map
+
+// ConcurrentHashMap - only the affected bucket is locked
+Map<String, String> concMap = new ConcurrentHashMap<>();
+concMap.put("a", "1"); // only locks bucket for key 'a'
+```
 
 ---
 
+## 13. HashMap Rehashing Mechanics (Capacity 16, Resizing & Threshold)
 
-## 13. HashMap Rehashing Mechanics (Capacity 16 & Resizing)
+Default initial capacity = **16**, Load factor = **0.75**.
 
-
-When a `HashMap` is initialized with a default capacity of **16** and a load factor of **0.75**:
-
-1. **Resizing Threshold:** The threshold is calculated as `capacity * loadFactor` (`16 * 0.75 = 12`).
-2. **Rehash Trigger:** 
-   - When you insert the **13th key-value pair**, the map exceeds its threshold.
-   - It automatically doubles its capacity to **32**.
-   - A new bucket array of size 32 is created.
-3. **Rehashing Process:** All existing entries are traversed, their hash is re-evaluated with the new capacity (`hash & (32 - 1)`), and they are relocated to the new buckets.
+1. **Threshold Calculation:** `threshold = capacity * loadFactor` (`16 * 0.75 = 12`).
+2. **Rehash Trigger:**
+   - Inserting keys 1 to 12 → normal O(1) insertion.
+   - Inserting the **13th key** → exceeds threshold 12, triggering capacity doubling (16 → **32**).
+3. **Rehashing Process:**
+   - A new bucket array of size 32 is allocated.
+   - All existing 12 entries are re-evaluated using `hash & (newCapacity - 1)` and moved to the new array.
 
 ### Time Complexity:
-- **Normal Insertion:** `O(1)` average case.
-- **Resizing Insertion:** `O(N)` worst case (where N is the number of elements in the map) because all existing elements must be copied to the new bucket array.
+- **Normal Insertion:** `O(1)` average.
+- **Resizing Insertion:** `O(N)` for the single resize operation (amortized `O(1)` across all insertions).
+- **Worst Case (All collisions):** `O(log N)` in Java 8+ (converted to Red-Black Tree when bucket chain > 8).
 
 ---
-
 
 ## 14. Common Data Structures & Their Time Complexities
 
-
-| Data Structure | Search (Avg / Worst) | Insertion (Avg / Worst) | Deletion (Avg / Worst) | Under the Hood / Usage |
-|----------------|-----------------------|-------------------------|------------------------|------------------------|
-| **ArrayList** | `O(1)` (by index)<br>`O(N)` (by value) | `O(1)` (amortized)<br>`O(N)` (if resizing / insert at index) | `O(N)` (requires shifting elements) | Resizable array. Good for random access. |
-| **LinkedList** | `O(N)` | `O(1)` (at head/tail)<br>`O(N)` (if inserting in middle) | `O(1)` (at head/tail)<br>`O(N)` (if deleting in middle) | Doubly Linked List. Good for frequent insertion/deletion. |
-| **HashMap / HashSet** | `O(1)` / `O(N)` (worst case if hash collision / treeify) | `O(1)` / `O(N)` | `O(1)` / `O(N)` | Hashing with buckets (Linked List/Red-Black Tree). |
-| **TreeMap / TreeSet** | `O(log N)` | `O(log N)` | `O(log N)` | Red-Black Tree. Maintains sorted order. |
-| **PriorityQueue** | `O(N)` (find arbitrary value)<br>`O(1)` (peek minimum) | `O(log N)` (offer) | `O(log N)` (poll) | Binary Heap. Used for scheduling / Dijkstra. |
+| Data Structure | Get / Search | Insert | Delete | Real-World Usage / Under the Hood |
+|---|---|---|---|---|
+| **ArrayList** | `O(1)` (index)<br>`O(N)` (value) | `O(1)` (amortized)<br>`O(N)` (resize/middle) | `O(N)` (shift elements) | Resizable array. DB query results, random access. |
+| **LinkedList** | `O(N)` | `O(1)` (head/tail)<br>`O(N)` (middle) | `O(1)` (head/tail)<br>`O(N)` (middle) | Doubly Linked List. Frequent insertions/deletions. |
+| **HashMap / HashSet** | `O(1)` avg<br>`O(log N)` worst | `O(1)` avg<br>`O(log N)` worst | `O(1)` avg<br>`O(log N)` worst | Array of buckets + Linked List / Red-Black Tree. Caching, deduplication. |
+| **LinkedHashMap** | `O(1)` | `O(1)` | `O(1)` | Maintains insertion/access order. LRU Cache implementation. |
+| **PriorityQueue** | `O(1)` (peek)<br>`O(N)` (search) | `O(log N)` | `O(log N)` | Binary Heap. Task scheduling, Top-K problems. |
+| **ArrayDeque / Deque** | `O(N)` (search) | `O(1)` (head/tail) | `O(1)` (head/tail) | Resizable array. BFS traversal, stack/queue operations. |
+| **TreeMap / TreeSet** | `O(log N)` | `O(log N)` | `O(log N)` | Red-Black Tree. Sorted maps, range queries. |
 
 ---
 
+## 15. How does ConcurrentHashMap work internally in Java 8+?
 
-## 15. How does ConcurrentHashMap work internally in Java?
+In Java 8+, `ConcurrentHashMap` uses **volatile variables**, **CAS (Compare-And-Swap) operations**, and **synchronized blocks** at the bucket node level:
 
-In Java 8+, `ConcurrentHashMap` uses a combination of **volatile variables**, **CAS (Compare-And-Swap) operations**, and **synchronized blocks** at the bucket node level:
+1. **Bucket-Level Locking (Fine-Grained):** Locks only the **head node** of the specific bucket being modified, rather than the whole table.
+2. **Lock-Free Reads:** Read operations (`get()`) are completely lock-free because node values and `next` pointers are declared `volatile`.
+3. **CAS for Empty Buckets:** If a bucket is empty, new nodes are inserted using a lock-free CAS operation (`sun.misc.Unsafe` / `VarHandle`).
+4. **Synchronized Head Node for Collisions:** If a bucket already contains nodes, the thread synchronizes *only* on the head node (`synchronized(headNode)`).
+5. **Concurrent Resizing:** Multiple threads can assist in transferring bucket entries to the new table concurrently during a table expansion.
 
-1. **Bucket-Level Locking (Fine-Grained):** Rather than locking the entire map (like `Hashtable` or `Collections.synchronizedMap()`), it only locks the **head node** of the specific bucket being written to.
-2. **Lock-Free Reads:** Read operations (`get()`) are completely lock-free. The value and next pointers of a node are declared `volatile`, ensuring that any write to a node is immediately visible to other threads.
-3. **Optimized Write Operations:**
-   - **CAS (Compare-And-Swap):** If a bucket is empty, a write is performed using a lock-free CAS operation to place the new node.
-   - **Synchronized Head Node:** If the bucket is not empty (collision), the thread synchronizes *only* on the head node of that bucket (`synchronized(headNode)`).
-4. **Concurrent Resizing:** When the map resizes, multiple threads can help transfer bucket entries to the new table concurrently (helper threads), speeding up the rehashing process.

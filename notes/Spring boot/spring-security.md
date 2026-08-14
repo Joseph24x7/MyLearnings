@@ -283,6 +283,24 @@ Here are the key annotations used to configure and secure Spring applications:
 
 ## 17. What is the difference between a Bearer Token and a JWT Token?
 
-- **Bearer Token:** A conceptual scheme in OAuth2 authentication meaning "give access to the bearer of this token". It can be **any** string format (e.g. a random UUID or alphanumeric database session ID). The server usually validates it by querying a database or an identity provider.
-- **JWT (JSON Web Token):** A specific, self-contained token format structured into Header, Payload, and Signature. Since it is digitally signed, the resource server can validate it **statelessly** (locally using a public key/secret) without querying a database.
-- **Relationship:** A JWT is commonly passed in the HTTP `Authorization` header *as* a Bearer token: `Authorization: Bearer <JWT_token_here>`.
+**Key Concept:** JWT is a specific **token format**, whereas Bearer Token is an **HTTP authentication scheme** ("give access to whoever holds/bears this token").
+
+| Feature | Bearer Token (Concept / Category) | JWT Token (Specific Format) |
+|---|---|---|
+| **What it is** | Access token category in `Authorization: Bearer <token>` | Structured token format: `Header.Payload.Signature` |
+| **Format** | Opaque string (UUID, random token, or JWT) | Three Base64-URL encoded parts separated by `.` |
+| **Validation** | Server checks DB/cache/auth server to validate | Server validates signature locally (stateless, no DB lookup) |
+| **Data Payload** | Contains no data (just a reference key) | Contains claims (userId, roles, expiration timestamp) |
+| **Statefulness** | Stateful (requires server-side session/token store) | Stateless (self-contained payload & cryptographic signature) |
+| **Revocation** | Easy (delete session/key from Redis/DB) | Harder (requires short TTL + refresh tokens or blacklist) |
+
+```
+HTTP Header Example:
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMSJ9.abc123
+                  └────┬──────┘   └───────────────────┬──────────────────┘
+                    Scheme                      JWT Token String
+```
+
+### Spring Security Implementation:
+In Spring Security, a custom `JwtAuthenticationFilter` intercepts requests, extracts the token from `Authorization: Bearer <token>`, validates the signature, parses user roles from claims, and populates `SecurityContextHolder.getContext().setAuthentication(...)`.
+
