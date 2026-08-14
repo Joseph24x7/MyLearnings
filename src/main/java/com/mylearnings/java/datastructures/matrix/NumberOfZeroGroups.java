@@ -18,6 +18,19 @@ public class NumberOfZeroGroups {
         System.out.println("Number of zero groups: " + groups);
     }
 
+    private static void searchForGroupsUsingDfs(int[][] grid, boolean[][] visited, int i, int j, int rowSize, int columnSize) {
+
+        if (!(i < 0 || j < 0 || i >= rowSize || j >= columnSize || visited[i][j] || grid[i][j] != 0)) {
+            visited[i][j] = true;
+
+            searchForGroupsUsingDfs(grid, visited, i + 1, j, rowSize, columnSize);
+            searchForGroupsUsingDfs(grid, visited, i - 1, j, rowSize, columnSize);
+            searchForGroupsUsingDfs(grid, visited, i, j + 1, rowSize, columnSize);
+            searchForGroupsUsingDfs(grid, visited, i, j - 1, rowSize, columnSize);
+        }
+
+    }
+
     private int countZeroGroups(int[][] grid, int rowSize, int columnSize) {
 
         boolean[][] visited = new boolean[rowSize][columnSize];
@@ -35,19 +48,6 @@ public class NumberOfZeroGroups {
         }
 
         return count;
-
-    }
-
-    private static void searchForGroupsUsingDfs(int[][] grid, boolean[][] visited, int i, int j, int rowSize, int columnSize) {
-
-        if (!(i < 0 || j < 0 || i >= rowSize || j >= columnSize || visited[i][j] || grid[i][j] != 0)) {
-            visited[i][j] = true;
-
-            searchForGroupsUsingDfs(grid, visited, i + 1, j, rowSize, columnSize);
-            searchForGroupsUsingDfs(grid, visited, i - 1, j, rowSize, columnSize);
-            searchForGroupsUsingDfs(grid, visited, i, j + 1, rowSize, columnSize);
-            searchForGroupsUsingDfs(grid, visited, i, j - 1, rowSize, columnSize);
-        }
 
     }
 

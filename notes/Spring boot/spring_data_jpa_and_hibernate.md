@@ -689,38 +689,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
 1. **Use proper FetchType:**
    - `LAZY` for collections (default for `@OneToMany`, `@ManyToMany`)
-   - `EAGER` only when necessary to avoid N+1 queries
-
-2. **Cascade operations carefully:**
-   ```java
-   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-   private List<Child> children;  // Deletes child if removed from list
-   ```
-
-3. **Avoid circular references:**
-   ```java
-   // In one side use @JsonBackReference, other use @JsonManagedReference
-   @JsonManagedReference
-   @OneToMany(mappedBy = "department")
-   private List<Employee> employees;
-   
-   @JsonBackReference
-   @ManyToOne
-   private Department department;
-   ```
-
-
-## 12. Hibernate Cascading Types
-
-
-Cascading defines how operations performed on a parent entity propagate to its associated child entities. In Spring Data JPA, we specify this using the `cascade` attribute of relationship annotations (e.g. `@OneToMany(cascade = CascadeType.ALL)`).
-
-### Cascading Types:
-1. **`CascadeType.PERSIST`:** When the parent entity is saved (`persist()`), all associated child entities are automatically saved.
-2. **`CascadeType.MERGE`:** When the parent state is merged (`merge()`), child entity states are also merged.
-3. **`CascadeType.REMOVE`:** When the parent entity is deleted (`remove()`), all its associated child entities are deleted from the database.
-4. **`CascadeType.REFRESH`:** When the parent is reloaded/refreshed (`refresh()`), the child entities are also reloaded from the database.
-5. **`CascadeType.DETACH`:** When the parent is detached from the Hibernate Session/Persistence Context (`detach()`), the children are also detached.
 6. **`CascadeType.ALL`:** Applies all the above cascading operations together.
 
 ### JPA Cascade vs Hibernate Cascade:
@@ -733,7 +701,7 @@ Cascading defines how operations performed on a parent entity propagate to its a
 ---
 
 
-## 13. How do you record audit info (e.g. created/modified dates, user) for audit purposes in JPA?
+## 12. How do you record audit info (e.g. created/modified dates, user) for audit purposes in JPA?
 
 Spring Data JPA provides built-in support for entity auditing using annotations:
 
@@ -779,10 +747,31 @@ public class SecurityAuditorAware implements AuditorAware<String> {
 
 ---
 
-## 14. What is the difference between CrudRepository and JpaRepository?
+## 13. What is the difference between CrudRepository and JpaRepository?
 
-- **`CrudRepository`:** Part of the core Spring Data Commons project. It provides basic CRUD (Create, Read, Update, Delete) methods (`save()`, `findById()`, `delete()`) returning `Iterable`.
-- **`JpaRepository`:** Part of Spring Data JPA. It extends `ListCrudRepository` and `PagingAndSortingRepository`. It adds JPA-specific operations (e.g. `flush()` to sync state to DB, `deleteInBatch()`) and returns `List` instead of `Iterable`, reducing casts.
+```
+Repository (marker interface)
+   └── CrudRepository   ← basic CRUD operations
+        └── PagingAndSortingRepository  ← adds pagination + sorting
+             └── JpaRepository   ← adds JPA-specific methods
+```
 
-### Summary:
-Use `CrudRepository` for basic CRUD. Use `JpaRepository` when you need sorting, pagination, batch deletes, flushing, or JPA-specific optimizations.
+| Feature | CrudRepository | JpaRepository |
+|---|---|---|
+| **save() / findById()** | ✅ Supported | ✅ Supported |
+| **findAll() Return Type** | Returns `Iterable<T>` | Returns `List<T>` |
+| **Pagination & Sorting** | ❌ Not included | ✅ `findAll(Pageable)` & `findAll(Sort)` |
+| **Batch Delete** | ❌ Delete one by one | ✅ `deleteAllInBatch()`, `deleteInBatch()` |
+| **Flush / Sync to DB** | ❌ Instant DB sync not built-in | ✅ `saveAndFlush()`, `flush()` |
+| **Reference Fetching** | ❌ Only `findById()` | ✅ `getReferenceById()` (lazy proxy) |
+
+### When to use:
+- **`CrudRepository`:** For simple applications requiring only basic CRUD operations without JPA overhead.
+- **`JpaRepository`:** Standard choice for most Spring Boot applications needing pagination, sorting, batch deletes, and flushing.
+
+```java
+public interface OrderRepository extends JpaRepository<Order, Long> {
+    List<Order> findByCustomerId(Long customerId);
+    Page<Order> findByStatus(String status, Pageable pageable);
+}
+```

@@ -9,15 +9,15 @@ package com.mylearnings.java.java_code.core_java;
 
 public class CustomSingletonInitOnDemandIdiom {
 
-    private static class SingletonHelper {
-        private static final CustomSingletonInitOnDemandIdiom INSTANCE = new CustomSingletonInitOnDemandIdiom();
-    }
-
     private CustomSingletonInitOnDemandIdiom() {
     }
 
     public static CustomSingletonInitOnDemandIdiom getInstance() {
         return SingletonHelper.INSTANCE;
+    }
+
+    private static class SingletonHelper {
+        private static final CustomSingletonInitOnDemandIdiom INSTANCE = new CustomSingletonInitOnDemandIdiom();
     }
 
 }

@@ -342,3 +342,5 @@ The `proxyBeanMethods` attribute (introduced in Spring 5.2/Spring Boot 2.2) cont
   - Spring does not proxy the configuration class.
   - Direct internal calls to `@Bean` methods act like standard Java calls, instantiating and returning a **new object** each time.
   - **Benefits:** Improves application startup time and reduces memory usage (as CGLIB proxies are not generated). Use this if your configuration classes do not contain inter-dependent bean calls.
+
+

@@ -344,3 +344,105 @@ public class SafeResource implements AutoCloseable {
 }
 ```
 
+---
+
+
+## SOLID Principles with Examples
+
+
+### S — Single Responsibility Principle
+> A class should have only ONE reason to change.
+
+```java
+// BAD: One class doing too much
+public class OrderService {
+    public void placeOrder() { /* order logic */ }
+    public void sendEmail()  { /* email logic */ }  // Not order's job!
+    public void saveToDb()   { /* db logic */ }      // Not order's job!
+}
+
+// GOOD: Each class has one responsibility
+public class OrderService   { public void placeOrder() {} }
+public class EmailService   { public void sendEmail()  {} }
+public class OrderRepository{ public void save(Order o){} }
+```
+
+### O — Open/Closed Principle
+> Open for extension, closed for modification.
+
+```java
+// BAD: Adding new shape requires modifying existing code
+public double area(Shape s) {
+    if (s instanceof Circle)    return Math.PI * r * r;
+    if (s instanceof Rectangle) return w * h;
+    // Adding Triangle requires editing this method!
+}
+
+// GOOD: Each shape knows its own area
+public interface Shape { double area(); }
+public class Circle    implements Shape { public double area() { return Math.PI*r*r; }}
+public class Rectangle implements Shape { public double area() { return w*h; }}
+// Adding Triangle = new class, no existing code changes
+```
+
+### L — Liskov Substitution Principle
+> Subclasses must be replaceable by their parent without breaking the program.
+
+```java
+// BAD: Ostrich can't fly, but FlyingBird.fly() is expected to work
+class FlyingBird { public void fly() { } }
+class Ostrich extends FlyingBird {
+    public void fly() { throw new UnsupportedOperationException(); }  // VIOLATION!
+}
+
+// GOOD: Separate the hierarchy
+class Bird { }
+class FlyingBird extends Bird { public void fly() {} }
+class Sparrow extends FlyingBird { }  // Can fly ✅
+class Ostrich extends Bird { }        // Can't fly, not in FlyingBird hierarchy ✅
+// This is exactly the code asked in PeerIslands interview!
+```
+
+### I — Interface Segregation Principle
+> Don't force a class to implement methods it doesn't need.
+
+```java
+// BAD: Fat interface forces all classes to implement everything
+interface Worker { void work(); void eat(); void sleep(); }
+class Robot implements Worker {
+    public void work()  { /* ok */ }
+    public void eat()   { /* robots don't eat! Forced to implement */ }
+    public void sleep() { /* robots don't sleep! */ }
+}
+
+// GOOD: Split into focused interfaces
+interface Workable { void work(); }
+interface Eatable  { void eat();  }
+class Human implements Workable, Eatable { /* implements both */ }
+class Robot implements Workable          { /* only what it needs */ }
+```
+
+### D — Dependency Inversion Principle
+> Depend on abstractions, not concrete implementations.
+
+```java
+// BAD: High-level class depends on low-level EmailSender directly
+public class OrderService {
+    private EmailSender emailSender = new EmailSender(); // Tightly coupled!
+    public void placeOrder() { emailSender.send("Order placed"); }
+}
+
+// GOOD: Depend on the interface
+public interface NotificationService { void send(String msg); }
+public class EmailSender implements NotificationService { ... }
+public class SMSSender  implements NotificationService { ... }
+
+public class OrderService {
+    private final NotificationService notifier; // Abstraction
+    public OrderService(NotificationService notifier) {
+        this.notifier = notifier; // Inject via constructor
+    }
+    public void placeOrder() { notifier.send("Order placed"); }
+}
+// Can swap EmailSender -> SMSSender without changing OrderService!
+```

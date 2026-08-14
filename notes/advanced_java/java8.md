@@ -434,14 +434,26 @@ Employee nthHighestEmployee = employees.stream()
 
 Both methods are terminal operations used for reduction, but they differ in how they manage memory and data structures:
 
-- **`reduce()` (Immutable Reduction):**
-  - Combines elements to produce a single value (e.g., sum, min, max, concat) by repeatedly applying an accumulator function.
-  - It works with immutable values. In each step, it creates a new value/object (e.g., `s1 + s2` creates a new String).
-  - *Example:* `int sum = stream.reduce(0, (a, b) -> a + b);`
-- **`collect()` (Mutable Reduction):**
-  - Accumulates elements into a mutable container (like `List`, `Set`, `Map`, or `StringBuilder`).
-  - It modifies the same container object at each step (e.g., calling `list.add()`), which is far more efficient than creating new collections.
-  - *Example:* `List<String> list = stream.collect(Collectors.toList());`
+| Feature | `reduce()` (Immutable Reduction) | `collect()` (Mutable Reduction) |
+|---|---|---|
+| **Purpose** | Folds stream into a **single value** (sum, product, min, max) | Accumulates elements into a **mutable container** (List, Map, Set, String) |
+| **Return type** | Single value (`Optional<T>` or `T`) | Mutable collection or result container |
+| **Mutability** | Creates a new value/object at each step | Modifies the existing container (`list.add()`) |
+| **Use case** | Math aggregation, combining primitives | Grouping, partitioning, gathering to List/Map |
+
+```java
+List<Integer> nums = List.of(1, 2, 3, 4, 5);
+
+// reduce() - fold to single value
+int sum = nums.stream().reduce(0, Integer::sum); // → 15
+
+// collect() - gather into a collection
+List<Integer> list = nums.stream().filter(n -> n > 2).collect(Collectors.toList());
+
+// collect() - group by condition
+Map<Boolean, List<Integer>> grouped = nums.stream()
+    .collect(Collectors.partitioningBy(n -> n % 2 == 0)); // {false=[1, 3, 5], true=[2, 4]}
+```
 
 ---
 
@@ -449,22 +461,28 @@ Both methods are terminal operations used for reduction, but they differ in how 
 
 Given the list: `[2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10]`.
 
-### Stream Solution:
+### Approach 1: Set `add()` filter (O(N) time)
 ```java
-import java.util.*;
-import java.util.stream.Collectors;
+List<Integer> list = List.of(2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10);
 
-public class DuplicateFinder {
-    public static void main(String[] args) {
-        List<Integer> list = List.of(2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10);
-        
-        Set<Integer> uniques = new HashSet<>();
-        Set<Integer> duplicates = list.stream()
-            .filter(n -> !uniques.add(n)) // If add() returns false, it is a duplicate
-            .collect(Collectors.toSet());
-            
-        System.out.println("Duplicates: " + duplicates); 
-        // Output: [2, 3, 5, 6, 7, 8, 9]
-    }
-}
+Set<Integer> uniques = new HashSet<>();
+Set<Integer> duplicates = list.stream()
+    .filter(n -> !uniques.add(n)) // If add() returns false, it is a duplicate
+    .collect(Collectors.toSet());
+
+System.out.println("Duplicates: " + duplicates); 
+// Output: [2, 3, 5, 6, 7, 8, 9]
 ```
+
+### Approach 2: Frequency map with `groupingBy`
+```java
+list.stream()
+    .collect(Collectors.groupingBy(n -> n, Collectors.counting()))
+    .entrySet().stream()
+    .filter(e -> e.getValue() > 1)
+    .map(Map.Entry::getKey)
+    .sorted()
+    .forEach(System.out::println);
+// Output: 2, 3, 5, 6, 7, 8, 9
+```
+

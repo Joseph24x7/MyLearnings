@@ -105,3 +105,78 @@ Here is an overview of the key features introduced in both LTS releases:
 3. **Record Patterns (JEP 440):** Destructuring of Record values directly in pattern matching.
 4. **Sequenced Collections (JEP 431):** New interfaces introducing `getFirst()`, `getLast()`, and `reversed()` methods.
 5. **Generational ZGC (JEP 439):** Separates memory into young and old generations to increase throughput.
+
+---
+
+
+## 6. Virtual Threads — Deep Dive & Disadvantages
+
+
+
+### What is a Virtual Thread?
+A Virtual Thread (Project Loom, Java 21) is a **lightweight thread managed by the JVM**, not the OS.
+
+- Traditional platform thread = 1 OS thread = ~1MB stack memory. Limited to ~thousands.
+- Virtual thread = JVM manages it on a small number of **carrier (OS) threads**. Can create **millions**.
+- When a virtual thread blocks (e.g., DB call, HTTP call), the JVM **unmounts** it from the carrier thread, freeing the carrier thread to run other virtual threads.
+
+```java
+// Create 1 million virtual threads - no problem!
+try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+    for (int i = 0; i < 1_000_000; i++) {
+        executor.submit(() -> {
+            Thread.sleep(1000); // blocks - virtual thread unmounts, carrier thread is freed
+            return "done";
+        });
+    }
+}
+```
+
+### Disadvantages of Virtual Threads
+
+1. **Not suitable for CPU-bound tasks**
+   - Virtual threads shine for I/O-bound work (waiting). If your task is pure computation (no blocking), virtual threads offer no benefit over platform threads — you still block the carrier thread.
+   ```java
+   // Bad use case for virtual threads
+   Thread.ofVirtual().start(() -> {
+       heavyCryptographyCalculation(); // CPU-bound, no I/O, carrier thread is blocked
+   });
+   ```
+
+2. **Cannot limit concurrency like thread pools**
+   - With platform threads: `Executors.newFixedThreadPool(10)` limits 10 concurrent tasks.
+   - With virtual threads: you can't say "max 10 virtual threads". You need a `Semaphore` for that.
+   ```java
+   Semaphore semaphore = new Semaphore(10);
+   executor.submit(() -> {
+       semaphore.acquire();
+       try { doWork(); } finally { semaphore.release(); }
+   });
+   ```
+
+3. **Thread-local variables can be problematic**
+   - With millions of virtual threads, heavy use of `ThreadLocal` variables (storing large objects) can lead to high memory usage since each virtual thread gets its own copy.
+   - Java 21 introduces **Scoped Values** as a replacement for ThreadLocal in virtual thread contexts.
+
+4. **Pinning — synchronized blocks can pin the virtual thread to the carrier**
+   - If a virtual thread enters a `synchronized` block or calls a `native` method, it gets **pinned** to the carrier thread and cannot be unmounted — negating the benefit.
+   - Solution: Replace `synchronized` with `ReentrantLock` in virtual thread code.
+   ```java
+   // BAD with virtual threads - pins carrier thread
+   synchronized(lock) { callDatabase(); }
+
+   // GOOD with virtual threads
+   reentrantLock.lock();
+   try { callDatabase(); } finally { reentrantLock.unlock(); }
+   ```
+
+5. **Not a silver bullet for all performance problems**
+   - Virtual threads improve throughput for blocking I/O, but if your bottleneck is DB connection pool exhaustion, network bandwidth, or CPU — virtual threads won't help.
+
+| Situation | Use Virtual Threads? |
+|---|---|
+| REST API with many concurrent users (I/O bound) | ✅ Yes |
+| CPU-heavy number crunching | ❌ No |
+| Streaming with reactive (WebFlux already non-blocking) | ⚠️ Redundant |
+| Kafka consumers (high-volume, I/O waiting) | ✅ Yes |
+

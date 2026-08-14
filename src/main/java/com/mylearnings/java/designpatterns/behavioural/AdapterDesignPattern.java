@@ -2,14 +2,14 @@ package com.mylearnings.java.designpatterns.structural;
 
 /**
  * ADAPTER DESIGN PATTERN
- *
+ * <p>
  * PURPOSE:
  * Convert the interface of a class (Source / Adaptee)
  * into another interface (Target) that the client expects.
- *
+ * <p>
  * INTENT:
  * Enable incompatible interfaces to work together.
- *
+ * <p>
  * REAL JAVA API EXAMPLES:
  * - Arrays.asList(array)           -> Array (Source) to List (Target)
  * - InputStreamReader(InputStream) -> InputStream (Source) to Reader (Target)

@@ -4,6 +4,13 @@ import java.util.Arrays;
 
 public class FindLucky {
 
+    public static void main(String[] args) {
+        FindLucky fl = new FindLucky();
+        int[] arr = {4, 3, 2, 2, 4, 1, 3, 4, 3};
+        int result = fl.findLucky(arr);
+        System.out.println("Lucky Number: " + result);
+    }
+
     public int findLucky(int[] arr) {
         // return solution1(arr);
         return Solution2(arr);
@@ -17,8 +24,8 @@ public class FindLucky {
         }
         int maxLuckyNum = -1;
         for (int val : arr) {
-            if(arrCount[val - 1] == val){
-                if(val > maxLuckyNum){
+            if (arrCount[val - 1] == val) {
+                if (val > maxLuckyNum) {
                     maxLuckyNum = val;
                 }
             }
@@ -26,7 +33,6 @@ public class FindLucky {
         return maxLuckyNum;
 
     }
-
 
     private int solution1(int[] arr) {
 
@@ -51,13 +57,6 @@ public class FindLucky {
 
         return luckNum;
 
-    }
-
-    public static void main(String[] args) {
-        FindLucky fl = new FindLucky();
-        int[] arr = {4, 3, 2, 2, 4, 1, 3, 4, 3};
-        int result = fl.findLucky(arr);
-        System.out.println("Lucky Number: " + result);
     }
 
 }

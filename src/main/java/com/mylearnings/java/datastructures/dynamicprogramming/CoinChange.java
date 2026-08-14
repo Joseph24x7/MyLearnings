@@ -7,7 +7,7 @@ public class CoinChange {
     void main() {
 
         CoinChange obj = new CoinChange();
-        int[] coins = {1,2,5};
+        int[] coins = {1, 2, 5};
         int amount = 11;
         int result = obj.coinChange(coins, amount);
         System.out.println("Minimum coins needed: " + result);
@@ -32,7 +32,7 @@ public class CoinChange {
                 count++;
             }
 
-            if(amount == 0) {
+            if (amount == 0) {
                 return count;
             }
 
@@ -45,7 +45,6 @@ public class CoinChange {
         }
 
         return -1;
-
 
 
     }

@@ -18,6 +18,8 @@
 - API response mapping
 - Data model transformations
 
+---
+
 ## 2. Lombok Library
 
 ### Purpose

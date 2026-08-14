@@ -4,6 +4,19 @@ import lombok.Data;
 
 class BSTMainClass {
 
+    private static boolean areBinaryTreeIdentical(TreeNode bst1, TreeNode bst2) {
+        if (bst1 == null && bst2 == null) {
+            return true;
+        } else if (bst1 == null || bst2 == null) {
+            return false;
+        } else if (!bst1.getVal().equals(bst2.getVal())) {
+            return false;
+        }
+        boolean leftIdentical = areBinaryTreeIdentical(bst1.getLeft(), bst2.getLeft());
+        boolean rightIdentical = areBinaryTreeIdentical(bst1.getRight(), bst2.getRight());
+        return leftIdentical && rightIdentical;
+    }
+
     void main() {
 
         BinaryTree bst = new BinaryTree();
@@ -23,19 +36,6 @@ class BSTMainClass {
         boolean areBinaryTreeIdentical = areBinaryTreeIdentical(bst.getHead(), bst2.getHead());
         System.out.println("areBinaryTreeIdentical: " + areBinaryTreeIdentical);
 
-    }
-
-    private static boolean areBinaryTreeIdentical(TreeNode bst1, TreeNode bst2) {
-        if (bst1 == null && bst2 == null) {
-            return true;
-        } else if (bst1 == null || bst2 == null) {
-            return false;
-        } else if (!bst1.getVal().equals(bst2.getVal())) {
-            return false;
-        }
-        boolean leftIdentical = areBinaryTreeIdentical(bst1.getLeft(), bst2.getLeft());
-        boolean rightIdentical = areBinaryTreeIdentical(bst1.getRight(), bst2.getRight());
-        return leftIdentical && rightIdentical;
     }
 
 }

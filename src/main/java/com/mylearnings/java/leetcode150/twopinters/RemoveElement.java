@@ -1,7 +1,5 @@
 package com.mylearnings.java.leetcode150.twopinters;
 
-import java.util.Arrays;
-
 public class RemoveElement {
 
     public static void main(String[] args) {
@@ -12,8 +10,8 @@ public class RemoveElement {
     public int removeElement(int[] nums, int val) {
 
         int i = 0, index = 0;
-        while(i < nums.length) {
-            if(nums[i]!=val) {
+        while (i < nums.length) {
+            if (nums[i] != val) {
                 nums[index] = nums[i];
                 index++;
             }

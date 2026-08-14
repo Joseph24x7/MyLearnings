@@ -120,4 +120,214 @@ Designing a highly scalable, real-time messaging system like WhatsApp requires s
    - Gateway checks Redis to see if the Receiver is online and which WebSocket Gateway server they are connected to.
    - If **Online:** The gateway server forwards the message via their active WebSocket connection. Once the Receiver's client acknowledges receipt, the server updates status to `DELIVERED` (double ticks) and notifies the Sender.
    - If **Offline:** Chat service saves the message. The gateway triggers the **Push Notification Service** (using Firebase FCM or Apple APNS) to wake up the Receiver's phone. When they come online, their client pulls unread messages.
-
+
+---
+
+## 7. Design LRU (Least Recently Used) Cache
+
+
+An LRU Cache evicts the **least recently used** item when the cache is full.
+
+### Key Operations (both must be O(1)):
+- `get(key)` — return value if exists, else -1
+- `put(key, value)` — insert; if full, evict LRU item first
+
+### Data Structure: HashMap + Doubly Linked List
+- **HashMap**: O(1) key lookup → points to node in linked list
+- **Doubly Linked List**: tracks recency order (MRU at head, LRU at tail)
+
+```
+Dummy Head ←→ [Most Recently Used] ←→ ... ←→ [Least Recently Used] ←→ Dummy Tail
+              ↑ move here on access                                    ↑ evict from here
+```
+
+### Implementation:
+```java
+class LRUCache {
+
+    // Node for doubly linked list
+    private static class Node {
+        int key, val;
+        Node prev, next;
+        Node(int k, int v) { key = k; val = v; }
+    }
+
+    private final int capacity;
+    private final Map<Integer, Node> map;   // key → node
+    private final Node head, tail;           // dummy sentinels
+
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+        map = new HashMap<>();
+        head = new Node(0, 0);  // Most Recently Used side
+        tail = new Node(0, 0);  // Least Recently Used side
+        head.next = tail;
+        tail.prev = head;
+    }
+
+    public int get(int key) {
+        if (!map.containsKey(key)) return -1;
+        Node node = map.get(key);
+        moveToFront(node);       // accessed → becomes MRU
+        return node.val;
+    }
+
+    public void put(int key, int value) {
+        if (map.containsKey(key)) {
+            Node node = map.get(key);
+            node.val = value;
+            moveToFront(node);
+        } else {
+            if (map.size() == capacity) {
+                // Evict LRU (node just before tail)
+                Node lru = tail.prev;
+                remove(lru);
+                map.remove(lru.key);
+            }
+            Node newNode = new Node(key, value);
+            insertAtFront(newNode);
+            map.put(key, newNode);
+        }
+    }
+
+    // Remove node from its current position
+    private void remove(Node node) {
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+    }
+
+    // Insert node right after dummy head (MRU position)
+    private void insertAtFront(Node node) {
+        node.next = head.next;
+        node.prev = head;
+        head.next.prev = node;
+        head.next = node;
+    }
+
+    private void moveToFront(Node node) {
+        remove(node);
+        insertAtFront(node);
+    }
+}
+```
+
+### Usage:
+```java
+LRUCache cache = new LRUCache(3);
+cache.put(1, 1);  // cache: [1]
+cache.put(2, 2);  // cache: [2, 1]
+cache.put(3, 3);  // cache: [3, 2, 1]
+cache.get(1);     // returns 1, cache: [1, 3, 2] (1 becomes MRU)
+cache.put(4, 4);  // evicts 2 (LRU), cache: [4, 1, 3]
+cache.get(2);     // returns -1 (evicted)
+```
+
+**Time Complexity:** O(1) for both get and put
+**Space Complexity:** O(capacity)
+
+> **Java shortcut:** `LinkedHashMap` with `accessOrder=true` can implement LRU in ~10 lines, but interviewers usually want the manual implementation above.
+
+---
+
+
+## 8. Design: High-Volume Country Code Validation Microservice
+
+
+
+**Requirements:** Validate and return country codes. Multiple consumers. High throughput, low latency, scalable, fault tolerant.
+
+### Key Insight: Country codes are **static reference data** (rarely/never change). This makes caching the central design decision.
+
+### Architecture:
+```
+Consumers (multiple services/clients)
+    │  REST / gRPC
+    ▼
+[API Gateway]  ← rate limiting, auth, routing
+    │
+    ▼
+[CountryCode Service]  (multiple instances, stateless)
+    │         │
+    ▼         ▼
+[In-Memory   [Redis Cache]   ← shared across instances
+  Cache]          │
+(Caffeine)        ▼ (only on cache miss)
+              [DB / Config File]
+```
+
+### Spring Boot Implementation:
+
+```java
+@Service
+public class CountryCodeService {
+
+    // In-memory Caffeine cache (per instance, nanosecond access)
+    private final LoadingCache<String, CountryCode> localCache = Caffeine.newBuilder()
+            .expireAfterWrite(1, TimeUnit.HOURS)
+            .maximumSize(300)  // ~250 countries
+            .build(this::loadFromRedis);
+
+    @Autowired private RedisTemplate<String, CountryCode> redisTemplate;
+    @Autowired private CountryCodeRepository repository;
+
+    public CountryCode validate(String code) {
+        return localCache.get(code.toUpperCase()); // O(1), nanoseconds
+    }
+
+    // Cache-aside pattern: Caffeine → Redis → DB
+    private CountryCode loadFromRedis(String code) {
+        CountryCode cached = redisTemplate.opsForValue().get("cc:" + code);
+        if (cached != null) return cached;
+
+        CountryCode fromDb = repository.findByCode(code)
+                .orElseThrow(() -> new CountryCodeNotFoundException(code));
+
+        redisTemplate.opsForValue().set("cc:" + code, fromDb, 24, TimeUnit.HOURS);
+        return fromDb;
+    }
+}
+```
+
+```java
+@RestController
+@RequestMapping("/api/country-codes")
+public class CountryCodeController {
+
+    @GetMapping("/{code}")
+    public ResponseEntity<CountryCode> validate(@PathVariable String code) {
+        return ResponseEntity.ok(countryCodeService.validate(code));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<CountryCode>> getAll() {
+        return ResponseEntity.ok(countryCodeService.getAll());
+    }
+}
+```
+
+### Design Decisions:
+
+| Concern | Solution |
+|---|---|
+| **High throughput** | In-memory Caffeine cache (nanosecond reads, no network) |
+| **Low latency** | 2-level cache: Caffeine (local) → Redis (shared) → DB (last resort) |
+| **Multiple consumers** | Stateless service instances behind load balancer; Redis as shared cache |
+| **Scalability** | Stateless pods → horizontal scaling with Kubernetes HPA |
+| **Fault tolerance** | Circuit breaker (Resilience4J) on DB/Redis calls; fallback to local cache |
+| **Cache invalidation** | When country codes update: publish event to Kafka → all instances evict local cache |
+| **Data freshness** | Country codes are ISO standard, change almost never. 24h TTL is safe. |
+
+### Cache Invalidation on Update:
+```java
+// Admin updates a country code
+@KafkaListener(topics = "country-code-updates")
+public void onUpdate(CountryCodeUpdatedEvent event) {
+    localCache.invalidate(event.getCode());          // evict from Caffeine
+    redisTemplate.delete("cc:" + event.getCode());   // evict from Redis
+    // Next call will reload from DB
+}
+```
+
+**Why not just use a database directly?**
+- DB call = ~5-50ms. At 10,000 RPS that's 50,000ms of thread wait time per second.
+- Caffeine cache = ~100ns. Same 10,000 RPS = negligible overhead.

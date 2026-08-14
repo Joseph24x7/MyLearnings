@@ -53,7 +53,7 @@ public class FindAdjacentElements {
     }
 
     private static void computeTheAdjacent(List<Integer> finalList, int left, int right, int[][] arr) {
-        if (left >= 0 && left < arr.length && right>=0 && right < arr.length) {
+        if (left >= 0 && left < arr.length && right >= 0 && right < arr.length) {
             finalList.add(arr[left][right]);
         }
     }

@@ -2,9 +2,8 @@ package com.mylearnings.java.java_code.custom_collections;
 
 public class CustomList<T> {
 
-    int size = 0;
     private static final int DEFAULT_CAPACITY = 10;
-
+    int size = 0;
     private Object[] elements;
 
     public CustomList() {

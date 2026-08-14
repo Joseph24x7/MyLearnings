@@ -2,6 +2,28 @@ package com.mylearnings.java.leetcode150.linkedlist;
 
 public class AddTwoNumbers {
 
+    public static void main(String[] args) {
+
+        AddTwoNumbers adder = new AddTwoNumbers();
+
+        // l1 = [9,9,9,9,9,9,9]
+        ListNode l1 = new ListNode(9);
+        l1.next = new ListNode(9);
+        l1.next.next = new ListNode(9);
+        l1.next.next.next = new ListNode(9);
+        l1.next.next.next.next = new ListNode(9);
+        l1.next.next.next.next.next = new ListNode(9);
+        l1.next.next.next.next.next.next = new ListNode(9);
+
+        // l2 = [9,9,9,9]
+        ListNode l2 = new ListNode(9);
+        l2.next = new ListNode(9);
+        l2.next.next = new ListNode(9);
+        l2.next.next.next = new ListNode(9);
+
+        adder.addTwoNumbers(l1, l2);
+    }
+
     public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
 
         ListNode headNode = new ListNode(-1);
@@ -23,7 +45,7 @@ public class AddTwoNumbers {
             }
 
             carry = sum / 10;
-            tailNode.next = new ListNode(sum%10);
+            tailNode.next = new ListNode(sum % 10);
             tailNode = tailNode.next;
         }
 
@@ -41,28 +63,6 @@ public class AddTwoNumbers {
             tailNode = tailNode.next;
             return 1;
         }
-    }
-
-    public static void main(String[] args) {
-
-        AddTwoNumbers adder = new AddTwoNumbers();
-
-        // l1 = [9,9,9,9,9,9,9]
-        ListNode l1 = new ListNode(9);
-        l1.next = new ListNode(9);
-        l1.next.next = new ListNode(9);
-        l1.next.next.next = new ListNode(9);
-        l1.next.next.next.next = new ListNode(9);
-        l1.next.next.next.next.next = new ListNode(9);
-        l1.next.next.next.next.next.next = new ListNode(9);
-
-        // l2 = [9,9,9,9]
-        ListNode l2 = new ListNode(9);
-        l2.next = new ListNode(9);
-        l2.next.next = new ListNode(9);
-        l2.next.next.next = new ListNode(9);
-
-        adder.addTwoNumbers(l1, l2);
     }
 
 

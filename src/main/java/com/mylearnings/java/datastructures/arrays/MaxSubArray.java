@@ -1,8 +1,8 @@
 package com.mylearnings.java.datastructures.arrays;
 
-import java.util.Arrays;
-
-/** Sliding Window **/
+/**
+ * Sliding Window
+ **/
 public class MaxSubArray {
 
     public static void main(String[] args) {
@@ -12,15 +12,15 @@ public class MaxSubArray {
 
         int currentSum = 0;
         int maxSum = 0;
-        for (int i=0; i<k; i++) {
+        for (int i = 0; i < k; i++) {
             currentSum = currentSum + arr[i];
         }
-        maxSum=  currentSum;
+        maxSum = currentSum;
 
-        for(int i=1; i<arr.length-k; i++) {
+        for (int i = 1; i < arr.length - k; i++) {
 
-            currentSum = currentSum - arr[i-1] + arr[i+k-1];
-            if(maxSum < currentSum) {
+            currentSum = currentSum - arr[i - 1] + arr[i + k - 1];
+            if (maxSum < currentSum) {
                 maxSum = currentSum;
             }
 
