@@ -1,114 +1,180 @@
-package com.mylearnings.java.datastructures.hashtable;
+package com.mylearnings.java;
+
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
-/**
- * LeetCode 146 - LRU Cache
- * <p>
- * Design a data structure that follows Least Recently Used (LRU) eviction policy.
- * <p>
- * Approach: HashMap + Doubly Linked List
- * - HashMap  → O(1) key lookup (key → node)
- * - DLL      → O(1) insert/remove, tracks recency (MRU at head, LRU at tail)
- * <p>
- * Time:  O(1) for both get() and put()
- * Space: O(capacity)
- * <p>
- * Layout:
- * DummyHead ↔ [MRU] ↔ ... ↔ [LRU] ↔ DummyTail
- * ↑ move here on access   ↑ evict from here
- */
 public class LRUCache {
 
-    private final int capacity;
-    private final Map<Integer, Node> map;  // key → node reference
-    private final Node head, tail;          // dummy sentinels (avoid null checks)
-    public LRUCache(int capacity) {
-        this.capacity = capacity;
-        map = new HashMap<>();
-        head = new Node(0, 0);  // MRU side sentinel
-        tail = new Node(0, 0);  // LRU side sentinel
+    private final int maxSize;
+    private final LinkedList<Node> linkedList = new LinkedList<>();
+    private final Map<Integer, Node> hashMap = new HashMap<>();
+
+    public LRUCache(int maxSize) {
+        this.maxSize = maxSize;
+        Node head = new Node(-1, -1);
+        Node tail = new Node(-2, -2);
         head.next = tail;
-        tail.prev = head;
+        linkedList.addFirst(head);
+        linkedList.addLast(tail);
     }
 
-    // ── Test ──────────────────────────────────────────────────────────────────
-    public static void main(String[] args) {
-        LRUCache cache = new LRUCache(3);
+    public void insertData(Integer key, Integer value) {
 
-        cache.put(1, 1);         // cache: [1]
-        cache.put(2, 2);         // cache: [2, 1]
-        cache.put(3, 3);         // cache: [3, 2, 1]
-        System.out.println(cache.get(1));  // 1  → cache: [1, 3, 2]
-        cache.put(4, 4);         // evicts 2 (LRU) → cache: [4, 1, 3]
-        System.out.println(cache.get(2));  // -1 (evicted)
-        System.out.println(cache.get(3));  // 3  → cache: [3, 4, 1]
-        System.out.println(cache.get(4));  // 4  → cache: [4, 3, 1]
-    }
+        Node head = linkedList.getFirst();
+        Node tail = linkedList.getLast();
 
-    // ── get: O(1) ─────────────────────────────────────────────────────────────
-    public int get(int key) {
-        if (!map.containsKey(key)) return -1;
-        Node node = map.get(key);
-        moveToFront(node);   // mark as most recently used
-        return node.val;
-    }
+        if (hashMap.size() >= maxSize) {
 
-    // ── put: O(1) ─────────────────────────────────────────────────────────────
-    public void put(int key, int value) {
-        if (map.containsKey(key)) {
-            // Update existing
-            Node node = map.get(key);
-            node.val = value;
-            moveToFront(node);
+            Node last = tail.prev;
+
+            hashMap.remove(last.getKey());
+
+            last.prev.next = tail;
+            tail.prev = last.prev;
+        }
+
+        if (head.next == tail) {
+
+            Node node = new Node(key, value);
+
+            head.next = node;
+            node.prev = head;
+
+            node.next = tail;
+            tail.prev = node;
+
+            hashMap.put(key, node);
+
+        } else if (hashMap.containsKey(key)) {
+
+            Node existing = hashMap.get(key);
+
+            existing.value = value;
+
+            Node prev = existing.prev;
+            Node next = existing.next;
+
+            prev.next = next;
+            next.prev = prev;
+
+            Node first = head.next;
+
+            first.prev = existing;
+            head.next = existing;
+
+            existing.prev = head;
+            existing.next = first;
+
+            hashMap.put(key, existing);
+
         } else {
-            if (map.size() == capacity) {
-                // Evict LRU (node just before tail)
-                Node lru = tail.prev;
-                remove(lru);
-                map.remove(lru.key);
-            }
-            Node newNode = new Node(key, value);
-            insertAtFront(newNode);
-            map.put(key, newNode);
+
+            Node node = new Node(key, value);
+
+            node.next = head.next;
+            node.prev = head;
+
+            head.next.prev = node;
+            head.next = node;
+
+            hashMap.put(key, node);
         }
     }
 
-    // ── Linked List helpers ────────────────────────────────────────────────────
+    public Integer get(Integer key) {
 
-    /**
-     * Remove node from its current position in the list
-     */
-    private void remove(Node node) {
-        node.prev.next = node.next;
-        node.next.prev = node.prev;
-    }
+        Node head = linkedList.getFirst();
 
-    /**
-     * Insert node right after dummy head (MRU position)
-     */
-    private void insertAtFront(Node node) {
-        node.next = head.next;
-        node.prev = head;
-        head.next.prev = node;
-        head.next = node;
-    }
+        if (hashMap.containsKey(key)) {
 
-    private void moveToFront(Node node) {
-        remove(node);
-        insertAtFront(node);
-    }
+            Node existing = hashMap.get(key);
 
-    // ── Doubly Linked List Node ────────────────────────────────────────────────
-    private static class Node {
-        int key, val;
-        Node prev, next;
+            Node existingPrev = existing.prev;
+            Node existingNext = existing.next;
 
-        Node(int key, int val) {
-            this.key = key;
-            this.val = val;
+            existingPrev.next = existingNext;
+            existingNext.prev = existingPrev;
+
+            existing.next = head.next;
+            existing.prev = head;
+
+            head.next.prev = existing;
+            head.next = existing;
+
         }
+
+        return hashMap.get(key).value;
+    }
+
+    public boolean remove(Integer key) {
+
+        Node existing = hashMap.get(key);
+
+        Node existingPrev = existing.prev;
+        Node existingNext = existing.next;
+
+        existingPrev.next = existingNext;
+        existingNext.prev = existingPrev;
+
+        hashMap.remove(key);
+
+        return true;
+    }
+
+    public void print() {
+
+        Node head = linkedList.getFirst();
+
+        while (head != null) {
+
+            System.out.println(head.key + ":" + head.value);
+
+            head = head.next;
+
+        }
+
+    }
+
+}
+
+@Getter
+@Setter
+class Node {
+
+    int key;
+    int value;
+
+    Node prev;
+    Node next;
+
+    public Node(int key, int value) {
+        this.key = key;
+        this.value = value;
+    }
+
+}
+
+class MainClass {
+
+    static void main() {
+
+        LRUCache lruCache = new LRUCache(10);
+        lruCache.insertData(1, 10);
+        lruCache.insertData(2, 101);
+        lruCache.insertData(4, 10);
+        lruCache.insertData(2, 10);
+
+        lruCache.get(1);
+
+        lruCache.remove(2);
+
+        lruCache.print();
+
     }
 
 }
